@@ -1,3 +1,51 @@
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.buildlog/
+.history
+.svn/
+migrate_working_dir/
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+*/build/
+.casperr/
+android/
+ios/
+web/
+windows/
+macos/
+linux/
+
+# Symbolication related
+app.*.symbols
+
+# Obfuscation related
+app.*.map.json
+
+# Android Studio will place build artifacts here
+/android/app/debug
+/android/app/profile
+/android/app/release
+
 # General
 .DS_Store
 .AppleDouble
@@ -26,36 +74,76 @@ Temporary Items
 .apdisk
 bin/*
 
+# Dart
+.dart_tool
+.metadata
+.lock
+android
+build
+ios
+linux
+macos
+web
+windows
+
 # Ignore release folder
 Release/
 node_modules
 
-target/
 target/classes
 target/maven-status
-target/surefire-reports
+
+# Windows specific
+Thumbs.db
+Thumbs.db:encryptable
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# Linux specific
+.tmp
+.swp
+.Trash-*
+.cache/
+
+# Java specific
+# Compiled class file
 *.class
-dades.sqlite
 
-.continue
+# Log file
+*.log
 
-# Ignore pycache
-__pycache__
+# BlueJ files
+*.ctxt
 
-# Flutter/Dart/Pub related
-**/doc/api/
-**/ios/Flutter/.last_build_id
-.dart_tool/
-.flutter-plugins
-.flutter-plugins-dependencies
-.pub-cache/
-.pub/
-build/
-*/build/
-.casperr/
-android/
-ios/
-web/
-windows/
-macos/
-linux/
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# Package Files #
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# JavaFX
+*.jfx
+
+# Virtual machine crash logs
+hs_err_pid*
+
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+
+# Python and homebrew
+myenv
