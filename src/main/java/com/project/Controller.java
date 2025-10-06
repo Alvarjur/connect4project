@@ -25,7 +25,7 @@ public class Controller implements Initializable{
         gc = canvas.getGraphicsContext2D();
         canvas_width = canvas.getWidth();
         canvas_height = canvas.getHeight();
-        board = new Board(20,50, 6,7);
+        board = new Board(20,100, 6,7);
         
 
         draw();
