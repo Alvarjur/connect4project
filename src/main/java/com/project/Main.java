@@ -13,8 +13,8 @@ import javafx.stage.Stage;
 
 public class Main extends Application {
 
-    public static final int WINDOW_WIDTH = 900;
-    public static final int WINDOW_HEIGHT = 600;
+    public static int WINDOW_WIDTH = 900;
+    public static int WINDOW_HEIGHT = 600;
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -34,9 +34,14 @@ public class Main extends Application {
         scene.widthProperty().addListener((ChangeListener<? super Number>) new ChangeListener<Number>() {
                     @Override
                     public void changed(ObservableValue<? extends Number> observable, Number oldWidth, Number newWidth) {
-                        ((Controller) UtilsViews.getController("layout")).draw();
+                        
+                        Controller.setNewWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+                        ((Controller) UtilsViews.getController("layout")).update();
+                        
                     } 
                 });
+
+
 
         // Afegeix una icona només si no és un Mac
         if (!System.getProperty("os.name").contains("Mac")) {
