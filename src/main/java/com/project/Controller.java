@@ -62,7 +62,7 @@ public class Controller implements Initializable{
 
         canvas.setOnMouseMoved(event -> {
             Controller.setMousePos(event.getSceneX(), event.getSceneY());
-            game.setPlayersDragging(false);
+
             update();
         });
 
@@ -70,6 +70,12 @@ public class Controller implements Initializable{
             Controller.setMousePos(event.getSceneX(), event.getSceneY());
             game.setPlayersDragging(true);
             
+            update();
+        });
+
+        canvas.setOnMouseReleased(event -> {
+            game.setPlayersDragging(false);
+            System.out.println("released");
             update();
         });
 
@@ -103,6 +109,7 @@ public class Controller implements Initializable{
         public void draw() {
             game.artist.drawDraggableChips();
             game.artist.draw();
+            game.artist.drawChipsDragging();
             
             
         }
@@ -120,18 +127,26 @@ public class Controller implements Initializable{
         private double draggableChips_red_y = 100;
         private double draggableChips_yellow_x = 800;
         private double draggableChips_yellow_y = 100;
-        private DraggableChip redDraggableChip = new DraggableChip(draggableChips_red_x, draggableChips_red_y, redColor, player1);
-        private DraggableChip yellowDraggableChip = new DraggableChip(draggableChips_yellow_x, draggableChips_yellow_y, yellowColor, player2);
+        private DraggableChip redDraggableChip;
+        private DraggableChip yellowDraggableChip;
+        private ArrayList<DraggableChip> draggableChips = new ArrayList<DraggableChip>();
+        private Chip currentChip;
 
 
         public Game() {
             currentPlayer = 1; // Red starts
-            artist = new GameArtist();
+            
             board = new Board(6,7);
             player1 = new Player(1, 50, 50);
             player2 = new Player(2, 150, 50);
             players.add(player1);
             players.add(player2);
+
+            redDraggableChip = new DraggableChip(draggableChips_red_x, draggableChips_red_y, redColor, player1);
+            yellowDraggableChip = new DraggableChip(draggableChips_yellow_x, draggableChips_yellow_y, yellowColor, player2);
+            draggableChips.add(redDraggableChip);
+            draggableChips.add(yellowDraggableChip);
+            artist = new GameArtist();
 
         }
 
@@ -153,16 +168,28 @@ public class Controller implements Initializable{
             player2.setPosition(mouse_x + 100, mouse_y);
         }
 
-        public boolean isPlayerDraggingChip(Player player, DraggableChip chip) {
-            return chip.isPlayerDragging(player) && player.isDragging;
+        public boolean isPlayerDraggingChip(Player player, DraggableChip draggableChip) {
+            return draggableChip.isPlayerDraggingThisChip();
+            
         }
 
         public void updateLogic() {
             if (isPlayerDraggingChip(player1, redDraggableChip)) {
+                currentChip = player1.takeChip();
+                redDraggableChip.setIsBeingDragged(true);
                 System.out.println("red dragging");
+            } else {
+                redDraggableChip.setIsBeingDragged(false);
+                currentChip = null;
             }
             if (isPlayerDraggingChip(player2, yellowDraggableChip)) {
+                currentChip = player2.takeChip();
+                yellowDraggableChip.setIsBeingDragged(true);
+                
                 System.out.println("yellow dragging");
+            } else {
+                yellowDraggableChip.setIsBeingDragged(false);
+                currentChip = null;
             }
         }
 
@@ -175,8 +202,8 @@ public class Controller implements Initializable{
             }
 
             public void drawBoard(Board board) {
-            board.artist.draw();
-        }
+                board.artist.draw();
+            }
 
             public void drawChip(Chip chip) {
                 chip.artist.draw();
@@ -187,6 +214,23 @@ public class Controller implements Initializable{
                 redDraggableChip.artist.draw();
                 yellowDraggableChip.artist.draw();
 
+            }
+
+            public void drawChipsDragging() {
+                if (isPlayerDraggingChip(player1, redDraggableChip)) {
+                    currentChip = createChip(1);
+                    currentChip.artist.drawOnPlayer(player1);
+                    // Drawing the player again so it appears on top of the chip
+                    player1.artist.draw();
+                    board.artist.drawPossibleMoves();
+                }
+                if (isPlayerDraggingChip(player2, yellowDraggableChip)) {
+                    currentChip = createChip(2);
+                    currentChip.artist.drawOnPlayer(player2);
+                    // Drawing the player again so it appears on top of the chip
+                    player2.artist.draw();
+                    board.artist.drawPossibleMoves();
+                }
             }
         }
 
@@ -210,13 +254,28 @@ public class Controller implements Initializable{
                 this.beingDragged = beingDragged;
             }
 
-            public boolean isPlayerDragging(Player player) {
-                if (player.x > x && player.x < x + diameter &&
-                    player.y > y && player.y < y + diameter) {
-                        setIsBeingDragged(true);
-                        return true;
+            public boolean isPlayerDraggingThisChip() {
+                if(!isPlayerDragging()) return false;
+
+                if(beingDragged) return true;
+
+                if (isPlayerOverChip() && isPlayerDragging()) {
+                    setIsBeingDragged(true);
+                    return true;
                 }
                 setIsBeingDragged(false);
+                return false;
+            }
+
+            public boolean isPlayerDragging() {
+                return assignedPlayer.isDragging;
+            }
+
+            public boolean isPlayerOverChip() {
+                if (assignedPlayer.x >= x && assignedPlayer.x <= x + diameter &&
+                    assignedPlayer.y >= y && assignedPlayer.y <= y + diameter) {
+                        return true;
+                    }
                 return false;
             }
 
@@ -251,6 +310,10 @@ public class Controller implements Initializable{
             this.y = y;
         }
 
+        public Chip takeChip() {
+            return createChip(playerNumber);
+        }
+
         class PlayerArtist implements drawable {
             private double radius = CELL_SIZE/3;
             private Color color1 = new Color(1,0,0,0.5);
@@ -281,6 +344,11 @@ public class Controller implements Initializable{
             grid = new int[rows][cols];
             artist = new BoardArtist(20,100, rows, cols);
             grid[5][6] = 1; // for testing
+            grid[4][6] = 2; // for testing
+            grid[3][6] = 1; // for testing
+            grid[2][6] = 2; // for testing
+            grid[1][6] = 1; // for testing
+            grid[0][6] = 1; // for testing
             grid[5][5] = 2; // for testing
             
         }
@@ -313,6 +381,17 @@ public class Controller implements Initializable{
                 return false;
             }
 
+            public ArrayList<Integer> getNotFullColumns() {
+                ArrayList<Integer> notFullCols = new ArrayList<Integer>();
+                for (int col = 0; col < grid[0].length; col++) {
+                    if (grid[0][col] == 0) {
+                        notFullCols.add(col);
+                    }
+                }
+
+                return notFullCols;
+            }
+
             @Override
             public void draw() {
                 gc.setFill(boardColor);
@@ -337,30 +416,43 @@ public class Controller implements Initializable{
                     }
                 }
             }
+
+            public void drawPossibleMoves() {
+                ArrayList<Integer> notFullCols = getNotFullColumns();
+                gc.setFill(new Color(0,1,0,0.3));
+                for (int col : notFullCols) {
+                    double x = this.x + margin/2 + col * (CELL_SIZE + space_between);
+                    double y = (this.y + margin/2) - CELL_SIZE - space_between;
+                    gc.fillOval(x, y, CELL_SIZE, CELL_SIZE);
+                }
+            }
+
+
         }
     }
 
     class Chip {
         private int player; // 1 o 2
         private ChipArtist artist;
+        private double x, y;
 
-        public Chip(int player) {
+        public Chip(int player, double x, double y) {
+            this.x = x;
+            this.y = y;
             this.player = player;
-            this.artist = new ChipArtist(0, 0, CELL_SIZE, this.player);
+            this.artist = new ChipArtist(CELL_SIZE, this.player);
         }
 
         class ChipArtist implements drawable {
-            private double x, y;
             private double diameter;
             private Color color;
-            public ChipArtist(double x, double y, double diameter, int player) {
+            public ChipArtist(double diameter, int player) {
                 if (player == 1) {
                     this.color = redColor;
                 } else {
                     this.color = yellowColor;
                 }
-                this.x = x;
-                this.y = y;
+
                 this.diameter = diameter;
 
             }
@@ -368,11 +460,16 @@ public class Controller implements Initializable{
                 gc.setFill(color);
                 gc.fillOval(x, y, diameter, diameter);
             }
+
+            public void drawOnPlayer(Player player) {
+                gc.setFill(color);
+                gc.fillOval(player.x - diameter/2, player.y - diameter/2, diameter, diameter);
+            }
         }
     }
 
     public Chip createChip(int player) {
-        return new Chip(player);
+        return new Chip(player, game.players.get(player - 1).x, game.players.get(player - 1).y);
     }
 
 
