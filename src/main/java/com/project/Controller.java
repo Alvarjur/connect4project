@@ -87,27 +87,23 @@ public class Controller implements Initializable{
     public void updateWindowSize() {
         canvas_width = canvas.getWidth();
         canvas_height = canvas.getHeight();
-        draw();
-    }
-
-    public void draw() {
-        gc.clearRect(0, 0, canvas_width, canvas_height);
-        gc.setFill(boardColor);
         artist.draw();
-
-
     }
+
+    
 
     public void update() {
         game.updatePlayerPositions();
         game.updateLogic();
-        draw();
+        artist.draw();
     }
 
     class Artist implements drawable{
         
         @Override
         public void draw() {
+            gc.clearRect(0, 0, canvas_width, canvas_height);
+            gc.setFill(boardColor);
             game.artist.drawDraggableChips();
             game.artist.draw();
             game.artist.drawChipsDragging();
