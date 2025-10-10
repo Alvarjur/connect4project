@@ -76,6 +76,7 @@ public class Controller implements Initializable{
         canvas.setOnMouseReleased(event -> {
             game.setPlayersDragging(false);
             System.out.println("released");
+            game.checkReleases();
             update();
         });
 
@@ -136,7 +137,7 @@ public class Controller implements Initializable{
         public Game() {
             currentPlayer = 1; // Red starts
             
-            board = new Board(6,7);
+            board = new Board(20, 100, 6,7);
             player1 = new Player(1, 50, 50);
             player2 = new Player(2, 150, 50);
             players.add(player1);
@@ -172,6 +173,27 @@ public class Controller implements Initializable{
             return draggableChip.isPlayerDraggingThisChip();
             
         }
+
+        public void checkReleases() {
+            if (game.currentChip != null) {
+                ArrayList<Integer> possibleMoves = board.getNotFullColumns();
+                int move = game.board.whatColIsChipDroppedIn(currentChip);
+                for (Integer possibleMove : possibleMoves) {
+                    if(possibleMove == move) {
+                        board.addChip(currentChip, move);
+                    }
+                }
+            }
+        }
+
+        public int checkWinner() {
+            
+
+            return -1;
+        }
+
+
+
 
         public void updateLogic() {
             if (isPlayerDraggingChip(player1, redDraggableChip)) {
@@ -338,11 +360,14 @@ public class Controller implements Initializable{
     class Board{
         private BoardArtist artist;
         private int[][] grid; // 0 = empty, 1 = red, 2 = yellow
+        private double x, y;
 
 
-        public Board(int rows, int cols) {
+        public Board(double x, double y, int rows, int cols) {
             grid = new int[rows][cols];
-            artist = new BoardArtist(20,100, rows, cols);
+            artist = new BoardArtist(rows, cols);
+            this.x = x;
+            this.y = y;
             grid[5][6] = 1; // for testing
             grid[4][6] = 2; // for testing
             grid[3][6] = 1; // for testing
@@ -353,15 +378,53 @@ public class Controller implements Initializable{
             
         }
 
+        public ArrayList<Integer> getNotFullColumns() {
+                ArrayList<Integer> notFullCols = new ArrayList<Integer>();
+                for (int col = 0; col < grid[0].length; col++) {
+                    if (grid[0][col] == 0) {
+                        notFullCols.add(col);
+                    }
+                }
+
+                return notFullCols;
+            }
+
+        public int whatColIsChipDroppedIn(Chip chip) {
+                double colXStart = 5000, colXEnd = 5000, colYStart = 5000, colYEnd = 5000;
+                colYStart = game.board.y - CELL_SIZE - game.board.artist.space_between;
+                colYEnd = game.board.y;
+
+                for(int col = 0; col < grid[0].length; col++) {
+                    colXStart = game.board.x + game.board.artist.margin/2 + col * (CELL_SIZE + game.board.artist.space_between);
+                    colXEnd = game.board.x + CELL_SIZE + game.board.artist.margin/2 + col * (CELL_SIZE + game.board.artist.space_between);
+                    if (game.players.get(chip.player - 1).x > colXStart && game.players.get(chip.player - 1).x < colXEnd 
+                    && game.players.get(chip.player - 1).y > colYStart && game.players.get(chip.player - 1).y < colYEnd) {
+                        return col;
+                    }
+                }
+                return -1;
+            }
+
+        public void addChip(Chip chip, int col) {
+            int row_to_add_in = 0;
+
+            for(int i = grid.length - 1; i > 0; i--) {
+                if(grid[i][col] == 0) {
+                    row_to_add_in = i;
+                    break;
+                }
+            }
+
+            grid[row_to_add_in][col] = chip.player;
+        }
+
         class BoardArtist implements drawable {
-            private double x, y;
             private double width = 0, height = 0;
             private double margin = CELL_SIZE/10;
             private double space_between = margin/2;
 
-            public BoardArtist(double x, double y, int rows, int cols) {
-                this.x = x;
-                this.y = y;
+            public BoardArtist(int rows, int cols) {
+                
 
                 for(int i = 0; i < cols; i++) {
                     this.width += CELL_SIZE;
@@ -381,16 +444,9 @@ public class Controller implements Initializable{
                 return false;
             }
 
-            public ArrayList<Integer> getNotFullColumns() {
-                ArrayList<Integer> notFullCols = new ArrayList<Integer>();
-                for (int col = 0; col < grid[0].length; col++) {
-                    if (grid[0][col] == 0) {
-                        notFullCols.add(col);
-                    }
-                }
+            
 
-                return notFullCols;
-            }
+            
 
             @Override
             public void draw() {
@@ -400,18 +456,18 @@ public class Controller implements Initializable{
                 for(int i = 0; i < grid.length; i++) {
                                       // cols
                     for(int j = 0; j < grid[0].length; j++) {
-                        double x = this.x + margin/2 + j * (CELL_SIZE + space_between);
-                        double y = this.y + margin/2 + i * (CELL_SIZE + space_between);
+                        double pos_x = x + margin/2 + j * (CELL_SIZE + space_between);
+                        double pos_y = y + margin/2 + i * (CELL_SIZE + space_between);
                         gc.setFill(Color.WHITE);
-                        gc.fillOval(x, y, CELL_SIZE, CELL_SIZE);
+                        gc.fillOval(pos_x, pos_y, CELL_SIZE, CELL_SIZE);
 
                         // Drawing chips in case there are
                         if(isChipIn(i, j, 1)) {
                             gc.setFill(redColor);
-                            gc.fillOval(x, y, CELL_SIZE, CELL_SIZE);
+                            gc.fillOval(pos_x, pos_y, CELL_SIZE, CELL_SIZE);
                         } else if (isChipIn(i, j, 2)) {
                             gc.setFill(yellowColor);
-                            gc.fillOval(x, y, CELL_SIZE, CELL_SIZE);
+                            gc.fillOval(pos_x, pos_y, CELL_SIZE, CELL_SIZE);
                         }
                     }
                 }
@@ -421,9 +477,9 @@ public class Controller implements Initializable{
                 ArrayList<Integer> notFullCols = getNotFullColumns();
                 gc.setFill(new Color(0,1,0,0.3));
                 for (int col : notFullCols) {
-                    double x = this.x + margin/2 + col * (CELL_SIZE + space_between);
-                    double y = (this.y + margin/2) - CELL_SIZE - space_between;
-                    gc.fillOval(x, y, CELL_SIZE, CELL_SIZE);
+                    double pos_x = x + margin/2 + col * (CELL_SIZE + space_between);
+                    double pos_y = (y + margin/2) - CELL_SIZE - space_between;
+                    gc.fillOval(pos_x, pos_y, CELL_SIZE, CELL_SIZE);
                 }
             }
 
