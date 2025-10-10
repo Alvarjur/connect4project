@@ -187,9 +187,68 @@ public class Controller implements Initializable{
         }
 
         public int checkWinner() {
-            
+            for(int row = 0; row < board.grid.length; row++) {
+                for(int col = 0; col < board.grid[0].length; col++) {
+                    // Check for the player assigned to the chip, then check for coincidences in a direction,
+                    // if there are 4 straight, then that player wins.
+                    int player = board.grid[row][col];
+                    if(player != 0){
+                        if(checkIsThereFourStraight(player, row, col)) {
+                            System.out.println(player + " wins");
+                            return player;
+                        }
+                    }
+
+
+                }
+            }
 
             return -1;
+        }
+
+        public boolean checkIsThereFourStraight(int player, int row, int col) {
+            if (player == 0) return false;
+            
+            int coincidenceAmount = 0;
+            // Checking to the right
+            for (int i = 0; i < 4; i++) {
+                //Checking if it's out of bounds
+                if (col + i > game.board.grid[0].length - 1) break;
+                if (game.board.grid[row][col + i] == player) coincidenceAmount++;
+                if (coincidenceAmount >= 4) return true;
+            }
+
+            coincidenceAmount = 0;
+            // Checking down
+            for (int i = 0; i < 4; i++) {
+                //Checking if it's out of bounds
+                if (row + i > game.board.grid.length - 1) break;
+                if (game.board.grid[row + i][col] == player) coincidenceAmount++;
+                if (coincidenceAmount >= 4) return true;
+            }
+
+            // No need to check up or left
+
+            coincidenceAmount = 0;
+            // Checking down-right
+            for (int i = 0; i < 4; i++) {
+                //Checking if it's out of bounds
+                if (row + i > game.board.grid.length - 1 || col + i > game.board.grid[0].length - 1) break;
+                if (game.board.grid[row + i][col + i] == player) coincidenceAmount++;
+                if (coincidenceAmount >= 4) return true;
+            }
+
+            coincidenceAmount = 0;
+            // Checking down-left
+            for (int i = 0; i < 4; i++) {
+                //Checking if it's out of bounds
+                if (row + i > game.board.grid.length - 1 || col - i < 0) break;
+                if (game.board.grid[row + i][col - i] == player) coincidenceAmount++;
+                if (coincidenceAmount >= 4) return true;
+            }
+
+
+            return false;
         }
 
 
@@ -213,6 +272,7 @@ public class Controller implements Initializable{
                 yellowDraggableChip.setIsBeingDragged(false);
                 currentChip = null;
             }
+            checkWinner();
         }
 
         class GameArtist implements drawable {
@@ -368,13 +428,13 @@ public class Controller implements Initializable{
             artist = new BoardArtist(rows, cols);
             this.x = x;
             this.y = y;
-            grid[5][6] = 1; // for testing
-            grid[4][6] = 2; // for testing
-            grid[3][6] = 1; // for testing
-            grid[2][6] = 2; // for testing
-            grid[1][6] = 1; // for testing
-            grid[0][6] = 1; // for testing
-            grid[5][5] = 2; // for testing
+            // grid[5][6] = 1; // for testing
+            // grid[4][6] = 2; // for testing
+            // grid[3][6] = 1; // for testing
+            // grid[2][6] = 2; // for testing
+            // grid[1][6] = 1; // for testing
+            // grid[0][6] = 1; // for testing
+            // grid[5][5] = 2; // for testing
             
         }
 
