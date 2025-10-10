@@ -75,7 +75,7 @@ public class Controller implements Initializable{
 
         canvas.setOnMouseReleased(event -> {
             game.setPlayersDragging(false);
-            System.out.println("released");
+            // System.out.println("released");
             game.checkReleases();
             update();
         });
@@ -199,7 +199,6 @@ public class Controller implements Initializable{
                         }
                     }
 
-
                 }
             }
 
@@ -258,7 +257,7 @@ public class Controller implements Initializable{
             if (isPlayerDraggingChip(player1, redDraggableChip)) {
                 currentChip = player1.takeChip();
                 redDraggableChip.setIsBeingDragged(true);
-                System.out.println("red dragging");
+                // System.out.println("red dragging");
             } else {
                 redDraggableChip.setIsBeingDragged(false);
                 currentChip = null;
@@ -267,7 +266,7 @@ public class Controller implements Initializable{
                 currentChip = player2.takeChip();
                 yellowDraggableChip.setIsBeingDragged(true);
                 
-                System.out.println("yellow dragging");
+                // System.out.println("yellow dragging");
             } else {
                 yellowDraggableChip.setIsBeingDragged(false);
                 currentChip = null;
