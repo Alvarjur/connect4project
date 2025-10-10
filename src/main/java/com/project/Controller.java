@@ -381,7 +381,7 @@ public class Controller implements Initializable{
         
         public Player(int playerNumber, double x, double y) {
             this.playerNumber = playerNumber;
-            this.artist = new PlayerArtist(x, y);
+            this.artist = new PlayerArtist();
             this.x = x;
             this.y = y;
         }
@@ -400,7 +400,7 @@ public class Controller implements Initializable{
             private Color color1 = new Color(1,0,0,0.5);
             private Color color2 = new Color(0,1,1,0.5);
 
-            public PlayerArtist(double x, double y) {
+            public PlayerArtist() {
         
             }
 
