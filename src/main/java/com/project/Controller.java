@@ -578,7 +578,10 @@ public class Controller implements Initializable{
 
             public void drawOnPlayer(Player player) {
                 gc.setFill(color);
-                gc.fillOval(player.x - diameter/2, player.y - diameter/2, diameter, diameter);
+                x = player.x - diameter/2;
+                y = player.y - diameter/2;
+                draw();
+                // gc.fillOval(player.x - diameter/2, player.y - diameter/2, diameter, diameter);
             }
         }
     }
