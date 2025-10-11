@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.client.ControllerConfig">
    <children>
       <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
          <children>
@@ -26,25 +26,29 @@
                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
               </columnConstraints>
               <rowConstraints>
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
               </rowConstraints>
                <children>
-                  <Label text="Protocol" />
-                  <Label text="Server IP" GridPane.rowIndex="1" />
-                  <Label text="Port" GridPane.rowIndex="2" />
-                  <TextField fx:id="textFieldProtocol" GridPane.columnIndex="1" />
-                  <TextField fx:id="textFieldHost" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                  <TextField fx:id="textFieldPort" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                  <Label text="Protocol" GridPane.rowIndex="1" />
+                  <Label text="Server IP" GridPane.rowIndex="2" />
+                  <Label text="Port" GridPane.rowIndex="3" />
+                  <TextField fx:id="textFieldProtocol" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                  <TextField fx:id="textFieldHost" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                  <TextField fx:id="textFieldPort" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                  <Label text="Username" />
+                  <TextField fx:id="textFieldUsername" GridPane.columnIndex="1" />
                </children>
             </GridPane>
-            <Button fx:id="buttonConnect" mnemonicParsing="false" text="Connect" />
+            <Button fx:id="buttonConnect" mnemonicParsing="false" onAction="#connectToServer" text="Connect" />
             <Label fx:id="labelMessage" />
             <HBox prefHeight="100.0" prefWidth="200.0">
                <children>
-                  <Button fx:id="buttonLocal" mnemonicParsing="false" text="Local" />
-                  <Button fx:id="buttonProxmox" mnemonicParsing="false" text="Proxmox" />
+                  <Button fx:id="buttonLocal" mnemonicParsing="false" onAction="#setConfigLocal" text="Local" />
+                  <Button fx:id="buttonProxmox" mnemonicParsing="false" onAction="#setConfigProxmox" text="Proxmox" />
+                  <Button fx:id="buttonRandomUsername" mnemonicParsing="false" onAction="#setRandomUsername" text="Random Name" />
                </children>
             </HBox>
          </children>

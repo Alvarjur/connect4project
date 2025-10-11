@@ -1,5 +1,9 @@
 package com.client;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
+
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -7,14 +11,22 @@ import javafx.scene.control.TextField;
 
 public class ControllerConfig {
     @FXML
-    public TextField textFieldProtocol, textFieldHost, textFieldPort;
+    public TextField textFieldProtocol, textFieldHost, textFieldPort, textFieldUsername;
     @FXML
-    public Button buttonConnect, buttonLocal, buttonProxmox;
+    public Button buttonConnect, buttonLocal, buttonProxmox, buttonRandomUsername;
     @FXML
     public Label labelMessage;
 
+    // Nombres aleatorios por si el usuario no pone uno
+    private static final List<String> PLAYER_NAMES = Arrays.asList(
+        "Bulbasaur", "Charizard", "Blaziken", "Umbreon", "Mewtwo", "Pikachu", "Wartortle"
+    );
+
     @FXML
     private void connectToServer() {
+        if (textFieldUsername.getText().equals("")) {
+            setRandomUsername();
+        }
         Main.connectToServer();
     }
 
@@ -31,4 +43,19 @@ public class ControllerConfig {
         textFieldHost.setText("user.ieti.site");
         textFieldPort.setText("443");
     }
+
+    @FXML
+    private void setRandomUsername() {
+        textFieldUsername.setText(getRandomUsername());
+    }
+
+    private String getRandomUsername() {
+        Random random = new Random();
+        int i = random.nextInt(PLAYER_NAMES.size());
+        String randomName = PLAYER_NAMES.get(i);
+        return randomName;
+    }
+
+    // TODO Hacer que los botones se deshabiliten cuando le das a Connect, y se
+    // habiliten cuando se resuelva la conexión (si esta falla)
 }

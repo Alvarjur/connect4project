@@ -9,7 +9,22 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import org.java_websocket.WebSocket;
 import org.json.JSONArray;
 
+/**
+ * Registre de clients connectats amb gestió interna del pool de noms.
+ *
+ * Manté dos mapes bidireccionals:
+ * - WebSocket a nom de client
+ * - Nom de client a WebSocket
+ *
+ * També integra la lògica d'un pool de noms disponibles. Quan un client es connecta,
+ * se li assigna un nom lliure. Quan es desconnecta, el nom torna al pool per ser reutilitzat.
+ *
+ * Aquesta classe és segura per a ús concurrent gràcies a l'ús de ConcurrentHashMap
+ * i ConcurrentLinkedQueue. Els mètodes que modifiquen el pool utilitzen sincronització
+ * per garantir la coherència durant reinicialitzacions.
+ */
 final class ClientRegistry {
+
     /** Mapa de sockets a noms de client. */
     private final Map<WebSocket, String> bySocket = new ConcurrentHashMap<>();
 
