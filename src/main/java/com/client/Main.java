@@ -11,6 +11,7 @@ import javafx.util.Duration;
 
 public class Main extends Application {
 
+    // Inicializar instancia de WebSocket antes de usarla
     public static UtilsWS wsClient;
 
     public static String clientName = "";
@@ -45,7 +46,7 @@ public class Main extends Application {
         
         stage.setScene(scene);
         stage.onCloseRequestProperty(); // Call close method when closing window
-        stage.setTitle("JavaFX");
+        stage.setTitle("Connect 4 - Client");
         stage.setMinWidth(windowWidth);
         stage.setMinHeight(windowHeight);
         stage.show();
@@ -57,47 +58,57 @@ public class Main extends Application {
         }
     }
 
+    /***** Conexión al servidor (se llama en ViewConfig) *****/
     public static void connectToServer() {
 
+        // Cambiar label en ViewConfig
         controllerConfig.labelMessage.setTextFill(Color.BLACK);
         controllerConfig.labelMessage.setText("Connecting ...");
     
-        System.out.println("Print antes de pauseDuring()");
         pauseDuring(1500, () -> { // Give time to show connecting message ...
 
-            System.out.println("Print después de pauseDuring()");
+            // Obtiene la URI introducida en ViewConfig
             String protocol = controllerConfig.textFieldProtocol.getText();
             String host = controllerConfig.textFieldHost.getText();
             String port = controllerConfig.textFieldPort.getText();
+
+            // Generar instancia de wsClient con la URI registrada
+            UtilsWS.resetSharedInstance(); // Asegura que si falla un intento de conexión (URI incorrecta), luego puede hacer otro intento correcto
             wsClient = UtilsWS.getSharedInstance(protocol + "://" + host + ":" + port);
     
-            System.out.println("Print antes de llamar a wsClient.onMessage()");
+            // Realiza una acción dependiendo del mensaje devuelto por Server
             wsClient.onMessage((response) -> { Platform.runLater(() -> { wsMessage(response); }); });
             wsClient.onError((response) -> { Platform.runLater(() -> { wsError(response); }); });
+
+            wsClient.connect(); // Hay que hacer la conexión después de definir los handler para mensaje y error, sino utiliza el error definido en UtilsWS
         });
     }
 
+    /***** Detiene el programa durante X milisegundos, y luego realiza un Runnable *****/
     public static void pauseDuring(long milliseconds, Runnable action) {
         PauseTransition pause = new PauseTransition(Duration.millis(milliseconds));
         pause.setOnFinished(event -> Platform.runLater(action));
         pause.play();
     }
 
+    /***** Realiza una acción cuando recibe un mensaje del servidor *****/
     private static void wsMessage(String response) {
-        System.out.println("Print dentro de wsMessage()");
         Platform.runLater(()->{ 
-            // Fer aquí els canvis a la interficie
-            if (UtilsViews.getActiveView() != "ViewPlayerSelection") {
+            // Cambio de ViewConfig a ViewPlayerSelection
+            if (UtilsViews.getActiveView() == "ViewConfig") { // TODO Hacer algo menos chapuza
                 UtilsViews.setViewAnimating("ViewPlayerSelection");
             }
+
             // JSONObject msgObj = new JSONObject(response);
             // controllerPlayerSelection.receiveMessage(msgObj);
         });
     }
 
+    /***** Realiza una acción cuando hay un error de red o protocolo (p.ej. desconexión) *****/
     private static void wsError(String response) {
 
-        String connectionRefused = "Connection refused";
+        System.out.println("Estoy en wsError");
+        String connectionRefused = "S’ha refusat la connexió";
         if (response.indexOf(connectionRefused) != -1) {
             controllerConfig.labelMessage.setTextFill(Color.RED);
             controllerConfig.labelMessage.setText(connectionRefused);

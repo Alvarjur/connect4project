@@ -17,6 +17,14 @@ public class ControllerConfig {
     @FXML
     public Label labelMessage;
 
+    /*
+     * TODO Hacer que los botones se deshabiliten cuando le das a Connect, y se habiliten cuando se resuelva la conexión (si esta falla)
+     * 
+     *  
+     * 
+     * 
+     */ 
+
     // Nombres aleatorios por si el usuario no pone uno
     private static final List<String> PLAYER_NAMES = Arrays.asList(
         "Bulbasaur", "Charizard", "Blaziken", "Umbreon", "Mewtwo", "Pikachu", "Wartortle"
@@ -46,7 +54,8 @@ public class ControllerConfig {
 
     @FXML
     private void setRandomUsername() {
-        textFieldUsername.setText(getRandomUsername());
+        int randomNumber = (int) (Math.random() * 100);
+        textFieldUsername.setText(getRandomUsername() + String.valueOf(randomNumber)); // p.ej. Pikachu76
     }
 
     private String getRandomUsername() {
@@ -55,7 +64,4 @@ public class ControllerConfig {
         String randomName = PLAYER_NAMES.get(i);
         return randomName;
     }
-
-    // TODO Hacer que los botones se deshabiliten cuando le das a Connect, y se
-    // habiliten cuando se resuelva la conexión (si esta falla)
 }

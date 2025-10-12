@@ -26,7 +26,7 @@ public class UtilsWS {
 
     private UtilsWS(String location) {
         this.location = location;
-        createNewWebSocketClient();
+        // createNewWebSocketClient();
     }
 
     private void createNewWebSocketClient() {
@@ -151,5 +151,18 @@ public class UtilsWS {
 
     public boolean isOpen() {
         return client != null && client.isOpen();
+    }
+
+    public void connect() {
+        if (client == null) {
+            createNewWebSocketClient();
+        }
+    }
+
+    public static void resetSharedInstance() {
+        if (sharedInstance != null) {
+            sharedInstance.forceExit();
+        }
+        sharedInstance = null;
     }
 }
