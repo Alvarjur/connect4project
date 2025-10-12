@@ -51,6 +51,11 @@ public class Main extends Application {
         stage.setMinHeight(windowHeight);
         stage.show();
 
+        // Cerrar correctamente el cliente al cerrar ventana
+        stage.setOnCloseRequest(event -> {
+            closeClient();
+        });
+
         // Add icon only if not Mac
         if (!System.getProperty("os.name").contains("Mac")) {
             Image icon = new Image("file:/icons/icon.png");
@@ -97,6 +102,8 @@ public class Main extends Application {
             // Cambio de ViewConfig a ViewPlayerSelection
             if (UtilsViews.getActiveView() == "ViewConfig") { // TODO Hacer algo menos chapuza
                 UtilsViews.setViewAnimating("ViewPlayerSelection");
+                clientName = controllerConfig.getUsername();
+                controllerPlayerSelection.setClientName(clientName);
             }
 
             // JSONObject msgObj = new JSONObject(response);
@@ -116,5 +123,18 @@ public class Main extends Application {
                 controllerConfig.labelMessage.setText("");
             });
         }
+    }
+
+    /***** Cierra el cliente *****/
+    public static void closeClient() {
+        System.out.println("Cerrando aplicación...");
+    
+    // Cierra el WebSocket si está abierto
+    if (wsClient != null) {
+        wsClient.forceExit();
+    }
+
+    Platform.exit();
+    System.exit(0);
     }
 }

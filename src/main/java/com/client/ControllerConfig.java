@@ -64,4 +64,8 @@ public class ControllerConfig {
         String randomName = PLAYER_NAMES.get(i);
         return randomName;
     }
+
+    public String getUsername() {
+        return textFieldUsername.getText();
+    }
 }

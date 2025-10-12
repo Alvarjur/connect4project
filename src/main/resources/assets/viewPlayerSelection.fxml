@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.client.ControllerPlayerSelection">
    <children>
       <VBox alignment="CENTER" spacing="5.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
@@ -21,7 +21,7 @@
             <HBox alignment="CENTER" VBox.vgrow="NEVER">
                <children>
                   <Label text="You are:" />
-                  <Label text="{clientName}" textFill="RED">
+                  <Label fx:id="labelClientName" text="{clientName}" textFill="RED">
                      <padding>
                         <Insets left="5.0" />
                      </padding>
@@ -57,7 +57,7 @@
             </HBox>
             <HBox VBox.vgrow="NEVER">
                <children>
-                  <Button mnemonicParsing="false" text="Exit" />
+                  <Button fx:id="buttonExit" mnemonicParsing="false" onAction="#exit" text="Exit" />
                </children>
             </HBox>
          </children>
