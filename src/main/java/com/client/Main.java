@@ -62,13 +62,16 @@ public class Main extends Application {
         controllerConfig.labelMessage.setTextFill(Color.BLACK);
         controllerConfig.labelMessage.setText("Connecting ...");
     
+        System.out.println("Print antes de pauseDuring()");
         pauseDuring(1500, () -> { // Give time to show connecting message ...
 
+            System.out.println("Print después de pauseDuring()");
             String protocol = controllerConfig.textFieldProtocol.getText();
             String host = controllerConfig.textFieldHost.getText();
             String port = controllerConfig.textFieldPort.getText();
             wsClient = UtilsWS.getSharedInstance(protocol + "://" + host + ":" + port);
     
+            System.out.println("Print antes de llamar a wsClient.onMessage()");
             wsClient.onMessage((response) -> { Platform.runLater(() -> { wsMessage(response); }); });
             wsClient.onError((response) -> { Platform.runLater(() -> { wsError(response); }); });
         });
@@ -81,10 +84,11 @@ public class Main extends Application {
     }
 
     private static void wsMessage(String response) {
+        System.out.println("Print dentro de wsMessage()");
         Platform.runLater(()->{ 
             // Fer aquí els canvis a la interficie
-            if (UtilsViews.getActiveView() != "ViewPlayerSelectio") {
-                UtilsViews.setViewAnimating("ViewPlayerSelectio");
+            if (UtilsViews.getActiveView() != "ViewPlayerSelection") {
+                UtilsViews.setViewAnimating("ViewPlayerSelection");
             }
             // JSONObject msgObj = new JSONObject(response);
             // controllerPlayerSelection.receiveMessage(msgObj);
