@@ -82,6 +82,7 @@ public class Main extends Application {
             wsClient = UtilsWS.getSharedInstance(protocol + "://" + host + ":" + port);
     
             // Realiza una acción dependiendo del mensaje devuelto por Server
+            wsClient.onOpen((response) -> { Platform.runLater(() -> { wsOpen(response); }); });
             wsClient.onMessage((response) -> { Platform.runLater(() -> { wsMessage(response); }); });
             wsClient.onError((response) -> { Platform.runLater(() -> { wsError(response); }); });
 
@@ -96,14 +97,29 @@ public class Main extends Application {
         pause.play();
     }
 
-    /***** Realiza una acción cuando recibe un mensaje del servidor *****/
-    private static void wsMessage(String response) {
+    private static void wsOpen(String response) {
         Platform.runLater(()->{ 
             // Cambio de ViewConfig a ViewPlayerSelection
             if (UtilsViews.getActiveView() == "ViewConfig") { // TODO Hacer algo menos chapuza
                 UtilsViews.setViewAnimating("ViewPlayerSelection");
                 clientName = controllerConfig.getUsername();
                 controllerPlayerSelection.setClientName(clientName);
+            }
+
+            // JSONObject msgObj = new JSONObject(response);
+            // controllerPlayerSelection.receiveMessage(msgObj);
+        });
+    }
+
+    /***** Realiza una acción cuando recibe un mensaje del servidor *****/
+    private static void wsMessage(String response) {
+        Platform.runLater(()->{ 
+            // Cambio de ViewConfig a ViewPlayerSelection
+            if (UtilsViews.getActiveView() == "ViewConfig") { // TODO Hacer algo menos chapuza
+                // UtilsViews.setViewAnimating("ViewPlayerSelection");
+                // clientName = controllerConfig.getUsername();
+                // controllerPlayerSelection.setClientName(clientName);
+                return;
             }
 
             // JSONObject msgObj = new JSONObject(response);

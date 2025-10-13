@@ -31,71 +31,21 @@ final class ClientRegistry {
     /** Mapa de noms de client a sockets. */
     private final Map<String, WebSocket> byName = new ConcurrentHashMap<>();
 
-    /** Cua de noms disponibles per assignar. */
-    private final Queue<String> pool = new ConcurrentLinkedQueue<>();
-
-    /** Llista base de noms per reomplir el pool quan s'esgoti. */
-    private final List<String> seedNames;
-
     /**
-     * Crea un nou registre amb el conjunt inicial de noms disponibles.
-     *
-     * @param seedNames llista inicial de noms per al pool
-     */
-    ClientRegistry(List<String> seedNames) {
-        this.seedNames = seedNames;
-        resetPool();
-    }
-
-    /**
-     * Reinicia el pool de noms amb la llista inicial.
-     * Aquest mètode és sincronitzat per evitar condicions de cursa durant el buidat i reompliment.
-     */
-    private synchronized void resetPool() {
-        pool.clear();
-        pool.addAll(seedNames);
-    }
-
-    /**
-     * Extreu un nom disponible del pool. Si el pool està buit, es reinicia i es torna a intentar.
-     *
-     * @return un nom lliure extret del pool
-     */
-    private String takeOrRecycle() {
-        String name = pool.poll();
-        if (name == null) {
-            resetPool();
-            name = pool.poll();
-        }
-        return name;
-    }
-
-    /**
-     * Retorna un nom al pool de disponibles.
-     *
-     * @param name el nom a retornar; si és null no es fa res
-     */
-    private void giveBack(String name) {
-        if (name != null) {
-            pool.offer(name);
-        }
-    }
-
-    /**
-     * Afegeix un client nou i li assigna un nom lliure.
+     * Afegeix un client nou.
      *
      * @param socket socket del client connectat
+     * @param name nombre del client
      * @return el nom assignat al client
      */
-    String add(WebSocket socket) {
-        String name = takeOrRecycle();
+    String add(WebSocket socket, String name) {
         bySocket.put(socket, name);
         byName.put(name, socket);
         return name;
     }
 
     /**
-     * Elimina un client del registre i retorna el nom al pool.
+     * Elimina un client del registre.
      *
      * @param socket socket del client a eliminar
      * @return el nom que estava assignat, o null si no existia
@@ -104,7 +54,6 @@ final class ClientRegistry {
         String name = bySocket.remove(socket);
         if (name != null) {
             byName.remove(name);
-            giveBack(name);
         }
         return name;
     }

@@ -24,6 +24,9 @@ public class Main extends WebSocketServer {
     /** Port per defecte on escolta el servidor. */
     public static final int DEFAULT_PORT = 3000;
 
+    /** Registro de clientes */
+    public static ClientRegistry clientRegistry;
+
     // Claus JSON
     private static final String K_TYPE = "type";
     private static final String K_MESSAGE = "message";
@@ -47,6 +50,7 @@ public class Main extends WebSocketServer {
      */
     public Main(InetSocketAddress address) {
         super(address);
+        clientRegistry = new ClientRegistry();
     }
 
     // ----------------- WebSocketServer overrides -----------------
