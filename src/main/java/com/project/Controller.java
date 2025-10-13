@@ -4,6 +4,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
 
+import javafx.animation.AnimationTimer;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.canvas.Canvas;
@@ -18,15 +19,30 @@ public class Controller implements Initializable{
     private static double mouse_x, mouse_y;
 
     private GraphicsContext gc;
-    private static double canvas_width = Main.WINDOW_WIDTH;
-    private static double canvas_height = Main.WINDOW_HEIGHT;
+    public static double canvas_width = Main.WINDOW_WIDTH;
+    public static double canvas_height = Main.WINDOW_HEIGHT;
     private double CELL_SIZE = 80;
-    private Color boardColor = new Color(0,0,0.5,1);
+    public static Color boardColor = new Color(0,0,0.5,1);
     private Color redColor = new Color(0.5,0,0,1);
     private Color blueColor = new Color(0,0,0.5,1);
     private Color yellowColor = new Color(0.7,0.6,0.3,1);
     private Artist artist = new Artist();
     private Game game;
+    private CanvasTimer timer;
+
+
+    // Animación de caida
+    private Chip animChip;
+    private boolean animating = false;
+    private int animCol = -1, animRow = -1;
+    private double animY;
+    private double targetY;
+    private double fallSpeed = 1300;
+    private long lastRunNanos = 0;
+
+
+
+    
 
     private ArrayList<Chip> redChips = new ArrayList<Chip>();
     private ArrayList<Chip> yellowChips = new ArrayList<Chip>();
@@ -52,6 +68,11 @@ public class Controller implements Initializable{
         canvas_height = canvas.getHeight();
         game = new Game();
 
+        timer = new CanvasTimer(
+            fps -> update(), 
+            this::draw, 
+            120);
+        timer.start();
 
         
         canvas.widthProperty().bind(root.widthProperty());
@@ -70,24 +91,24 @@ public class Controller implements Initializable{
             Controller.setMousePos(event.getSceneX(), event.getSceneY());
             game.setPlayersDragging(true);
             
-            update();
+            // update();
         });
 
         canvas.setOnMouseReleased(event -> {
             game.setPlayersDragging(false);
             // System.out.println("released");
             game.checkReleases();
-            update();
+            // update();
         });
 
-        update();
+        // update();
 
 
     }
     public void updateWindowSize() {
         canvas_width = canvas.getWidth();
         canvas_height = canvas.getHeight();
-        artist.draw();
+        // draw();
     }
 
     
@@ -95,7 +116,15 @@ public class Controller implements Initializable{
     public void update() {
         game.updatePlayerPositions();
         game.updateLogic();
+        game.updateVisualLogics();
+
+        
+    }
+
+    public void draw() {
         artist.draw();
+        
+        
     }
 
     class Artist implements drawable{
@@ -107,7 +136,7 @@ public class Controller implements Initializable{
             game.artist.drawDraggableChips();
             game.artist.draw();
             game.artist.drawChipsDragging();
-            
+            game.drawAnimChip();
             
         }
 
@@ -119,7 +148,7 @@ public class Controller implements Initializable{
         private Board board;
         private Player player1, player2;
         private ArrayList<Player> players = new ArrayList<Player>();
-        private GameArtist artist;
+        public GameArtist artist;
         private double draggableChips_red_x = 650;
         private double draggableChips_red_y = 100;
         private double draggableChips_yellow_x = 800;
@@ -165,6 +194,41 @@ public class Controller implements Initializable{
             player2.setPosition(mouse_x + 100, mouse_y);
         }
 
+        public void updateVisualLogics()
+        {
+            long now = System.nanoTime();
+            double dt;
+            if (lastRunNanos == 0) {
+            dt = 0; // primer frame
+            } else {
+            dt = (now - lastRunNanos) / 1_000_000_000.0;
+            }
+            lastRunNanos = now;
+
+            if (animating && dt > 0) {
+            animY += fallSpeed * dt;
+            if (animY >= targetY) {
+                animY = targetY;
+                board.addChip(animChip, animCol); // Se añade la ficha al terminar de caer
+                animating = false;
+                
+            }
+
+        }
+        }
+
+        public void drawAnimChip() {
+            if (!animating) return;
+            double r = CELL_SIZE;
+            double cx = game.board.x + game.board.artist.margin/2 + animCol * (CELL_SIZE + game.board.artist.space_between);
+            double cy = animY;
+            
+            Color color = animChip.player == 1 ? redColor : yellowColor;
+            gc.setFill(color);
+            gc.fillOval(cx, cy, r, r);
+
+        }
+
         public boolean isPlayerDraggingChip(Player player, DraggableChip draggableChip) {
             return draggableChip.isPlayerDraggingThisChip();
             
@@ -176,7 +240,8 @@ public class Controller implements Initializable{
                 int move = game.board.whatColIsChipDroppedIn(currentChip);
                 for (Integer possibleMove : possibleMoves) {
                     if(possibleMove == move) {
-                        board.addChip(currentChip, move);
+                        // Preparando animación
+                        board.artist.doAddChipAnimation(currentChip, move); // La ficha se añade cuando se cambia animating = false en updateVisualLogics()
                     }
                 }
             }
@@ -473,6 +538,8 @@ public class Controller implements Initializable{
             grid[row_to_add_in][col] = chip.player;
         }
 
+
+
         class BoardArtist implements drawable {
             private double width = 0, height = 0;
             private double margin = CELL_SIZE/10;
@@ -492,12 +559,38 @@ public class Controller implements Initializable{
                 this.height += space_between * rows;
             }
 
+            public void doAddChipAnimation(Chip chip, int col) {
+                int row = findLowestEmptyRow(col);
+                if (row < 0) return; // columna plena
+
+                double cellCenterYTop = game.board.y + CELL_SIZE * 0.5;
+                double startY = game.board.y - CELL_SIZE * 0.5; // lleugerament per sobre
+                double endY = cellCenterYTop + row * CELL_SIZE;
+
+
+                animChip = game.currentChip;
+                animCol = col;
+                animRow = row;
+                animY = startY;
+                targetY = endY;
+                animating = true;
+                lastRunNanos = 0; // perquè el primer dt es calculi bé
+            }
+
+            private int findLowestEmptyRow(int col) {
+            for (int r = game.board.grid.length - 1; r >= 0; r--) {
+                if (game.board.grid[r][col] == 0) return r;
+            }
+            return -1;
+        }
+
             public boolean isChipIn(int row, int col, int player) {
                 if (grid[row][col] == player) {
                     return true;
                 }
                 return false;
             }
+
 
             
 
