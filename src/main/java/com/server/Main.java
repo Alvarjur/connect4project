@@ -5,6 +5,7 @@ import java.net.InetSocketAddress;
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
+import org.json.JSONObject;
 
 /**
  * Servidor WebSocket amb routing simple de missatges, sense REPL.
@@ -34,8 +35,10 @@ public class Main extends WebSocketServer {
     private static final String K_DESTINATION = "destination";
     private static final String K_ID = "id";
     private static final String K_LIST = "list";
+    private static final String K_CLIENT_NAME = "clientName";
 
     // Tipus de missatge
+    private static final String T_REGISTER = "register";
     private static final String T_BOUNCE = "bounce";
     private static final String T_BROADCAST = "broadcast";
     private static final String T_PRIVATE = "private";
@@ -67,12 +70,43 @@ public class Main extends WebSocketServer {
         System.out.println("Client desconnectat");
     }
 
-    /** Processa el missatge rebut i el ruteja segons el seu type. */
+    /***** Procesa el mensaje recibido y actúa según el tipo de mensaje. *****/
     @Override
     public void onMessage(WebSocket conn, String message) {
         System.out.println("Mensaje recibido: " + message);
+
+        // Si es un registro de cliente ()
+
         // Eco del mensaje de vuelta al cliente
         conn.send("Servidor dice: " + message);
+
+        try {
+            // Obtener el 
+            JSONObject json = new JSONObject(message);
+            String type = json.getString("type");
+
+            switch (type) {
+                // Si es un registro de cliente
+                case T_REGISTER:
+                    String clientName = json.getString(K_CLIENT_NAME);
+                    clientRegistry.add(conn, clientName);
+                    // TODO Enviar nuevo JSON con los clientes actuales a todo el mundo
+                    conn.send("Has sido registrado en el servidor con el nombre: " + clientName);
+                    break;
+                default:
+                    conn.send("Tipo de mensaje no controlado."
+                        + "\n"
+                        + "El mensaje recibido era: " + message
+                    );
+            }
+
+        } catch (Exception e) {
+            conn.send(new JSONObject()
+                .put("type", "error")
+                .put("message", "Invalid JSON")
+                .toString()
+            );
+        }
     }
 
     /** Log d'error global o de socket concret. */

@@ -1,5 +1,7 @@
 package com.client;
 
+import org.json.JSONObject;
+
 import javafx.animation.PauseTransition;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -106,6 +108,12 @@ public class Main extends Application {
                 controllerPlayerSelection.setClientName(clientName);
             }
 
+            // Enviar al servidor el nombre del cliente
+            JSONObject json = new JSONObject();
+            json.put("type", "register");
+            json.put("clientName", clientName);
+            wsClient.safeSend(json.toString());
+
             // JSONObject msgObj = new JSONObject(response);
             // controllerPlayerSelection.receiveMessage(msgObj);
         });
@@ -115,6 +123,7 @@ public class Main extends Application {
     private static void wsMessage(String response) {
         Platform.runLater(()->{ 
             // Cambio de ViewConfig a ViewPlayerSelection
+            System.out.println(response);
             if (UtilsViews.getActiveView() == "ViewConfig") { // TODO Hacer algo menos chapuza
                 // UtilsViews.setViewAnimating("ViewPlayerSelection");
                 // clientName = controllerConfig.getUsername();
