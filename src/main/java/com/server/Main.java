@@ -60,25 +60,21 @@ public class Main extends WebSocketServer {
 
     @Override
     public void onOpen(WebSocket conn, ClientHandshake handshake) {
-        System.out.println("Client connectat.");
-        conn.send("welcome");
+        System.out.println("[SERVIDOR] Nuevo cliente conectado");
+        // conn.send("[SERVIDOR] Te has conectado al servidor");
     }
 
     /** Elimina el client del registre i notifica la llista actualitzada. */
     @Override
     public void onClose(WebSocket conn, int code, String reason, boolean remote) {
-        System.out.println("Client desconnectat");
+        System.out.println("[SERVIDOR] Cliente desconectado -> " + clientRegistry.nameBySocket(conn));
+        clientRegistry.remove(conn);
     }
 
     /***** Procesa el mensaje recibido y actúa según el tipo de mensaje. *****/
     @Override
     public void onMessage(WebSocket conn, String message) {
-        System.out.println("Mensaje recibido: " + message);
-
-        // Si es un registro de cliente ()
-
-        // Eco del mensaje de vuelta al cliente
-        conn.send("Servidor dice: " + message);
+        System.out.println("[CLIENTE] Mensaje del cliente -> " + message);
 
         try {
             // Obtener el 
@@ -90,11 +86,12 @@ public class Main extends WebSocketServer {
                 case T_REGISTER:
                     String clientName = json.getString(K_CLIENT_NAME);
                     clientRegistry.add(conn, clientName);
+                    System.out.println("[SERVIDOR] Nombre del nuevo cliente -> " + clientName);
                     // TODO Enviar nuevo JSON con los clientes actuales a todo el mundo
-                    conn.send("Has sido registrado en el servidor con el nombre: " + clientName);
+                    conn.send("[SERVIDOR] Has sido registrado en el servidor con el nombre: " + clientName);
                     break;
                 default:
-                    conn.send("Tipo de mensaje no controlado."
+                    conn.send("[SERVIDOR] Tipo de mensaje no controlado."
                         + "\n"
                         + "El mensaje recibido era: " + message
                     );
