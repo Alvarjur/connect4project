@@ -124,12 +124,6 @@ public class Main extends Application {
         Platform.runLater(()->{ 
             // Cambio de ViewConfig a ViewPlayerSelection
             System.out.println(response);
-            if (UtilsViews.getActiveView() == "ViewConfig") { // TODO Hacer algo menos chapuza
-                // UtilsViews.setViewAnimating("ViewPlayerSelection");
-                // clientName = controllerConfig.getUsername();
-                // controllerPlayerSelection.setClientName(clientName);
-                return;
-            }
 
             // JSONObject msgObj = new JSONObject(response);
             // controllerPlayerSelection.receiveMessage(msgObj);
@@ -163,3 +157,5 @@ public class Main extends Application {
     System.exit(0);
     }
 }
+
+// TODO Arreglar bug que ocurre cuando pones un puerto out of range (p.ej. 30000000), y congela el cliente
