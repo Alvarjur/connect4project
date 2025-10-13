@@ -74,7 +74,6 @@ public class Controller implements Initializable{
             120);
         timer.start();
 
-        
         canvas.widthProperty().bind(root.widthProperty());
         canvas.heightProperty().bind(root.heightProperty());
 
@@ -567,7 +566,7 @@ public class Controller implements Initializable{
                 double startY = game.board.y - CELL_SIZE * 0.5; // lleugerament per sobre
                 double endY = cellCenterYTop + row * CELL_SIZE;
 
-
+                // Se asigna currentChip a animChip ya que currentChip se vuelve null casi instantáneamente.
                 animChip = game.currentChip;
                 animCol = col;
                 animRow = row;
@@ -670,7 +669,6 @@ public class Controller implements Initializable{
                 x = player.x - diameter/2;
                 y = player.y - diameter/2;
                 draw();
-                // gc.fillOval(player.x - diameter/2, player.y - diameter/2, diameter, diameter);
             }
         }
     }
