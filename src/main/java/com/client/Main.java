@@ -122,10 +122,18 @@ public class Main extends Application {
     /***** Realiza una acción cuando recibe un mensaje del servidor *****/
     private static void wsMessage(String response) {
         Platform.runLater(()->{ 
-            // Cambio de ViewConfig a ViewPlayerSelection
             System.out.println(response);
 
-            // JSONObject msgObj = new JSONObject(response);
+            // Convertir respuesta a JSONObject
+            JSONObject msgObj = new JSONObject(response);
+
+            // Comprobar tipo de respuesta
+            String type = msgObj.getString("type");
+            switch (type) {
+                case "clients":
+                    controllerPlayerSelection.updateListOfClients(msgObj);
+            }
+            
             // controllerPlayerSelection.receiveMessage(msgObj);
         });
     }
