@@ -11,6 +11,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.StrokeLineCap;
 
 public class Controller implements Initializable{
     @FXML
@@ -39,6 +40,9 @@ public class Controller implements Initializable{
     private double targetY;
     private double fallSpeed = 1300;
     private long lastRunNanos = 0;
+
+    // Winner line
+    private double winner_start_x, winner_start_y, winner_end_x, winner_end_y;
 
 
 
@@ -136,6 +140,9 @@ public class Controller implements Initializable{
             game.artist.draw();
             game.artist.drawChipsDragging();
             game.drawAnimChip();
+            if(game.winner != null) {
+                game.artist.drawWinnerLine();
+            }
             
         }
 
@@ -146,6 +153,7 @@ public class Controller implements Initializable{
         private int currentPlayer;
         private Board board;
         private Player player1, player2;
+        private Player winner;
         private ArrayList<Player> players = new ArrayList<Player>();
         public GameArtist artist;
         private double draggableChips_red_x = 650;
@@ -255,6 +263,7 @@ public class Controller implements Initializable{
                     if(player != 0){
                         if(checkIsThereFourStraight(player, row, col)) {
                             System.out.println(player + " wins");
+                            winner = players.get(player - 1);
                             return player;
                         }
                     }
@@ -265,25 +274,42 @@ public class Controller implements Initializable{
             return -1;
         }
 
+
         public boolean checkIsThereFourStraight(int player, int row, int col) {
             if (player == 0) return false;
             
             int coincidenceAmount = 0;
             // Checking to the right
             for (int i = 0; i < 4; i++) {
+                
                 //Checking if it's out of bounds
                 if (col + i > game.board.grid[0].length - 1) break;
                 if (game.board.grid[row][col + i] == player) coincidenceAmount++;
-                if (coincidenceAmount >= 4) return true;
+                if (coincidenceAmount >= 4) {
+                    winner_start_x = board.artist.getRowColPosition(row, col)[0]; 
+                    winner_start_y = board.artist.getRowColPosition(row, col)[1]; 
+                    winner_end_x = board.artist.getRowColPosition(row, col + i)[0];
+                    winner_end_y = board.artist.getRowColPosition(row, col)[1]; 
+                    return true;
+                }
             }
 
             coincidenceAmount = 0;
             // Checking down
             for (int i = 0; i < 4; i++) {
+                if (i == 0) {
+                    winner_start_x = board.artist.getRowColPosition(row, col)[0]; 
+                }
                 //Checking if it's out of bounds
                 if (row + i > game.board.grid.length - 1) break;
                 if (game.board.grid[row + i][col] == player) coincidenceAmount++;
-                if (coincidenceAmount >= 4) return true;
+                if (coincidenceAmount >= 4) {
+                    winner_start_x = board.artist.getRowColPosition(row, col)[0]; 
+                    winner_start_y = board.artist.getRowColPosition(row, col)[1]; 
+                    winner_end_x = board.artist.getRowColPosition(row, col)[0];
+                    winner_end_y = board.artist.getRowColPosition(row + i, col)[1];
+                    return true;
+                }
             }
 
             // No need to check up or left
@@ -291,19 +317,37 @@ public class Controller implements Initializable{
             coincidenceAmount = 0;
             // Checking down-right
             for (int i = 0; i < 4; i++) {
+                if (i == 0) {
+                    winner_start_x = board.artist.getRowColPosition(row, col)[0]; 
+                }
                 //Checking if it's out of bounds
                 if (row + i > game.board.grid.length - 1 || col + i > game.board.grid[0].length - 1) break;
                 if (game.board.grid[row + i][col + i] == player) coincidenceAmount++;
-                if (coincidenceAmount >= 4) return true;
+                if (coincidenceAmount >= 4) {
+                    winner_start_x = board.artist.getRowColPosition(row, col)[0]; 
+                    winner_start_y = board.artist.getRowColPosition(row, col)[1]; 
+                    winner_end_x = board.artist.getRowColPosition(row + i, col + i)[0];
+                    winner_end_y = board.artist.getRowColPosition(row + i, col + i)[1];
+                    return true;
+                }
             }
 
             coincidenceAmount = 0;
             // Checking down-left
             for (int i = 0; i < 4; i++) {
+                if (i == 0) {
+                    winner_start_x = board.artist.getRowColPosition(row, col)[0]; 
+                }
                 //Checking if it's out of bounds
                 if (row + i > game.board.grid.length - 1 || col - i < 0) break;
                 if (game.board.grid[row + i][col - i] == player) coincidenceAmount++;
-                if (coincidenceAmount >= 4) return true;
+                if (coincidenceAmount >= 4) {
+                    winner_start_x = board.artist.getRowColPosition(row, col)[0]; 
+                    winner_start_y = board.artist.getRowColPosition(row, col)[1]; 
+                    winner_end_x = board.artist.getRowColPosition(row + i, col - i)[0];
+                    winner_end_y = board.artist.getRowColPosition(row + i, col - i)[1]; 
+                    return true;
+                }
             }
 
 
@@ -340,6 +384,14 @@ public class Controller implements Initializable{
                 board.artist.draw();
                 player1.artist.draw();
                 player2.artist.draw();
+            }
+
+            public void drawWinnerLine() {
+                gc.setFill(yellowColor);
+                gc.setStroke(Color.BLACK);
+                gc.setLineWidth(20);
+                gc.setLineCap(StrokeLineCap.ROUND);
+                gc.strokeLine(winner_start_x, winner_start_y, winner_end_x, winner_end_y);
             }
 
             public void drawBoard(Board board) {
@@ -556,6 +608,25 @@ public class Controller implements Initializable{
 
                 this.width += space_between * cols;
                 this.height += space_between * rows;
+            }
+
+            public double[] getRowColPosition(int row, int col) {
+                double[] position = new double[2];
+                double pos_x = 5000, pos_y = 5000;
+
+                for(int i = 0; i < grid.length; i++) {
+                                      // cols
+                    for(int j = 0; j < grid[0].length; j++) {
+                        if (i == row && j == col) {
+                            pos_x = CELL_SIZE/2 + x + margin/2 + j * (CELL_SIZE + space_between);
+                            pos_y = CELL_SIZE/2 + y + margin/2 + i * (CELL_SIZE + space_between);
+                        }
+                        
+                    }
+                }
+                position[0] = pos_x;
+                position[1] = pos_y;
+                return position;
             }
 
             public void doAddChipAnimation(Chip chip, int col) {
