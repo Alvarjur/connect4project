@@ -1,10 +1,13 @@
 package com.server;
 
 import java.net.InetSocketAddress;
+import java.util.Map;
 
 import org.java_websocket.WebSocket;
+import org.java_websocket.exceptions.WebsocketNotConnectedException;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 /**
@@ -26,7 +29,7 @@ public class Main extends WebSocketServer {
     public static final int DEFAULT_PORT = 3000;
 
     /** Registro de clientes */
-    public static ClientRegistry clientRegistry;
+    public static ClientRegistry clients;
 
     // Claus JSON
     private static final String K_TYPE = "type";
@@ -53,22 +56,77 @@ public class Main extends WebSocketServer {
      */
     public Main(InetSocketAddress address) {
         super(address);
-        clientRegistry = new ClientRegistry();
+        clients = new ClientRegistry();
     }
+
+    /**
+     * Crea un objecte JSON amb el camp type inicialitzat.
+     *
+     * @param type valor per a type
+     * @return instància de JSONObject amb el tipus establert
+     */
+    private static JSONObject msg(String type) {
+        return new JSONObject().put(K_TYPE, type);
+    }
+
+    /**
+     * Afegeix clau-valor al JSONObject si el valor no és null.
+     *
+     * @param o objecte JSON destí
+     * @param k clau
+     * @param v valor (ignorat si és null)
+     */
+    private static void put(JSONObject o, String k, Object v) {
+        if (v != null) o.put(k, v);
+    }
+
+    /**
+     * Envia de forma segura un payload i, si el socket no està connectat,
+     * el neteja del registre.
+     *
+     * @param to socket destinatari
+     * @param payload cadena JSON a enviar
+     */
+    private void sendSafe(WebSocket to, String payload) {
+        if (to == null) return;
+        try {
+            to.send(payload);
+        } catch (WebsocketNotConnectedException e) {
+            String name = clients.cleanupDisconnected(to);
+            System.out.println("Client desconnectat durant send: " + name);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Envia la llista actualitzada de clients a tots els clients connectats.
+     */
+    private void sendClientsListToAll() {
+        JSONArray list = clients.currentNames();
+        for (Map.Entry<WebSocket, String> e : clients.snapshot().entrySet()) {
+            JSONObject rst = msg(T_CLIENTS);
+            put(rst, K_ID, e.getValue());
+            put(rst, K_LIST, list);
+            sendSafe(e.getKey(), rst.toString());
+        }
+    }
+
+
 
     // ----------------- WebSocketServer overrides -----------------
 
     @Override
     public void onOpen(WebSocket conn, ClientHandshake handshake) {
         System.out.println("[SERVIDOR] Nuevo cliente conectado");
-        // conn.send("[SERVIDOR] Te has conectado al servidor");
     }
 
     /** Elimina el client del registre i notifica la llista actualitzada. */
     @Override
     public void onClose(WebSocket conn, int code, String reason, boolean remote) {
-        System.out.println("[SERVIDOR] Cliente desconectado -> " + clientRegistry.nameBySocket(conn));
-        clientRegistry.remove(conn);
+        System.out.println("[SERVIDOR] Cliente desconectado -> " + clients.nameBySocket(conn));
+        clients.remove(conn);
+        sendClientsListToAll();
     }
 
     /***** Procesa el mensaje recibido y actúa según el tipo de mensaje. *****/
@@ -84,11 +142,14 @@ public class Main extends WebSocketServer {
             switch (type) {
                 // Si es un registro de cliente
                 case T_REGISTER:
+                    // Registrar nuevo cliente
                     String clientName = json.getString(K_CLIENT_NAME);
-                    clientRegistry.add(conn, clientName);
-                    System.out.println("[SERVIDOR] Nombre del nuevo cliente -> " + clientName);
-                    // TODO Enviar nuevo JSON con los clientes actuales a todo el mundo
+                    clients.add(conn, clientName);
+                    System.out.println("[SERVIDOR] Cliente registrado -> " + clientName);
                     conn.send("[SERVIDOR] Has sido registrado en el servidor con el nombre: " + clientName);
+
+                    // Enviar nuevo JSON con los clientes actuales a todo el mundo
+                    sendClientsListToAll();
                     break;
                 default:
                     conn.send("[SERVIDOR] Tipo de mensaje no controlado."
