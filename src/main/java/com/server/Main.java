@@ -48,6 +48,7 @@ public class Main extends WebSocketServer {
     private static final String T_CLIENTS = "clients";
     private static final String T_ERROR = "error";
     private static final String T_CONFIRMATION = "confirmation";
+    private static final String T_CHALLENGE = "challenge";
 
     /**
      * Crea un servidor WebSocket que escolta a l'adreça indicada.
@@ -135,7 +136,7 @@ public class Main extends WebSocketServer {
         System.out.println("[CLIENTE] Mensaje del cliente -> " + message);
 
         try {
-            // Obtener el 
+            // Obtener el JSON
             JSONObject json = new JSONObject(message);
             String type = json.getString("type");
 
@@ -151,6 +152,20 @@ public class Main extends WebSocketServer {
                     // Enviar nuevo JSON con los clientes actuales a todo el mundo
                     sendClientsListToAll();
                     break;
+                
+                // Si es un reto de un cliente a otro
+                case T_CHALLENGE:
+                    String challenger = json.getString("clientName");
+                    String challengedPlayer = json.getString("challengedClientName");
+                    System.out.println("AAAAAA");
+                    System.out.println(String.format("[SERVIDOR] Cliente '%s' ha retado a '%s", challenger, challengedPlayer));
+                    
+                    // Preparar mensaje y enviar sólo a cliente retado
+                    String payload = new JSONObject()
+                        .put("type", "challenge")
+                        .put("challenger", challenger)
+                        .toString();
+                    sendSafe(clients.socketByName(challengedPlayer), payload);
                 default:
                     conn.send("[SERVIDOR] Tipo de mensaje no controlado."
                         + "\n"

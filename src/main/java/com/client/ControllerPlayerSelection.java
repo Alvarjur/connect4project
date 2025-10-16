@@ -83,5 +83,10 @@ public class ControllerPlayerSelection {
 
     private void challengePlayer(String playerName) {
         System.out.println("prueba! has clickado a " + playerName);
+        Main.sendChallenge(playerName);
+    }
+
+    public void processChallenge(JSONObject msgObj) {
+        System.out.println("Has recibido un reto de: " + msgObj.getString("challenger"));
     }
 }

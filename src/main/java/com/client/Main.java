@@ -136,9 +136,14 @@ public class Main extends Application {
             // Comprobar tipo de respuesta
             String type = msgObj.getString("type");
             switch (type) {
+                // Recibir lista actualizada de clientes
                 case "clients":
                     controllerPlayerSelection.updateListOfClients(msgObj);
                     break;
+                // Recibir reto de otro cliente
+                case "challenge":
+                    System.out.println("Respuesta de tipo 'challenge' recibida: " + response);
+                    controllerPlayerSelection.processChallenge(msgObj);
             }
         });
     }
@@ -168,6 +173,15 @@ public class Main extends Application {
 
     Platform.exit();
     System.exit(0);
+    }
+
+    public static void sendChallenge(String challengedPlayer) {
+        // Enviar al servidor el nombre del cliente
+        JSONObject json = new JSONObject();
+        json.put("type", "challenge");
+        json.put("clientName", clientName);
+        json.put("challengedClientName", challengedPlayer);
+        wsClient.safeSend(json.toString());
     }
 }
 
