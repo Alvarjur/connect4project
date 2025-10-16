@@ -122,7 +122,13 @@ public class Main extends Application {
     /***** Realiza una acción cuando recibe un mensaje del servidor *****/
     private static void wsMessage(String response) {
         Platform.runLater(()->{ 
-            System.out.println(response);
+
+            // Si no es un JSON, sólo lo imprime por pantalla
+            boolean isJson = response.charAt(0) == '{';
+            if (!isJson) {
+                System.out.println(response);
+                return;
+            }
 
             // Convertir respuesta a JSONObject
             JSONObject msgObj = new JSONObject(response);
@@ -132,9 +138,8 @@ public class Main extends Application {
             switch (type) {
                 case "clients":
                     controllerPlayerSelection.updateListOfClients(msgObj);
+                    break;
             }
-            
-            // controllerPlayerSelection.receiveMessage(msgObj);
         });
     }
 

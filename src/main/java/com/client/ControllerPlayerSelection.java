@@ -1,7 +1,9 @@
 package com.client;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javafx.fxml.FXML;
@@ -25,8 +27,18 @@ public class ControllerPlayerSelection {
     }
 
     public void updateListOfClients(JSONObject msgObj) {
-        String jsonList = msgObj.getString("list");
-        ObjectMapper mapper = new ObjectMapper();
-        this.clients = mapper.readValue(jsonList, new TypeReference<List<String>>() {});
+        try {
+            JSONArray jsonArray = msgObj.getJSONArray("list");
+            List<String> newClients = new ArrayList<>();
+
+            for (int i=0 ; i<jsonArray.length() ; i++) {
+                newClients.add(jsonArray.getString(i));
+            }
+
+            clients = newClients;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
     }
 }
