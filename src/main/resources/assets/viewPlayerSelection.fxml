@@ -31,9 +31,9 @@
             <VBox alignment="CENTER" spacing="5.0">
                <children>
                   <Label text="Avalible players" />
-                  <ScrollPane prefHeight="200.0" fitToWidth="true" fitToHeight="true">
+                  <ScrollPane fitToHeight="true" fitToWidth="true">
                      <content>
-                        <VBox alignment="CENTER" />
+                        <VBox fx:id="yPane" alignment="CENTER" />
                      </content>
                   </ScrollPane>
                </children>
