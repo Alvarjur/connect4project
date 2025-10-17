@@ -31,7 +31,7 @@ public class GameMatch implements Initializable{
     private Color blueColor = new Color(0,0,0.5,1);
     private Color yellowColor = new Color(0.7,0.6,0.3,1);
     private Artist artist = new Artist();
-    private Game game;
+    public static Game game;
     private CanvasTimer timer;
 
 
@@ -60,6 +60,11 @@ public class GameMatch implements Initializable{
     public static void setMousePos(double x, double y) {
         mouse_x = x;
         mouse_y = y;
+    }
+
+    // Este es de servidor, hecho durante cambios
+    public static void updatePlayerMousePos(String player, double pos_x, double pos_y) {
+        game.setPlayerPos(player, pos_x, pos_y);
     }
 
 
@@ -125,6 +130,7 @@ public class GameMatch implements Initializable{
     
 
     public void update() {
+        System.out.println("player1 pos_x: " + game.player1.x + " player2 pos_x: " + game.player2.x);
         game.updatePlayerPositions();
         game.updateLogic();
         game.updateVisualLogics();
@@ -160,7 +166,7 @@ public class GameMatch implements Initializable{
     class Game {
         private int currentPlayer;
         private Board board;
-        private Player player1, player2;
+        public Player player1, player2;
         private Player winner;
         private ArrayList<Player> players = new ArrayList<Player>();
         public GameArtist artist;
@@ -189,6 +195,17 @@ public class GameMatch implements Initializable{
             draggableChips.add(yellowDraggableChip);
             artist = new GameArtist();
 
+        }
+
+        public void setPlayerPos(String playerSending, double pos_x, double pos_y) {
+            for (Player player : players) {
+                if(player.name.equals(playerSending)) {
+                    player.x = pos_x;
+                    player.y = pos_y;
+
+                    return;
+                }
+            }
         }
 
         public void switchPlayer() {

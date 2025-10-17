@@ -153,6 +153,9 @@ public class Main extends Application {
                     break;
                 case "confirmedGame":
                     System.out.println("Servidor manda confirmación de que va a empezar una partida.");
+                    UtilsViews.setViewAnimating("ViewGame");
+                    // ControllerGame.initializeResources(null, null);
+                    break;
 
             }
         });
@@ -201,6 +204,23 @@ public class Main extends Application {
         matchJson.put("player_1", challenger);
         matchJson.put("player_2", clientName);
         wsClient.safeSend(matchJson.toString());
+    }
+
+    
+    
+    // public static void sendPlayerInfo(Player player) {
+
+    // }
+
+    public static void sendPlayerMousePosInfo(String player, double x, double y, boolean dragging) {
+        System.out.println(clientName + " se mueve");
+        JSONObject playerMouseInfo = new JSONObject();
+        playerMouseInfo.put("type", "playerMouseInfo");
+        playerMouseInfo.put("player", clientName);
+        playerMouseInfo.put("pos_x", x);
+        playerMouseInfo.put("pos_y", y);
+        playerMouseInfo.put("dragging", dragging);
+        wsClient.safeSend(playerMouseInfo.toString());
     }
 }
 

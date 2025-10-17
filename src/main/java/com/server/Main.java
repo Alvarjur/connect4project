@@ -36,6 +36,9 @@ public class Main extends WebSocketServer {
     /***** Registro de partidas *****/
     public static List<GameMatch> games;
 
+    /***** Partida actual *****/
+    public static GameMatch.Game game;
+
     // Claus JSON
     private static final String K_TYPE = "type";
     private static final String K_MESSAGE = "message";
@@ -55,6 +58,7 @@ public class Main extends WebSocketServer {
     private static final String T_CONFIRMATION = "confirmation";
     private static final String T_CHALLENGE = "challenge";
     private static final String T_START_MATCH = "startMatch";
+    private static final String T_PLAYER_MOUSE_INFO = "playerMouseInfo";
 
     /**
      * Crea un servidor WebSocket que escolta a l'adreça indicada.
@@ -188,6 +192,12 @@ public class Main extends WebSocketServer {
 
                     // TODO Saca a ambos jugadores de la lista de disponibles
 
+                   
+                    
+
+
+
+
                     // Manda confirmación a los jugadores (para que pasen de vista)
                     JSONObject payloadConfirmedGame = new JSONObject();
                     payloadConfirmedGame.put("type", "confirmedGame");
@@ -195,6 +205,19 @@ public class Main extends WebSocketServer {
                     sendSafe(clients.socketByName(player_1), payloadConfirmedGame.toString());
                     sendSafe(clients.socketByName(player_2), payloadConfirmedGame.toString());
                     
+                    break;
+                
+                case T_PLAYER_MOUSE_INFO:
+                    System.out.println("Mensaje recibido, movimiento en el ratón");
+                    String player = json.getString("player");
+                    double pos_x = json.getDouble("pos_x");
+                    double pos_y = json.getDouble("pos_y");
+                    boolean dragging = json.getBoolean("dragging");
+                    System.out.println("aaaaa");
+                    games.get(games.size()).updatePlayerMousePos(player, pos_x, pos_y); // Aquí parece que hay un error y no pasa de aquí
+                    System.out.println("bbbbbb");
+                    // update the game seen by the players?
+                    System.out.println("game player1: " + games.get(games.size()).game.player1.toString());
                     break;
 
                 default:
