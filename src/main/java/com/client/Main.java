@@ -23,6 +23,9 @@ public class Main extends Application {
 
     public static ControllerConfig controllerConfig;
     public static ControllerPlayerSelection controllerPlayerSelection;
+    public static ControllerWait controllerWait;
+    public static ControllerCountdown controllerCountdown;
+    public static ControllerGame controllerGame;
 
     public static void main(String[] args) {
         launch(args);
@@ -36,12 +39,15 @@ public class Main extends Application {
         UtilsViews.parentContainer.setStyle("-fx-font: 14 arial;");
         UtilsViews.addView(getClass(), "ViewConfig", "/assets/viewConfig.fxml");
         UtilsViews.addView(getClass(), "ViewPlayerSelection", "/assets/viewPlayerSelection.fxml");
-        // UtilsViews.addView(getClass(), "ViewWait", "/assets/viewWait.fxml");
-        // UtilsViews.addView(getClass(), "ViewCountdown", "/assets/viewCountdown.fxml");
-        // UtilsViews.addView(getClass(), "ViewGame", "/assets/viewGame.fxml");
+        UtilsViews.addView(getClass(), "ViewWait", "/assets/viewWait.fxml");
+        UtilsViews.addView(getClass(), "ViewCountdown", "/assets/viewCountdown.fxml");
+        UtilsViews.addView(getClass(), "ViewGame", "/assets/viewGame.fxml");
 
         controllerConfig = (ControllerConfig) UtilsViews.getController("ViewConfig");
         controllerPlayerSelection = (ControllerPlayerSelection) UtilsViews.getController("ViewPlayerSelection");
+        controllerWait = (ControllerWait) UtilsViews.getController("ViewWait");
+        controllerCountdown = (ControllerCountdown) UtilsViews.getController("ViewCountdown");
+        controllerGame = (ControllerGame) UtilsViews.getController("ViewGame");
         // TODO Añadir el resto de controladores cuando estén listos
 
         Scene scene = new Scene(UtilsViews.parentContainer);
@@ -147,6 +153,7 @@ public class Main extends Application {
                     break;
                 case "confirmedGame":
                     System.out.println("Servidor manda confirmación de que va a empezar una partida.");
+
             }
         });
     }
@@ -197,4 +204,4 @@ public class Main extends Application {
     }
 }
 
-// TODO Arreglar bug que ocurre cuando pones un puerto out of range (p.ej. 30000000), y congela el cliente
+// TODO Arreglar bug que ocurre cuando pones una conexión mal en ViewConfig y congela el cliente
