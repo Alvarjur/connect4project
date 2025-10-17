@@ -20,9 +20,9 @@ public class Main extends Application {
     public void start(Stage stage) throws Exception {
 
         // Carrega la vista inicial des del fitxer FXML
-        Parent root = FXMLLoader.load(getClass().getResource("/assets/layout.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("/assets/viewGame.fxml"));
         UtilsViews.parentContainer.setStyle("-fx-font: 14 arial;");
-        UtilsViews.addView(getClass(), "layout", "/assets/layout.fxml");
+        UtilsViews.addView(getClass(), "layout", "/assets/viewGame.fxml");
         Scene scene = new Scene(root);
 
         stage.setScene(scene);

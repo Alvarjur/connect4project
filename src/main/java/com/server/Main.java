@@ -34,7 +34,7 @@ public class Main extends WebSocketServer {
     public static ClientRegistry clients;
 
     /***** Registro de partidas *****/
-    public static List<Game> games;
+    public static List<GameMatch> games;
 
     // Claus JSON
     private static final String K_TYPE = "type";
@@ -183,7 +183,7 @@ public class Main extends WebSocketServer {
                     System.out.println(String.format("Se confirma que empieza la partida! Jugarán %s VS %s", player_1, player_2));
                     
                     // Crea la partida
-                    Game game = new Game(player_1, player_2);
+                    GameMatch game = new GameMatch(player_1, player_2);
                     games.add(game);
 
                     // TODO Saca a ambos jugadores de la lista de disponibles
