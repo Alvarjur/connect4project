@@ -210,6 +210,7 @@ public class Main extends WebSocketServer {
                 .put("message", "Invalid JSON")
                 .toString()
             );
+            e.printStackTrace();
         }
     }
 
