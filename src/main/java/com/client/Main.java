@@ -144,6 +144,9 @@ public class Main extends Application {
                 case "challenge":
                     System.out.println("Respuesta de tipo 'challenge' recibida: " + response);
                     controllerPlayerSelection.processChallenge(msgObj);
+                    break;
+                case "confirmedGame":
+                    System.out.println("Servidor manda confirmación de que va a empezar una partida.");
             }
         });
     }
@@ -185,6 +188,7 @@ public class Main extends Application {
     }
 
     public static void sendStartMatch(String challenger) {
+        System.out.println("Entro en sendStartMatch");
         JSONObject matchJson = new JSONObject();
         matchJson.put("type", "startMatch");
         matchJson.put("player_1", challenger);

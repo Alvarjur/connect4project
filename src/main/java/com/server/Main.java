@@ -1,6 +1,7 @@
 package com.server;
 
 import java.net.InetSocketAddress;
+import java.util.List;
 import java.util.Map;
 
 import org.java_websocket.WebSocket;
@@ -30,6 +31,9 @@ public class Main extends WebSocketServer {
 
     /** Registro de clientes */
     public static ClientRegistry clients;
+
+    /***** Registro de partidas *****/
+    public static List<Game> games;
 
     // Claus JSON
     private static final String K_TYPE = "type";
@@ -171,7 +175,25 @@ public class Main extends WebSocketServer {
 
                 // Si un cliente acepta una partida
                 case T_START_MATCH:
-                    System.out.println(String.format("Se confirma que empieza la partida! Jugarán %s VS %s", json.getString("player_1"), json.getString("player_2")));
+                    System.out.println("Entro en T_START_MATCH");
+                    String player_1 = json.getString("player_1");
+                    String player_2 = json.getString("player_2");
+                    System.out.println(String.format("Se confirma que empieza la partida! Jugarán %s VS %s", player_1, player_2));
+                    
+                    // Crea la partida
+                    // Game game = new Game(player_1, player_2);
+                    // games.add(game);
+
+                    // TODO Saca a ambos jugadores de la lista de disponibles
+
+                    // Manda confirmación a los jugadores (para que pasen de vista)
+                    System.out.println("Justo antes de crear el JSONObject en T_START_MATCH");
+                    JSONObject payloadConfirmedGame = new JSONObject();
+                    payloadConfirmedGame.put("type", "confirmedGame");
+                    System.out.println(payloadConfirmedGame);
+                    sendSafe(clients.socketByName(player_1), payloadConfirmedGame.toString());
+                    sendSafe(clients.socketByName(player_2), payloadConfirmedGame.toString());
+                    
                     break;
 
                 default:
