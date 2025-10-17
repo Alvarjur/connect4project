@@ -4,8 +4,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
 
-import com.project.CanvasTimer;
-
 import javafx.animation.AnimationTimer;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -80,10 +78,10 @@ public class GameMatch implements Initializable{
         canvas_height = canvas.getHeight();
         // game = new Game();
 
-        timer = new CanvasTimer(
-            fps -> update(), 
-            this::draw, 
-            120);
+        // timer = new CanvasTimer(
+        //     fps -> update(), 
+        //     this::update, 
+        //     120);
         timer.start();
 
         canvas.widthProperty().bind(root.widthProperty());
@@ -119,6 +117,11 @@ public class GameMatch implements Initializable{
 
     public GameMatch(String player1, String player2) {
         game = new Game(player1, player2);
+        // timer = new CanvasTimer( // Esto crashea el juego
+        //     fps -> update(), 
+        //     // this::draw, 
+        //     60);
+        timer.start();
     }
 
     public void updateWindowSize() {
@@ -131,11 +134,12 @@ public class GameMatch implements Initializable{
 
     public void update() {
         System.out.println("player1 pos_x: " + game.player1.x + " player2 pos_x: " + game.player2.x);
+        Main.test();
         game.updatePlayerPositions();
         game.updateLogic();
         game.updateVisualLogics();
 
-        
+
 
         
     }
@@ -514,9 +518,9 @@ public class GameMatch implements Initializable{
 
     class Player {
         private int playerNumber;
-        private String name;
+        public String name;
         private PlayerArtist artist;
-        private double x, y;
+        public double x, y;
         private boolean isDragging = false;
         
         public Player(String playerName, int playerNumber, double x, double y) {

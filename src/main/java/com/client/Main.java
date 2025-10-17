@@ -31,10 +31,12 @@ public class Main extends Application {
         launch(args);
     }
 
+    
+
     @Override
     public void start(Stage stage) throws Exception {
-        final int windowWidth = 400;
-        final int windowHeight = 300;
+        final int windowWidth = 900;
+        final int windowHeight = 600;
 
         UtilsViews.parentContainer.setStyle("-fx-font: 14 arial;");
         UtilsViews.addView(getClass(), "ViewConfig", "/assets/viewConfig.fxml");
@@ -158,7 +160,9 @@ public class Main extends Application {
                     break;
                 case "drawOrder":
                     System.out.println("orden de dibujar");
-                    ControllerGame.draw(msgObj.getDouble("pos_x"), msgObj.getDouble("pos_y"));
+                    ControllerGame.draw(msgObj.getDouble("pos_x_1"), msgObj.getDouble("pos_y_1"),
+                    msgObj.getDouble("pos_x_2"), msgObj.getDouble("pos_y_2"));
+                    
 
             }
         });
@@ -208,6 +212,8 @@ public class Main extends Application {
         matchJson.put("player_2", clientName);
         wsClient.safeSend(matchJson.toString());
     }
+
+    
 
     
     

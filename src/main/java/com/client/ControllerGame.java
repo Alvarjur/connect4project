@@ -31,9 +31,9 @@ public class ControllerGame implements Initializable {
     public double board_x, board_y;
 
     public static Color boardColor = new Color(0,0,0.5,1);
-    private Color redColor = new Color(0.5,0,0,1);
-    private Color blueColor = new Color(0,0,0.5,1);
-    private Color yellowColor = new Color(0.7,0.6,0.3,1);
+    private static Color redColor = new Color(0.5,0,0,1);
+    private static Color blueColor = new Color(0,0,0.5,1);
+    private static Color yellowColor = new Color(0.7,0.6,0.3,1);
 
     // Animación de caida
     private boolean animating = false;
@@ -62,9 +62,13 @@ public class ControllerGame implements Initializable {
         dragging = draggea;
     }
 
-    public static void draw(double pos_x, double pos_y) {
+    public static void draw(double pos_x_1, double pos_y_1, double pos_x_2, double pos_y_2) {
         // boardArtist.draw();
-        gc.fillOval(pos_x, pos_y, 50, 50);
+        gc.clearRect(0, 0, 10000, 100000);
+        gc.setFill(redColor);
+        gc.fillOval(pos_x_1 - 25, pos_y_1 - 25, 50, 50);
+        gc.setFill(yellowColor);
+        gc.fillOval(pos_x_2 - 25, pos_y_2 - 25, 50, 50);
     }
 
     @Override

@@ -36,8 +36,6 @@ public class Main extends WebSocketServer {
     /***** Registro de partidas *****/
     public static List<GameMatch> games;
 
-    /***** Partida actual *****/
-    public static GameMatch.Game game;
 
     // Claus JSON
     private static final String K_TYPE = "type";
@@ -222,8 +220,23 @@ public class Main extends WebSocketServer {
                     // PRUEBA PARA VER SI DIBUJA
                     JSONObject objeto = new JSONObject();
                     objeto.put("type", "drawOrder");
-                    objeto.put("pos_x", pos_x);
-                    objeto.put("pos_y", pos_y);
+                    double pos_x_1, pos_x_2, pos_y_1, pos_y_2;
+                    if (player.equals(games.get(games.size() - 1).game.player1.name)) {
+                        pos_x_1 = games.get(games.size() - 1).game.player1.x;
+                        pos_y_1 = games.get(games.size() - 1).game.player1.y;
+                        pos_x_2 = games.get(games.size() - 1).game.player2.x;
+                        pos_y_2 = games.get(games.size() - 1).game.player2.y;
+                    } else {
+                        pos_x_1 = games.get(games.size() - 1).game.player2.x;
+                        pos_y_1 = games.get(games.size() - 1).game.player2.y;
+                        pos_x_2 = games.get(games.size() - 1).game.player1.x;
+                        pos_y_2 = games.get(games.size() - 1).game.player1.y;
+                    }
+                    
+                    objeto.put("pos_x_1", pos_x_1);
+                    objeto.put("pos_y_1", pos_y_1);
+                    objeto.put("pos_x_2", pos_x_2);
+                    objeto.put("pos_y_2", pos_y_2);
                     System.out.println("testssss");
                     sendSafe(clients.socketByName(player), objeto.toString());
                     System.out.println("testssssssssssssssssssssss");
@@ -250,6 +263,10 @@ public class Main extends WebSocketServer {
     public void onError(WebSocket conn, Exception ex) {
         ex.printStackTrace();
         conn.send("error");
+    }
+
+    public static void test() {
+        System.out.println("weiwesesadwadawdasdasdas");
     }
 
     /** Arrencada: log i configuració del timeout de connexió perduda. */
