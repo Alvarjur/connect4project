@@ -87,6 +87,13 @@ public class ControllerPlayerSelection {
     }
 
     public void processChallenge(JSONObject msgObj) {
-        System.out.println("Has recibido un reto de: " + msgObj.getString("challenger"));
+        String challenger = msgObj.getString("challenger");
+        System.out.println("Has recibido un reto de: " + challenger);
+        // TODO Aquí debería haber lógica relacionada con dar la posibilidad al cliente de aceptar o rechazar el reto
+
+        // Aceptar el reto
+        Main.sendStartMatch(challenger);
+
+        // Pasar a siguiente vista
     }
 }

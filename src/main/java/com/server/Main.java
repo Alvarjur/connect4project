@@ -49,6 +49,7 @@ public class Main extends WebSocketServer {
     private static final String T_ERROR = "error";
     private static final String T_CONFIRMATION = "confirmation";
     private static final String T_CHALLENGE = "challenge";
+    private static final String T_START_MATCH = "startMatch";
 
     /**
      * Crea un servidor WebSocket que escolta a l'adreça indicada.
@@ -166,6 +167,13 @@ public class Main extends WebSocketServer {
                         .put("challenger", challenger)
                         .toString();
                     sendSafe(clients.socketByName(challengedPlayer), payload);
+                    break;
+
+                // Si un cliente acepta una partida
+                case T_START_MATCH:
+                    System.out.println(String.format("Se confirma que empieza la partida! Jugarán %s VS %s", json.getString("player_1"), json.getString("player_2")));
+                    break;
+
                 default:
                     conn.send("[SERVIDOR] Tipo de mensaje no controlado."
                         + "\n"

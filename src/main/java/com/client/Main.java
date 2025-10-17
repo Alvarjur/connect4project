@@ -183,6 +183,14 @@ public class Main extends Application {
         json.put("challengedClientName", challengedPlayer);
         wsClient.safeSend(json.toString());
     }
+
+    public static void sendStartMatch(String challenger) {
+        JSONObject matchJson = new JSONObject();
+        matchJson.put("type", "startMatch");
+        matchJson.put("player_1", challenger);
+        matchJson.put("player_2", clientName);
+        wsClient.safeSend(matchJson.toString());
+    }
 }
 
 // TODO Arreglar bug que ocurre cuando pones un puerto out of range (p.ej. 30000000), y congela el cliente
