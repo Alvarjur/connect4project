@@ -136,6 +136,8 @@ public class GameMatch implements Initializable{
         game.updateVisualLogics();
 
         
+
+        
     }
 
     public void draw() {

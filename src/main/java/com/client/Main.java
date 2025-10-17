@@ -156,6 +156,9 @@ public class Main extends Application {
                     UtilsViews.setViewAnimating("ViewGame");
                     // ControllerGame.initializeResources(null, null);
                     break;
+                case "drawOrder":
+                    System.out.println("orden de dibujar");
+                    ControllerGame.draw(msgObj.getDouble("pos_x"), msgObj.getDouble("pos_y"));
 
             }
         });

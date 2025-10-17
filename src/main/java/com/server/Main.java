@@ -213,11 +213,20 @@ public class Main extends WebSocketServer {
                     double pos_x = json.getDouble("pos_x");
                     double pos_y = json.getDouble("pos_y");
                     boolean dragging = json.getBoolean("dragging");
-                    System.out.println("aaaaa");
-                    games.get(games.size()).updatePlayerMousePos(player, pos_x, pos_y); // Aquí parece que hay un error y no pasa de aquí
+                    System.out.println("aaasdsdsdsdsdsddsaa");
+                    games.get(games.size() - 1).updatePlayerMousePos(player, pos_x, pos_y);
                     System.out.println("bbbbbb");
                     // update the game seen by the players?
-                    System.out.println("game player1: " + games.get(games.size()).game.player1.toString());
+                    // System.out.println("game player1: " + games.get(games.size()).game.player1.toString());
+
+                    // PRUEBA PARA VER SI DIBUJA
+                    JSONObject objeto = new JSONObject();
+                    objeto.put("type", "drawOrder");
+                    objeto.put("pos_x", pos_x);
+                    objeto.put("pos_y", pos_y);
+                    System.out.println("testssss");
+                    sendSafe(clients.socketByName(player), objeto.toString());
+                    System.out.println("testssssssssssssssssssssss");
                     break;
 
                 default:
