@@ -22,7 +22,7 @@ public class ControllerGame implements Initializable {
     private static boolean dragging;
     private static String name = Main.clientName;
     private static int playerNum;
-    private double CELL_SIZE = 80;
+    public static double CELL_SIZE = 80;
     @FXML
     private Canvas canvas;
     private static GraphicsContext gc;
@@ -30,12 +30,18 @@ public class ControllerGame implements Initializable {
     public double mouse_x_p2, mouse_y_p2;
     public static int[][] grid;
 
-    public double board_x, board_y;
+    public static double board_x, board_y;
+    public static double red_chip_dragg_x, red_chip_dragg_y, yellow_chip_dragg_x, yellow_chip_dragg_y;
 
     public static Color boardColor = new Color(0,0,0.5,1);
     private static Color redColor = new Color(0.5,0,0,1);
     private static Color blueColor = new Color(0,0,0.5,1);
     private static Color yellowColor = new Color(0.7,0.6,0.3,1);
+
+    public static double currentChip_x, currentChip_y;
+    public static int currentChip_player;
+
+    public static ArrayList<Integer> possibleMovesList = new ArrayList<>();
 
     // Animación de caida
     private boolean animating = false;
@@ -58,10 +64,43 @@ public class ControllerGame implements Initializable {
     private PlayerArtist playerArtist;
     private GameArtist gameArtist;
     
+    public static void updateBoardPos(double x, double y) {
+        board_x = x;
+        board_y = y;
+    }
+    public static void updateCurrentChip(String chip) {
+        if (chip.equals("none")) {
+            currentChip_player = 0;
+            return;
+        }
+
+        String parts[] = chip.split(" ");
+        currentChip_x = Double.parseDouble(parts[0]);
+        currentChip_y = Double.parseDouble(parts[1]);
+        currentChip_player = Integer.parseInt(parts[2]);
+
+    }
+    public static void updateDragChipsPos(double red_x, double red_y, double yellow_x, double yellow_y) {
+        red_chip_dragg_x = red_x;
+        red_chip_dragg_y = red_y;
+        yellow_chip_dragg_x = yellow_x;
+        yellow_chip_dragg_y = yellow_y;
+    }
     public static void setPlayerInfo(String nombre, int numero, boolean draggea) {
         name = Main.clientName;
         playerNum = numero;
         dragging = draggea;
+    }
+
+    public static void updatePossibleMoves(String possibleMoves) {
+        if(possibleMoves.equals("none")) {
+            possibleMovesList.clear();
+            return;
+        }
+
+        for(int i = 0; i < possibleMoves.length(); i++) {
+            possibleMovesList.add(Integer.valueOf(possibleMoves.charAt(i)));
+        }
     }
 
     public static void updateGrid(JSONArray arr) {
@@ -74,14 +113,33 @@ public class ControllerGame implements Initializable {
     }
 
     public static void draw(double pos_x_1, double pos_y_1, double pos_x_2, double pos_y_2) {
-        gc.clearRect(0, 0, 10000, 100000);
+        gc.clearRect(0, 0, 10000, 10000);
         // Drawing the board
         boardArtist.draw();
+        Color color1 = new Color(1,0,0,0.5);
+        Color color2 = new Color(0,1,1,0.5);
+
+        // Drawing draggable chips
+        gc.setFill(redColor);
+        gc.fillOval(red_chip_dragg_x, red_chip_dragg_y, CELL_SIZE, CELL_SIZE);
+        gc.setFill(yellowColor);
+        gc.fillOval(yellow_chip_dragg_x, yellow_chip_dragg_y, CELL_SIZE, CELL_SIZE);
+
+        // Drawing possibleMoves
+        if (currentChip_player != 0) {
+            boardArtist.drawPossibleMoves();
+        }
+
+        // Drawing currentChip
+        if(currentChip_player != 0) {
+            gc.setFill(currentChip_player == 1 ? redColor : yellowColor);
+            gc.fillOval(currentChip_x - CELL_SIZE/2, currentChip_y - CELL_SIZE/2, CELL_SIZE, CELL_SIZE);
+        }
 
         // Drawing the players
-        gc.setFill(redColor);
+        gc.setFill(color1);
         gc.fillOval(pos_x_1 - 25, pos_y_1 - 25, 50, 50);
-        gc.setFill(yellowColor);
+        gc.setFill(color2);
         gc.fillOval(pos_x_2 - 25, pos_y_2 - 25, 50, 50);
 
         

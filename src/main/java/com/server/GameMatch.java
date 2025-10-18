@@ -38,6 +38,8 @@ public class GameMatch implements Initializable{
     public static Game game;
     private CanvasTimer timer;
 
+    
+
 
     // Animación de caida
     private Chip animChip;
@@ -86,6 +88,14 @@ public class GameMatch implements Initializable{
     // Este es de servidor, hecho durante cambios
     public static void updatePlayerMousePos(String player, double pos_x, double pos_y) {
         game.setPlayerPos(player, pos_x, pos_y);
+    }
+
+    public static void updatePlayerMouseState(String player, boolean dragging) {
+        if(game.player1.name.equals(player)) {
+            game.player1.isDragging = dragging;
+        } else {
+            game.player2.isDragging = dragging;
+        }
     }
 
 
@@ -158,11 +168,12 @@ public class GameMatch implements Initializable{
     
 
     public void update() {
-        System.out.println("player1 pos_x: " + game.player1.x + " player2 pos_x: " + game.player2.x);
+        // System.out.println("player1 pos_x: " + game.player1.x + " player2 pos_x: " + game.player2.x);
         Main.sendUpdateOrder();
         // game.updatePlayerPositions();
-        // game.updateLogic();
+        game.updateLogic();
         // game.updateVisualLogics();
+
 
 
 
@@ -198,17 +209,18 @@ public class GameMatch implements Initializable{
         private int currentPlayer;
         public Board board;
         public Player player1, player2;
-        private Player winner;
+        public Player winner;
         private ArrayList<Player> players = new ArrayList<Player>();
         public GameArtist artist;
-        private double draggableChips_red_x = 650;
-        private double draggableChips_red_y = 100;
-        private double draggableChips_yellow_x = 800;
-        private double draggableChips_yellow_y = 100;
+        public double draggableChips_red_x = 650;
+        public double draggableChips_red_y = 100;
+        public double draggableChips_yellow_x = 800;
+        public double draggableChips_yellow_y = 100;
         private DraggableChip redDraggableChip;
         private DraggableChip yellowDraggableChip;
         private ArrayList<DraggableChip> draggableChips = new ArrayList<DraggableChip>();
-        private Chip currentChip;
+        public Chip currentChip;
+        public String possibleMoves;
 
 
         public Game(String player1, String player2) {
@@ -415,8 +427,10 @@ public class GameMatch implements Initializable{
 
         public void updateLogic() {
             if (isPlayerDraggingChip(player1, redDraggableChip)) {
+                Main.log("JUGADOR AGARRANDO FICHA");
                 currentChip = player1.takeChip();
                 redDraggableChip.setIsBeingDragged(true);
+                possibleMoves = board.getPossibleMoves();
                 // System.out.println("red dragging");
             } else {
                 redDraggableChip.setIsBeingDragged(false);
@@ -425,11 +439,17 @@ public class GameMatch implements Initializable{
             if (isPlayerDraggingChip(player2, yellowDraggableChip)) {
                 currentChip = player2.takeChip();
                 yellowDraggableChip.setIsBeingDragged(true);
+                possibleMoves = board.getPossibleMoves();
                 
                 // System.out.println("yellow dragging");
             } else {
-                yellowDraggableChip.setIsBeingDragged(false);
-                currentChip = null;
+                if(currentChip!=null){
+                    if(currentPlayer != 1) {
+                        yellowDraggableChip.setIsBeingDragged(false);
+                        currentChip = null;
+                    }
+                }
+                
             }
             checkWinner();
         }
@@ -589,7 +609,7 @@ public class GameMatch implements Initializable{
     class Board{
         private BoardArtist artist;
         public int[][] grid; // 0 = empty, 1 = red, 2 = yellow
-        private double x, y;
+        public double x, y;
 
 
         public Board(double x, double y, int rows, int cols) {
@@ -605,6 +625,18 @@ public class GameMatch implements Initializable{
             // grid[0][6] = 1; // for testing
             // grid[5][5] = 2; // for testing
             
+        }
+
+        public String getPossibleMoves() {
+            String result = "";
+            for (int col = 0; col < grid[0].length; col++) {
+                    if (grid[0][col] == 0) {
+                        result += String.valueOf(col);
+                    }
+                }
+
+            return result;
+
         }
 
         public ArrayList<Integer> getNotFullColumns() {
@@ -764,9 +796,9 @@ public class GameMatch implements Initializable{
     }
 
     class Chip {
-        private int player; // 1 o 2
+        public int player; // 1 o 2
         private ChipArtist artist;
-        private double x, y;
+        public double x, y;
 
         public Chip(int player, double x, double y) {
             this.x = x;

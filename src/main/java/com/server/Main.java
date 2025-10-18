@@ -151,6 +151,27 @@ public class Main extends WebSocketServer {
             }
         }
         objeto.put("grid", chipGridPositions);
+        objeto.put("board_pos_x", game.board.x);
+        objeto.put("board_pos_y", game.board.y);
+
+        // Draggable chips
+        objeto.put("red_chip_dragg_x", game.draggableChips_red_x);
+        objeto.put("red_chip_dragg_y", game.draggableChips_red_y);
+        objeto.put("yellow_chip_dragg_x", game.draggableChips_yellow_x);
+        objeto.put("yellow_chip_dragg_y", game.draggableChips_yellow_y);
+
+        // Current chip draggeada
+        if(game.currentChip != null) {
+            objeto.put("current_chip", game.currentChip.x + " " + game.currentChip.y + " " + game.currentChip.player);
+            // Possible moves 
+            objeto.put("possible_moves", game.possibleMoves);
+        } else {
+            objeto.put("current_chip", "none");
+            objeto.put("possible_moves", "none");
+        }
+        
+        
+
 
         sendSafe(clients.socketByName(player1), objeto.toString());
         sendSafe(clients.socketByName(player2), objeto.toString());
@@ -245,7 +266,13 @@ public class Main extends WebSocketServer {
                     double pos_x = json.getDouble("pos_x");
                     double pos_y = json.getDouble("pos_y");
                     boolean dragging = json.getBoolean("dragging");
-                    games.get(games.size() - 1).updatePlayerMousePos(player1, pos_x, pos_y);
+                    if (games.get(games.size() - 1).game.player1.name.equals(player1)) {
+                        games.get(games.size() - 1).updatePlayerMousePos(player1, pos_x, pos_y);
+                    } else {
+                        String player2 = games.get(games.size() - 1).game.player2.name;
+                        games.get(games.size() - 1).updatePlayerMousePos(player2, pos_x, pos_y);
+                    }
+                    games.get(games.size() - 1).updatePlayerMouseState(player1, dragging);
                     
                     break;
                 
@@ -291,5 +318,9 @@ public class Main extends WebSocketServer {
         Main server = new Main(new InetSocketAddress(DEFAULT_PORT));
         server.start();
         System.out.println("Servidor WebSocket en execució al port " + DEFAULT_PORT + ". Prem Ctrl+C per aturar-lo.");
+    }
+
+    public static void log(String message) {
+        System.out.println(message);
     }
 }
