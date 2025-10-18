@@ -100,6 +100,10 @@ public class Main extends Application {
         });
     }
 
+    public static void log(String message) {
+        System.out.println(message);
+    }
+
     /***** Detiene el programa durante X milisegundos, y luego realiza un Runnable *****/
     public static void pauseDuring(long milliseconds, Runnable action) {
         PauseTransition pause = new PauseTransition(Duration.millis(milliseconds));
@@ -160,8 +164,12 @@ public class Main extends Application {
                     break;
                 case "drawOrder":
                     System.out.println("orden de dibujar");
-                    ControllerGame.draw(msgObj.getDouble("pos_x_1"), msgObj.getDouble("pos_y_1"),
-                    msgObj.getDouble("pos_x_2"), msgObj.getDouble("pos_y_2"));
+                    ControllerGame.draw(msgObj.getDouble("pos_x_1"), 
+                                        msgObj.getDouble("pos_y_1"),
+                                        msgObj.getDouble("pos_x_2"), 
+                                        msgObj.getDouble("pos_y_2"));
+                    ControllerGame.updateGrid(msgObj.getJSONArray("grid"));
+                    
                     
 
             }

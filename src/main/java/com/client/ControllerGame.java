@@ -4,6 +4,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
 
+import org.json.JSONArray;
+
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.canvas.Canvas;
@@ -62,19 +64,34 @@ public class ControllerGame implements Initializable {
         dragging = draggea;
     }
 
+    public static void updateGrid(JSONArray arr) {
+        for (int i = 0; i < arr.length(); i++) {
+            Main.log(arr.get(i).toString());
+            String[] parts = arr.get(i).toString().split(" ");
+
+            grid[Integer.parseInt(parts[0])][Integer.parseInt(parts[1])] = Integer.parseInt(parts[2]);
+        }
+    }
+
     public static void draw(double pos_x_1, double pos_y_1, double pos_x_2, double pos_y_2) {
-        // boardArtist.draw();
         gc.clearRect(0, 0, 10000, 100000);
+        // Drawing the board
+        boardArtist.draw();
+
+        // Drawing the players
         gc.setFill(redColor);
         gc.fillOval(pos_x_1 - 25, pos_y_1 - 25, 50, 50);
         gc.setFill(yellowColor);
         gc.fillOval(pos_x_2 - 25, pos_y_2 - 25, 50, 50);
+
+        
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         gc = canvas.getGraphicsContext2D();
-        
+        boardArtist = new BoardArtist(6, 7);
+        grid = new int[6][7];
 
         canvas.setOnMouseMoved(event -> {
             Main.sendPlayerMousePosInfo(Main.clientName, event.getSceneX(), event.getSceneY(), dragging);
@@ -184,11 +201,11 @@ public class ControllerGame implements Initializable {
                     gc.setFill(boardColor);
                     gc.fillRect(board_x, board_y, width + margin, height + space_between);
                                         //rows
-                    // for(int i = 0; i < grid.length; i++) {
-                    for(int i = 0; i < 7; i++) {
+                    for(int i = 0; i < grid.length; i++) {
+                    // for(int i = 0; i < 7; i++) {
                                         // cols
-                        // for(int j = 0; j < grid[0].length; j++) {
-                        for(int j = 0; j < 6; j++) {
+                        for(int j = 0; j < grid[0].length; j++) {
+                        // for(int j = 0; j < 6; j++) {
                             double pos_x = board_x + margin/2 + j * (CELL_SIZE + space_between);
                             double pos_y = board_y + margin/2 + i * (CELL_SIZE + space_between);
                             gc.setFill(Color.WHITE);

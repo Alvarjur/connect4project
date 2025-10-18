@@ -12,6 +12,8 @@ import org.java_websocket.server.WebSocketServer;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import com.server.GameMatch.Game;
+
 /**
  * Servidor WebSocket amb routing simple de missatges, sense REPL.
  *
@@ -97,7 +99,7 @@ public class Main extends WebSocketServer {
      * @param to socket destinatari
      * @param payload cadena JSON a enviar
      */
-    private void sendSafe(WebSocket to, String payload) {
+    private static void sendSafe(WebSocket to, String payload) {
         if (to == null) return;
         try {
             to.send(payload);
@@ -122,7 +124,39 @@ public class Main extends WebSocketServer {
         }
     }
 
+    public static void sendUpdateOrder() {
+        JSONObject objeto = new JSONObject();
+        objeto.put("type", "drawOrder");
+        System.out.println(objeto);
+        Game game = games.get(games.size() - 1).game;
+        String player1 = game.player1.name;
+        String player2 = game.player2.name;
 
+        // Posicion de los jugadores
+        objeto.put("pos_x_1", game.player1.x);
+        objeto.put("pos_y_1", game.player1.y);
+        objeto.put("pos_x_2", game.player2.x);
+        objeto.put("pos_y_2", game.player2.y);
+
+        // Board serializada
+        int[][] grid = game.board.grid;
+        JSONArray chipGridPositions = new JSONArray();
+        // grid[2][3] = 1;
+        // grid[1][1] = 2;
+        for(int i = 0; i < grid.length; i++) {
+            for(int j = 0; j < grid[0].length; j++) {
+                if(grid[i][j] != 0) {
+                    chipGridPositions.put(i + " " + j + " " + grid[i][j]);
+                }
+            }
+        }
+        objeto.put("grid", chipGridPositions);
+
+        sendSafe(clients.socketByName(player1), objeto.toString());
+        sendSafe(clients.socketByName(player2), objeto.toString());
+
+
+    }
 
     // ----------------- WebSocketServer overrides -----------------
 
@@ -207,40 +241,14 @@ public class Main extends WebSocketServer {
                 
                 case T_PLAYER_MOUSE_INFO:
                     System.out.println("Mensaje recibido, movimiento en el ratón");
-                    String player = json.getString("player");
+                    String player1 = json.getString("player");
                     double pos_x = json.getDouble("pos_x");
                     double pos_y = json.getDouble("pos_y");
                     boolean dragging = json.getBoolean("dragging");
-                    System.out.println("aaasdsdsdsdsdsddsaa");
-                    games.get(games.size() - 1).updatePlayerMousePos(player, pos_x, pos_y);
-                    System.out.println("bbbbbb");
-                    // update the game seen by the players?
-                    // System.out.println("game player1: " + games.get(games.size()).game.player1.toString());
-
-                    // PRUEBA PARA VER SI DIBUJA
-                    JSONObject objeto = new JSONObject();
-                    objeto.put("type", "drawOrder");
-                    double pos_x_1, pos_x_2, pos_y_1, pos_y_2;
-                    if (player.equals(games.get(games.size() - 1).game.player1.name)) {
-                        pos_x_1 = games.get(games.size() - 1).game.player1.x;
-                        pos_y_1 = games.get(games.size() - 1).game.player1.y;
-                        pos_x_2 = games.get(games.size() - 1).game.player2.x;
-                        pos_y_2 = games.get(games.size() - 1).game.player2.y;
-                    } else {
-                        pos_x_1 = games.get(games.size() - 1).game.player2.x;
-                        pos_y_1 = games.get(games.size() - 1).game.player2.y;
-                        pos_x_2 = games.get(games.size() - 1).game.player1.x;
-                        pos_y_2 = games.get(games.size() - 1).game.player1.y;
-                    }
+                    games.get(games.size() - 1).updatePlayerMousePos(player1, pos_x, pos_y);
                     
-                    objeto.put("pos_x_1", pos_x_1);
-                    objeto.put("pos_y_1", pos_y_1);
-                    objeto.put("pos_x_2", pos_x_2);
-                    objeto.put("pos_y_2", pos_y_2);
-                    System.out.println("testssss");
-                    sendSafe(clients.socketByName(player), objeto.toString());
-                    System.out.println("testssssssssssssssssssssss");
                     break;
+                
 
                 default:
                     conn.send("[SERVIDOR] Tipo de mensaje no controlado."
@@ -266,9 +274,7 @@ public class Main extends WebSocketServer {
         conn.send("error");
     }
 
-    public static void test() {
-        System.out.println("weiwesesadwadawdasdasdas");
-    }
+    
 
     /** Arrencada: log i configuració del timeout de connexió perduda. */
     @Override

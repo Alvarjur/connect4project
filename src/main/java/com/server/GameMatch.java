@@ -159,10 +159,10 @@ public class GameMatch implements Initializable{
 
     public void update() {
         System.out.println("player1 pos_x: " + game.player1.x + " player2 pos_x: " + game.player2.x);
-        Main.test();
-        game.updatePlayerPositions();
-        game.updateLogic();
-        game.updateVisualLogics();
+        Main.sendUpdateOrder();
+        // game.updatePlayerPositions();
+        // game.updateLogic();
+        // game.updateVisualLogics();
 
 
 
@@ -196,7 +196,7 @@ public class GameMatch implements Initializable{
 
     class Game {
         private int currentPlayer;
-        private Board board;
+        public Board board;
         public Player player1, player2;
         private Player winner;
         private ArrayList<Player> players = new ArrayList<Player>();
@@ -588,7 +588,7 @@ public class GameMatch implements Initializable{
 
     class Board{
         private BoardArtist artist;
-        private int[][] grid; // 0 = empty, 1 = red, 2 = yellow
+        public int[][] grid; // 0 = empty, 1 = red, 2 = yellow
         private double x, y;
 
 
