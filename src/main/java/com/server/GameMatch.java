@@ -1,8 +1,11 @@
-package com.project;
+package com.server;
 
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import javafx.animation.AnimationTimer;
 import javafx.fxml.FXML;
@@ -13,23 +16,30 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.StrokeLineCap;
 
-public class Controller implements Initializable{
+public class GameMatch implements Initializable{
     @FXML
     private Canvas canvas;
-
+    public static int WINDOW_WIDTH = 900;
+    public static int WINDOW_HEIGHT = 600;
     private static double mouse_x, mouse_y;
 
+    private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+
+
     private GraphicsContext gc;
-    public static double canvas_width = Main.WINDOW_WIDTH;
-    public static double canvas_height = Main.WINDOW_HEIGHT;
+    public static double canvas_width = WINDOW_WIDTH;
+    public static double canvas_height = WINDOW_HEIGHT;
     private double CELL_SIZE = 80;
     public static Color boardColor = new Color(0,0,0.5,1);
     private Color redColor = new Color(0.5,0,0,1);
     private Color blueColor = new Color(0,0,0.5,1);
     private Color yellowColor = new Color(0.7,0.6,0.3,1);
     private Artist artist = new Artist();
-    private Game game;
+
+    public static Game game;
     private CanvasTimer timer;
+
+    
 
 
     // Animación de caida
@@ -59,10 +69,40 @@ public class Controller implements Initializable{
         mouse_y = y;
     }
 
+    private void startGameLoop() {
+        // Run at ~60 FPS => every 16 milliseconds
+        scheduler.scheduleAtFixedRate(() -> {
+            try {
+                // updateGameState();
+                // sendUpdatesToClients();
+                update();
+            } catch (Exception e) {
+                e.printStackTrace(); // Never let exceptions kill your game loop!
+            }
+        }, 0, 16, TimeUnit.MILLISECONDS);
+    }
+
+    public void stop() {
+        scheduler.shutdown();
+    }
+
+    // Este es de servidor, hecho durante cambios
+    public static void updatePlayerMousePos(String player, double pos_x, double pos_y) {
+        game.setPlayerPos(player, pos_x, pos_y);
+    }
+
+    public static void updatePlayerMouseState(String player, boolean dragging) {
+        if(game.player1.name.equals(player)) {
+            game.player1.isDragging = dragging;
+        } else {
+            game.player2.isDragging = dragging;
+        }
+    }
+
 
     public static void setNewWindowSize(int width, int height) {
-        Main.WINDOW_WIDTH = width;
-        Main.WINDOW_HEIGHT = height;
+        WINDOW_WIDTH = width;
+        WINDOW_HEIGHT = height;
     }
 
     @Override
@@ -70,12 +110,12 @@ public class Controller implements Initializable{
         gc = canvas.getGraphicsContext2D();
         canvas_width = canvas.getWidth();
         canvas_height = canvas.getHeight();
-        game = new Game();
+        // game = new Game();
 
-        timer = new CanvasTimer(
-            fps -> update(), 
-            this::draw, 
-            120);
+        // timer = new CanvasTimer(
+        //     fps -> update(), 
+        //     this::update, 
+        //     120);
         timer.start();
 
         canvas.widthProperty().bind(root.widthProperty());
@@ -85,13 +125,13 @@ public class Controller implements Initializable{
         canvas.heightProperty().addListener(evt -> updateWindowSize());
 
         canvas.setOnMouseMoved(event -> {
-            Controller.setMousePos(event.getSceneX(), event.getSceneY());
+            GameMatch.setMousePos(event.getSceneX(), event.getSceneY());
 
             update();
         });
 
         canvas.setOnMouseDragged(event -> {
-            Controller.setMousePos(event.getSceneX(), event.getSceneY());
+            GameMatch.setMousePos(event.getSceneX(), event.getSceneY());
             game.setPlayersDragging(true);
             
             // update();
@@ -100,7 +140,7 @@ public class Controller implements Initializable{
         canvas.setOnMouseReleased(event -> {
             game.setPlayersDragging(false);
             // System.out.println("released");
-            game.checkReleases();
+            // game.checkReleases();
             // update();
         });
 
@@ -108,6 +148,18 @@ public class Controller implements Initializable{
 
 
     }
+
+    public GameMatch(String player1, String player2) {
+        game = new Game(player1, player2);
+        // timer = new CanvasTimer( // Esto crashea el juego
+        //     fps -> update(), 
+        //     // this::draw, 
+        //     60);
+        // timer.start();
+
+        startGameLoop();
+    }
+
     public void updateWindowSize() {
         canvas_width = canvas.getWidth();
         canvas_height = canvas.getHeight();
@@ -117,9 +169,16 @@ public class Controller implements Initializable{
     
 
     public void update() {
-        game.updatePlayerPositions();
-        game.updateLogic();
-        game.updateVisualLogics();
+        // System.out.println("player1 pos_x: " + game.player1.x + " player2 pos_x: " + game.player2.x);
+        Main.sendUpdateOrder();
+        // game.updatePlayerPositions();
+        if(game.winner == null) {
+            game.updateLogic();
+        }
+        // game.updateVisualLogics();
+
+
+
 
         
     }
@@ -151,36 +210,48 @@ public class Controller implements Initializable{
 
     class Game {
         private int currentPlayer;
-        private Board board;
-        private Player player1, player2;
-        private Player winner;
+        public Board board;
+        public Player player1, player2;
+        public Player winner;
         private ArrayList<Player> players = new ArrayList<Player>();
         public GameArtist artist;
-        private double draggableChips_red_x = 650;
-        private double draggableChips_red_y = 100;
-        private double draggableChips_yellow_x = 800;
-        private double draggableChips_yellow_y = 100;
+        public double draggableChips_red_x = 650;
+        public double draggableChips_red_y = 100;
+        public double draggableChips_yellow_x = 800;
+        public double draggableChips_yellow_y = 100;
         private DraggableChip redDraggableChip;
         private DraggableChip yellowDraggableChip;
         private ArrayList<DraggableChip> draggableChips = new ArrayList<DraggableChip>();
-        private Chip currentChip;
+        public Chip currentChip;
+        public String possibleMoves;
 
 
-        public Game() {
+        public Game(String player1, String player2) {
             currentPlayer = 1; // Red starts
             
             board = new Board(20, 100, 6,7);
-            player1 = new Player(1, 50, 50);
-            player2 = new Player(2, 150, 50);
-            players.add(player1);
-            players.add(player2);
+            this.player1 = new Player(player1,1, 50, 50);
+            this.player2 = new Player(player2, 2, 150, 50);
+            players.add(this.player1);
+            players.add(this.player2);
 
-            redDraggableChip = new DraggableChip(draggableChips_red_x, draggableChips_red_y, redColor, player1);
-            yellowDraggableChip = new DraggableChip(draggableChips_yellow_x, draggableChips_yellow_y, yellowColor, player2);
+            redDraggableChip = new DraggableChip(draggableChips_red_x, draggableChips_red_y, redColor, this.player1);
+            yellowDraggableChip = new DraggableChip(draggableChips_yellow_x, draggableChips_yellow_y, yellowColor, this.player2);
             draggableChips.add(redDraggableChip);
             draggableChips.add(yellowDraggableChip);
             artist = new GameArtist();
 
+        }
+
+        public void setPlayerPos(String playerSending, double pos_x, double pos_y) {
+            for (Player player : players) {
+                if(player.name.equals(playerSending)) {
+                    player.x = pos_x;
+                    player.y = pos_y;
+
+                    return;
+                }
+            }
         }
 
         public void switchPlayer() {
@@ -244,11 +315,19 @@ public class Controller implements Initializable{
         public void checkReleases() {
             if (game.currentChip != null) {
                 ArrayList<Integer> possibleMoves = board.getNotFullColumns();
+                Main.log("FICHA SOLTADA");
                 int move = game.board.whatColIsChipDroppedIn(currentChip);
+                if(players.get(game.currentChip.player - 1).isDragging) {
+                    return;
+                }
                 for (Integer possibleMove : possibleMoves) {
                     if(possibleMove == move) {
                         // Preparando animación
-                        board.artist.doAddChipAnimation(currentChip, move); // La ficha se añade cuando se cambia animating = false en updateVisualLogics()
+                        Main.log("Movimiento posible");
+                        board.addChip(currentChip, move);
+                        currentChip = null;
+                        switchPlayer();
+                        // board.artist.doAddChipAnimation(currentChip, move); // La ficha se añade cuando se cambia animating = false en updateVisualLogics()
                     }
                 }
             }
@@ -358,22 +437,39 @@ public class Controller implements Initializable{
 
 
         public void updateLogic() {
-            if (isPlayerDraggingChip(player1, redDraggableChip)) {
+            if (isPlayerDraggingChip(player1, redDraggableChip) && currentPlayer == 1) {
+                Main.log("JUGADOR AGARRANDO FICHA");
                 currentChip = player1.takeChip();
                 redDraggableChip.setIsBeingDragged(true);
+                possibleMoves = board.getPossibleMoves();
                 // System.out.println("red dragging");
             } else {
+                if(!player1.isDragging) {
+                    checkReleases();
+                }
+                
                 redDraggableChip.setIsBeingDragged(false);
                 currentChip = null;
             }
-            if (isPlayerDraggingChip(player2, yellowDraggableChip)) {
+            if (isPlayerDraggingChip(player2, yellowDraggableChip) && currentPlayer == 2) {
                 currentChip = player2.takeChip();
                 yellowDraggableChip.setIsBeingDragged(true);
+                possibleMoves = board.getPossibleMoves();
                 
                 // System.out.println("yellow dragging");
             } else {
-                yellowDraggableChip.setIsBeingDragged(false);
-                currentChip = null;
+                
+                if(currentChip!=null){
+                    if (!player2.isDragging) {
+                        checkReleases();
+                    }
+                    
+                    if(currentPlayer != 1) {
+                        yellowDraggableChip.setIsBeingDragged(false);
+                        currentChip = null;
+                    }
+                }
+                
             }
             checkWinner();
         }
@@ -487,11 +583,13 @@ public class Controller implements Initializable{
 
     class Player {
         private int playerNumber;
+        public String name;
         private PlayerArtist artist;
-        private double x, y;
+        public double x, y;
         private boolean isDragging = false;
         
-        public Player(int playerNumber, double x, double y) {
+        public Player(String playerName, int playerNumber, double x, double y) {
+            this.name = playerName;
             this.playerNumber = playerNumber;
             this.artist = new PlayerArtist();
             this.x = x;
@@ -530,8 +628,8 @@ public class Controller implements Initializable{
 
     class Board{
         private BoardArtist artist;
-        private int[][] grid; // 0 = empty, 1 = red, 2 = yellow
-        private double x, y;
+        public int[][] grid; // 0 = empty, 1 = red, 2 = yellow
+        public double x, y;
 
 
         public Board(double x, double y, int rows, int cols) {
@@ -547,6 +645,18 @@ public class Controller implements Initializable{
             // grid[0][6] = 1; // for testing
             // grid[5][5] = 2; // for testing
             
+        }
+
+        public String getPossibleMoves() {
+            String result = "";
+            for (int col = 0; col < grid[0].length; col++) {
+                    if (grid[0][col] == 0) {
+                        result += String.valueOf(col);
+                    }
+                }
+
+            return result;
+
         }
 
         public ArrayList<Integer> getNotFullColumns() {
@@ -706,9 +816,9 @@ public class Controller implements Initializable{
     }
 
     class Chip {
-        private int player; // 1 o 2
+        public int player; // 1 o 2
         private ChipArtist artist;
-        private double x, y;
+        public double x, y;
 
         public Chip(int player, double x, double y) {
             this.x = x;

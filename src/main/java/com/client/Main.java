@@ -31,10 +31,12 @@ public class Main extends Application {
         launch(args);
     }
 
+    
+
     @Override
     public void start(Stage stage) throws Exception {
-        final int windowWidth = 400;
-        final int windowHeight = 300;
+        final int windowWidth = 900;
+        final int windowHeight = 600;
 
         UtilsViews.parentContainer.setStyle("-fx-font: 14 arial;");
         UtilsViews.addView(getClass(), "ViewConfig", "/assets/viewConfig.fxml");
@@ -98,6 +100,10 @@ public class Main extends Application {
         });
     }
 
+    public static void log(String message) {
+        System.out.println(message);
+    }
+
     /***** Detiene el programa durante X milisegundos, y luego realiza un Runnable *****/
     public static void pauseDuring(long milliseconds, Runnable action) {
         PauseTransition pause = new PauseTransition(Duration.millis(milliseconds));
@@ -153,6 +159,28 @@ public class Main extends Application {
                     break;
                 case "confirmedGame":
                     System.out.println("Servidor manda confirmación de que va a empezar una partida.");
+                    UtilsViews.setViewAnimating("ViewGame");
+                    // ControllerGame.initializeResources(null, null);
+                    break;
+                case "drawOrder":
+                    System.out.println("orden de dibujar");
+                    ControllerGame.updateBoardPos(msgObj.getDouble("board_pos_x"),
+                                                  msgObj.getDouble("board_pos_y"));
+                    
+                    ControllerGame.updateDragChipsPos(msgObj.getDouble("red_chip_dragg_x"),
+                                                    msgObj.getDouble("red_chip_dragg_y"),
+                                                    msgObj.getDouble("yellow_chip_dragg_x"),
+                                                    msgObj.getDouble("yellow_chip_dragg_y"));
+                    ControllerGame.draw(msgObj.getDouble("pos_x_1"), 
+                                        msgObj.getDouble("pos_y_1"),
+                                        msgObj.getDouble("pos_x_2"), 
+                                        msgObj.getDouble("pos_y_2"));
+                    ControllerGame.updateCurrentChip(msgObj.getString("current_chip"));
+                    ControllerGame.updatePossibleMoves(msgObj.getString("possible_moves"));
+                    ControllerGame.updateGrid(msgObj.getJSONArray("grid"));
+
+                    
+                    
 
             }
         });
@@ -201,6 +229,25 @@ public class Main extends Application {
         matchJson.put("player_1", challenger);
         matchJson.put("player_2", clientName);
         wsClient.safeSend(matchJson.toString());
+    }
+
+    
+
+    
+    
+    // public static void sendPlayerInfo(Player player) {
+
+    // }
+
+    public static void sendPlayerMousePosInfo(String player, double x, double y, boolean dragging) {
+        System.out.println(clientName + " se mueve");
+        JSONObject playerMouseInfo = new JSONObject();
+        playerMouseInfo.put("type", "playerMouseInfo");
+        playerMouseInfo.put("player", clientName);
+        playerMouseInfo.put("pos_x", x);
+        playerMouseInfo.put("pos_y", y);
+        playerMouseInfo.put("dragging", dragging);
+        wsClient.safeSend(playerMouseInfo.toString());
     }
 }
 

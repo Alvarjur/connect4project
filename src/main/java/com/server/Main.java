@@ -12,6 +12,8 @@ import org.java_websocket.server.WebSocketServer;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import com.server.GameMatch.Game;
+
 /**
  * Servidor WebSocket amb routing simple de missatges, sense REPL.
  *
@@ -34,7 +36,8 @@ public class Main extends WebSocketServer {
     public static ClientRegistry clients;
 
     /***** Registro de partidas *****/
-    public static List<Game> games;
+    public static List<GameMatch> games;
+
 
     // Claus JSON
     private static final String K_TYPE = "type";
@@ -55,6 +58,7 @@ public class Main extends WebSocketServer {
     private static final String T_CONFIRMATION = "confirmation";
     private static final String T_CHALLENGE = "challenge";
     private static final String T_START_MATCH = "startMatch";
+    private static final String T_PLAYER_MOUSE_INFO = "playerMouseInfo";
 
     /**
      * Crea un servidor WebSocket que escolta a l'adreça indicada.
@@ -95,7 +99,7 @@ public class Main extends WebSocketServer {
      * @param to socket destinatari
      * @param payload cadena JSON a enviar
      */
-    private void sendSafe(WebSocket to, String payload) {
+    private static void sendSafe(WebSocket to, String payload) {
         if (to == null) return;
         try {
             to.send(payload);
@@ -120,7 +124,60 @@ public class Main extends WebSocketServer {
         }
     }
 
+    public static void sendUpdateOrder() {
+        JSONObject objeto = new JSONObject();
+        objeto.put("type", "drawOrder");
+        // System.out.println(objeto);
+        Game game = games.get(games.size() - 1).game;
+        String player1 = game.player1.name;
+        String player2 = game.player2.name;
 
+        // Posicion de los jugadores
+        objeto.put("pos_x_1", game.player1.x);
+        objeto.put("pos_y_1", game.player1.y);
+        objeto.put("pos_x_2", game.player2.x);
+        objeto.put("pos_y_2", game.player2.y);
+
+        // Board serializada
+        int[][] grid = game.board.grid;
+        JSONArray chipGridPositions = new JSONArray();
+        // grid[2][3] = 1;
+        // grid[1][1] = 2;
+        for(int i = 0; i < grid.length; i++) {
+            for(int j = 0; j < grid[0].length; j++) {
+                if(grid[i][j] != 0) {
+                    chipGridPositions.put(i + " " + j + " " + grid[i][j]);
+                }
+            }
+        }
+        objeto.put("grid", chipGridPositions);
+        objeto.put("board_pos_x", game.board.x);
+        objeto.put("board_pos_y", game.board.y);
+
+        // Draggable chips
+        objeto.put("red_chip_dragg_x", game.draggableChips_red_x);
+        objeto.put("red_chip_dragg_y", game.draggableChips_red_y);
+        objeto.put("yellow_chip_dragg_x", game.draggableChips_yellow_x);
+        objeto.put("yellow_chip_dragg_y", game.draggableChips_yellow_y);
+
+        // Current chip draggeada
+        if(game.currentChip != null) {
+            objeto.put("current_chip", game.currentChip.x + " " + game.currentChip.y + " " + game.currentChip.player);
+            // Possible moves 
+            objeto.put("possible_moves", game.possibleMoves);
+        } else {
+            objeto.put("current_chip", "none");
+            objeto.put("possible_moves", "none");
+        }
+        
+        
+
+
+        sendSafe(clients.socketByName(player1), objeto.toString());
+        sendSafe(clients.socketByName(player2), objeto.toString());
+
+
+    }
 
     // ----------------- WebSocketServer overrides -----------------
 
@@ -183,10 +240,16 @@ public class Main extends WebSocketServer {
                     System.out.println(String.format("Se confirma que empieza la partida! Jugarán %s VS %s", player_1, player_2));
                     
                     // Crea la partida
-                    Game game = new Game(player_1, player_2);
+                    GameMatch game = new GameMatch(player_1, player_2);
                     games.add(game);
 
                     // TODO Saca a ambos jugadores de la lista de disponibles
+
+                   
+                    
+
+
+
 
                     // Manda confirmación a los jugadores (para que pasen de vista)
                     JSONObject payloadConfirmedGame = new JSONObject();
@@ -196,6 +259,23 @@ public class Main extends WebSocketServer {
                     sendSafe(clients.socketByName(player_2), payloadConfirmedGame.toString());
                     
                     break;
+                
+                case T_PLAYER_MOUSE_INFO:
+                    System.out.println("Mensaje recibido, movimiento en el ratón");
+                    String player1 = json.getString("player");
+                    double pos_x = json.getDouble("pos_x");
+                    double pos_y = json.getDouble("pos_y");
+                    boolean dragging = json.getBoolean("dragging");
+                    if (games.get(games.size() - 1).game.player1.name.equals(player1)) {
+                        games.get(games.size() - 1).updatePlayerMousePos(player1, pos_x, pos_y);
+                    } else {
+                        String player2 = games.get(games.size() - 1).game.player2.name;
+                        games.get(games.size() - 1).updatePlayerMousePos(player2, pos_x, pos_y);
+                    }
+                    games.get(games.size() - 1).updatePlayerMouseState(player1, dragging);
+                    
+                    break;
+                
 
                 default:
                     conn.send("[SERVIDOR] Tipo de mensaje no controlado."
@@ -221,6 +301,8 @@ public class Main extends WebSocketServer {
         conn.send("error");
     }
 
+    
+
     /** Arrencada: log i configuració del timeout de connexió perduda. */
     @Override
     public void onStart() {
@@ -236,5 +318,9 @@ public class Main extends WebSocketServer {
         Main server = new Main(new InetSocketAddress(DEFAULT_PORT));
         server.start();
         System.out.println("Servidor WebSocket en execució al port " + DEFAULT_PORT + ". Prem Ctrl+C per aturar-lo.");
+    }
+
+    public static void log(String message) {
+        System.out.println(message);
     }
 }
