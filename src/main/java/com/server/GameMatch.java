@@ -3,6 +3,9 @@ package com.server;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import javafx.animation.AnimationTimer;
 import javafx.fxml.FXML;
@@ -19,6 +22,9 @@ public class GameMatch implements Initializable{
     public static int WINDOW_WIDTH = 900;
     public static int WINDOW_HEIGHT = 600;
     private static double mouse_x, mouse_y;
+
+    private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+
 
     private GraphicsContext gc;
     public static double canvas_width = WINDOW_WIDTH;
@@ -58,6 +64,23 @@ public class GameMatch implements Initializable{
     public static void setMousePos(double x, double y) {
         mouse_x = x;
         mouse_y = y;
+    }
+
+    private void startGameLoop() {
+        // Run at ~60 FPS => every 16 milliseconds
+        scheduler.scheduleAtFixedRate(() -> {
+            try {
+                // updateGameState();
+                // sendUpdatesToClients();
+                update();
+            } catch (Exception e) {
+                e.printStackTrace(); // Never let exceptions kill your game loop!
+            }
+        }, 0, 16, TimeUnit.MILLISECONDS);
+    }
+
+    public void stop() {
+        scheduler.shutdown();
     }
 
     // Este es de servidor, hecho durante cambios
@@ -121,7 +144,9 @@ public class GameMatch implements Initializable{
         //     fps -> update(), 
         //     // this::draw, 
         //     60);
-        timer.start();
+        // timer.start();
+
+        startGameLoop();
     }
 
     public void updateWindowSize() {
