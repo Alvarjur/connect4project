@@ -35,6 +35,7 @@ public class GameMatch implements Initializable{
     private Color blueColor = new Color(0,0,0.5,1);
     private Color yellowColor = new Color(0.7,0.6,0.3,1);
     private Artist artist = new Artist();
+
     public static Game game;
     private CanvasTimer timer;
 
@@ -139,7 +140,7 @@ public class GameMatch implements Initializable{
         canvas.setOnMouseReleased(event -> {
             game.setPlayersDragging(false);
             // System.out.println("released");
-            game.checkReleases();
+            // game.checkReleases();
             // update();
         });
 
@@ -171,7 +172,9 @@ public class GameMatch implements Initializable{
         // System.out.println("player1 pos_x: " + game.player1.x + " player2 pos_x: " + game.player2.x);
         Main.sendUpdateOrder();
         // game.updatePlayerPositions();
-        game.updateLogic();
+        if(game.winner == null) {
+            game.updateLogic();
+        }
         // game.updateVisualLogics();
 
 
@@ -312,11 +315,19 @@ public class GameMatch implements Initializable{
         public void checkReleases() {
             if (game.currentChip != null) {
                 ArrayList<Integer> possibleMoves = board.getNotFullColumns();
+                Main.log("FICHA SOLTADA");
                 int move = game.board.whatColIsChipDroppedIn(currentChip);
+                if(players.get(game.currentChip.player - 1).isDragging) {
+                    return;
+                }
                 for (Integer possibleMove : possibleMoves) {
                     if(possibleMove == move) {
                         // Preparando animación
-                        board.artist.doAddChipAnimation(currentChip, move); // La ficha se añade cuando se cambia animating = false en updateVisualLogics()
+                        Main.log("Movimiento posible");
+                        board.addChip(currentChip, move);
+                        currentChip = null;
+                        switchPlayer();
+                        // board.artist.doAddChipAnimation(currentChip, move); // La ficha se añade cuando se cambia animating = false en updateVisualLogics()
                     }
                 }
             }
@@ -426,24 +437,33 @@ public class GameMatch implements Initializable{
 
 
         public void updateLogic() {
-            if (isPlayerDraggingChip(player1, redDraggableChip)) {
+            if (isPlayerDraggingChip(player1, redDraggableChip) && currentPlayer == 1) {
                 Main.log("JUGADOR AGARRANDO FICHA");
                 currentChip = player1.takeChip();
                 redDraggableChip.setIsBeingDragged(true);
                 possibleMoves = board.getPossibleMoves();
                 // System.out.println("red dragging");
             } else {
+                if(!player1.isDragging) {
+                    checkReleases();
+                }
+                
                 redDraggableChip.setIsBeingDragged(false);
                 currentChip = null;
             }
-            if (isPlayerDraggingChip(player2, yellowDraggableChip)) {
+            if (isPlayerDraggingChip(player2, yellowDraggableChip) && currentPlayer == 2) {
                 currentChip = player2.takeChip();
                 yellowDraggableChip.setIsBeingDragged(true);
                 possibleMoves = board.getPossibleMoves();
                 
                 // System.out.println("yellow dragging");
             } else {
+                
                 if(currentChip!=null){
+                    if (!player2.isDragging) {
+                        checkReleases();
+                    }
+                    
                     if(currentPlayer != 1) {
                         yellowDraggableChip.setIsBeingDragged(false);
                         currentChip = null;

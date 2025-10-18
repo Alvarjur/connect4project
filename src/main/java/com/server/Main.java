@@ -127,7 +127,7 @@ public class Main extends WebSocketServer {
     public static void sendUpdateOrder() {
         JSONObject objeto = new JSONObject();
         objeto.put("type", "drawOrder");
-        System.out.println(objeto);
+        // System.out.println(objeto);
         Game game = games.get(games.size() - 1).game;
         String player1 = game.player1.name;
         String player2 = game.player2.name;
