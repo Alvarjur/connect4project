@@ -43,16 +43,17 @@ public class GameMatch implements Initializable{
 
 
     // Animación de caida
-    private Chip animChip;
-    private boolean animating = false;
-    private int animCol = -1, animRow = -1;
-    private double animY;
-    private double targetY;
-    private double fallSpeed = 1300;
-    private long lastRunNanos = 0;
+    public static Chip animChip;
+    public static boolean animating = false;
+    public static int animCol = -1, animRow = -1;
+    public static double animX;
+    public static double animY;
+    public static double targetY;
+    public static double fallSpeed = 1300;
+    public static long lastRunNanos = 0;
 
     // Winner line
-    private double winner_start_x, winner_start_y, winner_end_x, winner_end_y;
+    public static double winner_start_x, winner_start_y, winner_end_x, winner_end_y;
 
 
 
@@ -170,12 +171,14 @@ public class GameMatch implements Initializable{
 
     public void update() {
         // System.out.println("player1 pos_x: " + game.player1.x + " player2 pos_x: " + game.player2.x);
+        game.updateVisualLogics();
         Main.sendUpdateOrder();
         // game.updatePlayerPositions();
+        
         if(game.winner == null) {
             game.updateLogic();
         }
-        // game.updateVisualLogics();
+        
 
 
 
@@ -284,6 +287,7 @@ public class GameMatch implements Initializable{
             lastRunNanos = now;
 
             if (animating && dt > 0) {
+                animX = game.board.x + game.board.artist.margin/2 + animCol * (CELL_SIZE + game.board.artist.space_between);
             animY += fallSpeed * dt;
             if (animY >= targetY) {
                 animY = targetY;
@@ -324,10 +328,11 @@ public class GameMatch implements Initializable{
                     if(possibleMove == move) {
                         // Preparando animación
                         Main.log("Movimiento posible");
-                        board.addChip(currentChip, move);
+                        board.artist.doAddChipAnimation(currentChip, move); // La ficha se añade cuando se cambia animating = false en updateVisualLogics()
+                        // board.addChip(currentChip, move);
                         currentChip = null;
                         switchPlayer();
-                        // board.artist.doAddChipAnimation(currentChip, move); // La ficha se añade cuando se cambia animating = false en updateVisualLogics()
+                       
                     }
                 }
             }
@@ -342,6 +347,7 @@ public class GameMatch implements Initializable{
                     if(player != 0){
                         if(checkIsThereFourStraight(player, row, col)) {
                             System.out.println(player + " wins");
+                            // Enviar la linea ganadora aquí
                             winner = players.get(player - 1);
                             return player;
                         }
@@ -697,6 +703,7 @@ public class GameMatch implements Initializable{
             }
 
             grid[row_to_add_in][col] = chip.player;
+            animChip = null;
         }
 
 

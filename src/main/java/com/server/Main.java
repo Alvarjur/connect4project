@@ -169,7 +169,24 @@ public class Main extends WebSocketServer {
             objeto.put("current_chip", "none");
             objeto.put("possible_moves", "none");
         }
+
+        // Falling chip animation status
+        if(GameMatch.animChip != null) {
+            objeto.put("animChip", GameMatch.animating + " " + GameMatch.animX + " " + GameMatch.animY + " " + GameMatch.animChip.player);
+        } else {
+            objeto.put("animChip", "none");
+        }
         
+        
+        // Ganador y línea ganadora
+        if(game.winner != null) {
+            objeto.put("winner", game.winner.name);
+            objeto.put("winner_line", GameMatch.winner_start_x + " " + GameMatch.winner_end_x + " " +
+                                            GameMatch.winner_start_y + " " + GameMatch.winner_end_y);
+        } else {
+            objeto.put("winner", "none");
+            objeto.put("winner_line", "none");
+        }
         
 
 

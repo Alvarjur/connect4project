@@ -51,11 +51,17 @@ public class ControllerGame implements Initializable {
     private double fallSpeed = 1300;
     private long lastRunNanos = 0;
 
+    private static double animChip_x, animChip_y;
+    private static boolean isAnimChip;
+    private static int animChipPlayer;
+
     // redDraggableChip = new DraggableChip(draggableChips_red_x, draggableChips_red_y, redColor, this.player1);
     // yellowDraggableChip = new DraggableChip(draggableChips_yellow_x, draggableChips_yellow_y, yellowColor, this.player2);
 
+    // Winner
+    private static String winner = "none";
     // Winner line
-    private double winner_start_x, winner_start_y, winner_end_x, winner_end_y;
+    private static double winner_start_x, winner_start_y, winner_end_x, winner_end_y;
 
 
     // Artists
@@ -63,7 +69,35 @@ public class ControllerGame implements Initializable {
     private ChipArtist chipArtist;
     private PlayerArtist playerArtist;
     private GameArtist gameArtist;
-    
+
+    public static void updateWinnerLine(String line) {
+        // formato "x_start x_end y_start y_end"
+        if(line.equals("none")) return;
+
+        String[] parts = line.split(" ");
+        winner_start_x = Double.parseDouble(parts[0]);
+        winner_end_x = Double.parseDouble(parts[1]);
+        winner_start_y = Double.parseDouble(parts[2]);
+        winner_end_y = Double.parseDouble(parts[3]);
+
+    }
+
+    public static void updateWinner(String winn) {
+        winner = winn;
+    }
+
+    public static void updateAnimChip(String animChipStatus) {
+        String parts[] = animChipStatus.split(" ");
+        if(animChipStatus.equals("none")) {
+            isAnimChip = false;
+            return;
+        }
+
+        isAnimChip = true;
+        animChip_x = Double.parseDouble(parts[1]);
+        animChip_y = Double.parseDouble(parts[2]);
+        animChipPlayer = Integer.parseInt(parts[3]);
+    }
     public static void updateBoardPos(double x, double y) {
         board_x = x;
         board_y = y;
@@ -136,11 +170,26 @@ public class ControllerGame implements Initializable {
             gc.fillOval(currentChip_x - CELL_SIZE/2, currentChip_y - CELL_SIZE/2, CELL_SIZE, CELL_SIZE);
         }
 
+        // Drawing animChip
+        if (isAnimChip) {
+            gc.setFill(animChipPlayer == 1 ? redColor : yellowColor);
+            gc.fillOval(animChip_x, animChip_y, CELL_SIZE, CELL_SIZE);
+        }
+
         // Drawing the players
         gc.setFill(color1);
         gc.fillOval(pos_x_1 - 25, pos_y_1 - 25, 50, 50);
         gc.setFill(color2);
         gc.fillOval(pos_x_2 - 25, pos_y_2 - 25, 50, 50);
+
+        // Drawing the winner line
+        if (!winner.equals("none")) {
+            gc.setStroke(Color.BLACK);
+            gc.setLineWidth(20);
+            gc.setFill(Color.BLACK);
+            gc.setLineCap(StrokeLineCap.ROUND);
+            gc.strokeLine(winner_start_x, winner_start_y, winner_end_x, winner_end_y);
+        }
 
         
     }

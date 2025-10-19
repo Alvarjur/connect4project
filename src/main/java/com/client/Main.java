@@ -178,6 +178,9 @@ public class Main extends Application {
                     ControllerGame.updateCurrentChip(msgObj.getString("current_chip"));
                     ControllerGame.updatePossibleMoves(msgObj.getString("possible_moves"));
                     ControllerGame.updateGrid(msgObj.getJSONArray("grid"));
+                    ControllerGame.updateAnimChip(msgObj.getString("animChip"));
+                    ControllerGame.updateWinner(msgObj.getString("winner"));
+                    ControllerGame.updateWinnerLine(msgObj.getString("winner_line"));
 
                     
                     
