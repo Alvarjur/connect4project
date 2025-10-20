@@ -22,15 +22,6 @@ if [[ ! -f "$RSA_PATH" ]]; then
     exit 1
 fi
 
-echo "Generant el fitxer JAR..."
-rm -f "$JAR_PATH"
-./run.sh com.server.Main build
-
-if [[ ! -f "$JAR_PATH" ]]; then
-    echo "Error: No s'ha trobat l'arxiu JAR: $JAR_PATH"
-    cd proxmox
-    exit 1
-fi
 
 eval "$(ssh-agent -s)"
 ssh-add "$RSA_PATH"
