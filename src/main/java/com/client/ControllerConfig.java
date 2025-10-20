@@ -48,7 +48,7 @@ public class ControllerConfig {
     @FXML
     private void setConfigProxmox() {
         textFieldProtocol.setText("wss");
-        textFieldHost.setText("user.ieti.site");
+        textFieldHost.setText("rbellidonavarro.ieti.site");
         textFieldPort.setText("443");
     }
 
