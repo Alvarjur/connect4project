@@ -21,7 +21,7 @@ public class GameMatch implements Initializable{
     private Canvas canvas;
     public static int WINDOW_WIDTH = 900;
     public static int WINDOW_HEIGHT = 600;
-    public static int id_game = 0;
+    public int id_game = 0;
     private static double mouse_x, mouse_y;
 
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
@@ -37,7 +37,7 @@ public class GameMatch implements Initializable{
     private Color yellowColor = new Color(0.7,0.6,0.3,1);
     private Artist artist = new Artist();
 
-    public static Game game;
+    public Game game;
     private CanvasTimer timer;
 
     
@@ -89,11 +89,11 @@ public class GameMatch implements Initializable{
     }
 
     // Este es de servidor, hecho durante cambios
-    public static void updatePlayerMousePos(String player, double pos_x, double pos_y) {
+    public void updatePlayerMousePos(String player, double pos_x, double pos_y) {
         game.setPlayerPos(player, pos_x, pos_y);
     }
 
-    public static void updatePlayerMouseState(String player, boolean dragging) {
+    public void updatePlayerMouseState(String player, boolean dragging) {
         if(game.player1.name.equals(player)) {
             game.player1.isDragging = dragging;
         } else {

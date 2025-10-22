@@ -193,6 +193,13 @@ public class Main extends WebSocketServer {
 
         sendSafe(clients.socketByName(player1), objeto.toString());
         sendSafe(clients.socketByName(player2), objeto.toString());
+        // JSONArray clientNames = clients.currentNames();
+
+        // for (int i = 0; i < clientNames.length(); i++) {
+        //     String name = clientNames.getString(i);
+
+        //     sendSafe(clients.socketByName(name), objeto.toString());
+        // }
 
 
     }
