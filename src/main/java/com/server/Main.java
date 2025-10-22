@@ -37,6 +37,7 @@ public class Main extends WebSocketServer {
 
     /***** Registro de partidas *****/
     public static List<GameMatch> games;
+    public static int game_id = 0;
 
 
     // Claus JSON
@@ -124,11 +125,11 @@ public class Main extends WebSocketServer {
         }
     }
 
-    public static void sendUpdateOrder() {
+    public static void sendUpdateOrder(int id) {
         JSONObject objeto = new JSONObject();
         objeto.put("type", "drawOrder");
         // System.out.println(objeto);
-        Game game = games.get(games.size() - 1).game;
+        Game game = games.get(id).game;
         String player1 = game.player1.name;
         String player2 = game.player2.name;
 
@@ -257,7 +258,8 @@ public class Main extends WebSocketServer {
                     System.out.println(String.format("Se confirma que empieza la partida! Jugarán %s VS %s", player_1, player_2));
                     
                     // Crea la partida
-                    GameMatch game = new GameMatch(player_1, player_2);
+                    GameMatch game = new GameMatch(game_id, player_1, player_2);
+                    game_id += 1;
                     games.add(game);
 
                     // TODO Saca a ambos jugadores de la lista de disponibles
@@ -283,13 +285,15 @@ public class Main extends WebSocketServer {
                     double pos_x = json.getDouble("pos_x");
                     double pos_y = json.getDouble("pos_y");
                     boolean dragging = json.getBoolean("dragging");
-                    if (games.get(games.size() - 1).game.player1.name.equals(player1)) {
-                        games.get(games.size() - 1).updatePlayerMousePos(player1, pos_x, pos_y);
-                    } else {
-                        String player2 = games.get(games.size() - 1).game.player2.name;
-                        games.get(games.size() - 1).updatePlayerMousePos(player2, pos_x, pos_y);
-                    }
-                    games.get(games.size() - 1).updatePlayerMouseState(player1, dragging);
+                        for(GameMatch gm : games) {
+                            if (gm.game.player1.name.equals(player1) || gm.game.player2.name.equals(player1)) {
+                                gm.updatePlayerMousePos(player1, pos_x, pos_y);
+                                gm.updatePlayerMouseState(player1, dragging);
+                            }
+                        }
+                        
+                     
+                    
                     
                     break;
                 
