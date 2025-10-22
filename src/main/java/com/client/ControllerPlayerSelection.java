@@ -100,10 +100,14 @@ public class ControllerPlayerSelection {
     }
 
     public void declineChallenge() {
+        System.out.println("Entro en declineChallenge()");
+
         // Ocultar challengeOverlay
         challengeOverlay.setVisible(false);
 
         // TODO Enviar mensaje a challenger declinando reto
+        Main.sendRefusedMatch(challenger);
+        System.out.println("He rechazado el reto a " + challenger);
     }
 
     public void acceptChallenge() {

@@ -162,6 +162,9 @@ public class Main extends Application {
                     UtilsViews.setViewAnimating("ViewGame");
                     // ControllerGame.initializeResources(null, null);
                     break;
+                case "refusedMatch":
+                    System.out.println("Entro en case refusedMatch");
+                    UtilsViews.setViewAnimating("ViewPlayerSelection");
                 case "drawOrder":
                     System.out.println("orden de dibujar");
                     ControllerGame.updateBoardPos(msgObj.getDouble("board_pos_x"),
@@ -223,6 +226,9 @@ public class Main extends Application {
         json.put("clientName", clientName);
         json.put("challengedClientName", challengedPlayer);
         wsClient.safeSend(json.toString());
+
+        // Cambiar a la pantalla de espera
+        UtilsViews.setViewAnimating("ViewWait");
     }
 
     public static void sendStartMatch(String challenger) {
@@ -234,7 +240,13 @@ public class Main extends Application {
         wsClient.safeSend(matchJson.toString());
     }
 
-    
+    public static void sendRefusedMatch(String challenger) {
+        System.out.println("Entro en sendRefusedMatch");
+        JSONObject refusedMatchJson = new JSONObject();
+        refusedMatchJson.put("type", "refusedMatch");
+        refusedMatchJson.put("challenger", challenger);
+        wsClient.safeSend(refusedMatchJson.toString());
+    }
 
     
     
