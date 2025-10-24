@@ -158,7 +158,12 @@ public class Main extends Application {
                     break;
                 case "confirmedGame":
                     System.out.println("Servidor manda confirmación de que va a empezar una partida.");
-                    UtilsViews.setViewAnimating("ViewGame");
+                    controllerCountdown.setPlayerLabels(
+                        msgObj.getString("player_1"),
+                        msgObj.getString("player_2")
+                    );
+                    controllerCountdown.startCountdown();
+                    UtilsViews.setViewAnimating("ViewCountdown");
                     // ControllerGame.initializeResources(null, null);
                     break;
                 case "refusedMatch":
@@ -248,7 +253,7 @@ public class Main extends Application {
         wsClient.safeSend(refusedMatchJson.toString());
     }
 
-    
+
     
     // public static void sendPlayerInfo(Player player) {
 
@@ -263,6 +268,10 @@ public class Main extends Application {
         playerMouseInfo.put("pos_y", y);
         playerMouseInfo.put("dragging", dragging);
         wsClient.safeSend(playerMouseInfo.toString());
+    }
+
+    public static void setViewGame() {
+        UtilsViews.setViewAnimating("ViewGame");
     }
 }
 

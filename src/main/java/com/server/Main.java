@@ -272,6 +272,8 @@ public class Main extends WebSocketServer {
                     // Manda confirmación a los jugadores (para que pasen de vista)
                     JSONObject payloadConfirmedGame = new JSONObject();
                     payloadConfirmedGame.put("type", "confirmedGame");
+                    payloadConfirmedGame.put("player_1", player_1);
+                    payloadConfirmedGame.put("player_2", player_2);
                     System.out.println(payloadConfirmedGame);
                     sendSafe(clients.socketByName(player_1), payloadConfirmedGame.toString());
                     sendSafe(clients.socketByName(player_2), payloadConfirmedGame.toString());

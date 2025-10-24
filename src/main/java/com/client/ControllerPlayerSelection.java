@@ -90,8 +90,6 @@ public class ControllerPlayerSelection {
     }
 
     public void processChallenge(JSONObject msgObj) {
-        // TODO Aquí debería haber lógica relacionada con dar la posibilidad al cliente de aceptar o rechazar el reto
-
         // Habilitar overlay donde jugador decide si aceptar o rechazar reto
         challenger = msgObj.getString("challenger");
         System.out.println("Has recibido un reto de: " + challenger);
