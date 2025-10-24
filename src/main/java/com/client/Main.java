@@ -50,7 +50,6 @@ public class Main extends Application {
         controllerWait = (ControllerWait) UtilsViews.getController("ViewWait");
         controllerCountdown = (ControllerCountdown) UtilsViews.getController("ViewCountdown");
         controllerGame = (ControllerGame) UtilsViews.getController("ViewGame");
-        // TODO Añadir el resto de controladores cuando estén listos
 
         Scene scene = new Scene(UtilsViews.parentContainer);
         
@@ -228,6 +227,7 @@ public class Main extends Application {
         wsClient.safeSend(json.toString());
 
         // Cambiar a la pantalla de espera
+        controllerWait.updateChallengedName(challengedPlayer);
         UtilsViews.setViewAnimating("ViewWait");
     }
 
