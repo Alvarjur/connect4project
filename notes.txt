@@ -1,3 +1,5 @@
 TODO
 - Hacer animacion de caida de ficha
 - Hacer que se marque la linea ganadora X
+
+- A los clientes de la primera partida les dejan de llegar drawOrder cuando se hace más de una partida a la vez

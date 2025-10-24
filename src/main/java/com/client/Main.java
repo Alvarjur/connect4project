@@ -171,23 +171,23 @@ public class Main extends Application {
                     UtilsViews.setViewAnimating("ViewPlayerSelection");
                 case "drawOrder":
                     System.out.println("orden de dibujar");
-                    ControllerGame.updateBoardPos(msgObj.getDouble("board_pos_x"),
+                    controllerGame.updateBoardPos(msgObj.getDouble("board_pos_x"),
                                                   msgObj.getDouble("board_pos_y"));
                     
-                    ControllerGame.updateDragChipsPos(msgObj.getDouble("red_chip_dragg_x"),
+                    controllerGame.updateDragChipsPos(msgObj.getDouble("red_chip_dragg_x"),
                                                     msgObj.getDouble("red_chip_dragg_y"),
                                                     msgObj.getDouble("yellow_chip_dragg_x"),
                                                     msgObj.getDouble("yellow_chip_dragg_y"));
-                    ControllerGame.draw(msgObj.getDouble("pos_x_1"), 
+                    controllerGame.draw(msgObj.getDouble("pos_x_1"), 
                                         msgObj.getDouble("pos_y_1"),
                                         msgObj.getDouble("pos_x_2"), 
                                         msgObj.getDouble("pos_y_2"));
-                    ControllerGame.updateCurrentChip(msgObj.getString("current_chip"));
-                    ControllerGame.updatePossibleMoves(msgObj.getString("possible_moves"));
-                    ControllerGame.updateGrid(msgObj.getJSONArray("grid"));
-                    ControllerGame.updateAnimChip(msgObj.getString("animChip"));
-                    ControllerGame.updateWinner(msgObj.getString("winner"));
-                    ControllerGame.updateWinnerLine(msgObj.getString("winner_line"));
+                    controllerGame.updateCurrentChip(msgObj.getString("current_chip"));
+                    controllerGame.updatePossibleMoves(msgObj.getString("possible_moves"));
+                    controllerGame.updateGrid(msgObj.getJSONArray("grid"));
+                    controllerGame.updateAnimChip(msgObj.getString("animChip"));
+                    controllerGame.updateWinner(msgObj.getString("winner"));
+                    controllerGame.updateWinnerLine(msgObj.getString("winner_line"));
 
                     
                     

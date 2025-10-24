@@ -21,6 +21,7 @@ public class GameMatch implements Initializable{
     private Canvas canvas;
     public static int WINDOW_WIDTH = 900;
     public static int WINDOW_HEIGHT = 600;
+    public int id_game = 0;
     private static double mouse_x, mouse_y;
 
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
@@ -36,7 +37,7 @@ public class GameMatch implements Initializable{
     private Color yellowColor = new Color(0.7,0.6,0.3,1);
     private Artist artist = new Artist();
 
-    public static Game game;
+    public Game game;
     private CanvasTimer timer;
 
     
@@ -88,11 +89,11 @@ public class GameMatch implements Initializable{
     }
 
     // Este es de servidor, hecho durante cambios
-    public static void updatePlayerMousePos(String player, double pos_x, double pos_y) {
+    public void updatePlayerMousePos(String player, double pos_x, double pos_y) {
         game.setPlayerPos(player, pos_x, pos_y);
     }
 
-    public static void updatePlayerMouseState(String player, boolean dragging) {
+    public void updatePlayerMouseState(String player, boolean dragging) {
         if(game.player1.name.equals(player)) {
             game.player1.isDragging = dragging;
         } else {
@@ -111,6 +112,8 @@ public class GameMatch implements Initializable{
         gc = canvas.getGraphicsContext2D();
         canvas_width = canvas.getWidth();
         canvas_height = canvas.getHeight();
+        // id_game = Main.game_id;
+        // Main.game_id += 1;
         // game = new Game();
 
         // timer = new CanvasTimer(
@@ -150,7 +153,9 @@ public class GameMatch implements Initializable{
 
     }
 
-    public GameMatch(String player1, String player2) {
+    public GameMatch(int game_id, String player1, String player2) {
+        id_game = game_id;
+        // Main.game_id += 1;
         game = new Game(player1, player2);
         // timer = new CanvasTimer( // Esto crashea el juego
         //     fps -> update(), 
@@ -172,7 +177,7 @@ public class GameMatch implements Initializable{
     public void update() {
         // System.out.println("player1 pos_x: " + game.player1.x + " player2 pos_x: " + game.player2.x);
         game.updateVisualLogics();
-        Main.sendUpdateOrder();
+        Main.sendUpdateOrder(id_game);
         // game.updatePlayerPositions();
         
         if(game.winner == null) {
