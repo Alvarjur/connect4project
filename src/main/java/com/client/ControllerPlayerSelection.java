@@ -12,14 +12,17 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 
 public class ControllerPlayerSelection {
 
-    @FXML private Label labelClientName;
-    @FXML private Button buttonExit;
+    @FXML private Label labelClientName, labelChallengerName;
+    @FXML private Button buttonExit, buttonAcceptChallenge, buttonDeclineChallenge;
+    @FXML private AnchorPane challengeOverlay;
     @FXML private VBox yPane;
     private List<String> clients;
+    private String challenger;
     private URL resource = this.getClass().getResource("/assets/listViewAvaliblePlayers.fxml");
 
     @FXML
@@ -87,13 +90,25 @@ public class ControllerPlayerSelection {
     }
 
     public void processChallenge(JSONObject msgObj) {
-        String challenger = msgObj.getString("challenger");
+        // Habilitar overlay donde jugador decide si aceptar o rechazar reto
+        challenger = msgObj.getString("challenger");
         System.out.println("Has recibido un reto de: " + challenger);
-        // TODO Aquí debería haber lógica relacionada con dar la posibilidad al cliente de aceptar o rechazar el reto
+        labelChallengerName.setText(challenger);
+        challengeOverlay.setVisible(true);
+    }
 
-        // Aceptar el reto
+    public void declineChallenge() {
+        System.out.println("Entro en declineChallenge()");
+
+        // Ocultar challengeOverlay
+        challengeOverlay.setVisible(false);
+
+        // TODO Enviar mensaje a challenger declinando reto
+        Main.sendRefusedMatch(challenger);
+        System.out.println("He rechazado el reto a " + challenger);
+    }
+
+    public void acceptChallenge() {
         Main.sendStartMatch(challenger);
-
-        // Pasar a siguiente vista
     }
 }

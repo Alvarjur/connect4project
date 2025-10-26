@@ -59,6 +59,7 @@ public class Main extends WebSocketServer {
     private static final String T_CONFIRMATION = "confirmation";
     private static final String T_CHALLENGE = "challenge";
     private static final String T_START_MATCH = "startMatch";
+    private static final String T_REFUSED_MATCH = "refusedMatch";
     private static final String T_PLAYER_MOUSE_INFO = "playerMouseInfo";
     private static final String T_KOTLIN_ADD_CHIP = "kotlinAddChip";
 
@@ -283,10 +284,23 @@ public class Main extends WebSocketServer {
                     // Manda confirmación a los jugadores (para que pasen de vista)
                     JSONObject payloadConfirmedGame = new JSONObject();
                     payloadConfirmedGame.put("type", "confirmedGame");
+                    payloadConfirmedGame.put("player_1", player_1);
+                    payloadConfirmedGame.put("player_2", player_2);
                     System.out.println(payloadConfirmedGame);
                     sendSafe(clients.socketByName(player_1), payloadConfirmedGame.toString());
                     sendSafe(clients.socketByName(player_2), payloadConfirmedGame.toString());
                     
+                    break;
+
+                // Si un cliente rechaza una partida
+                case T_REFUSED_MATCH:
+                    System.out.println("Entro en T_REFUSED_MATCH");
+                    String refusedMatchChallenger = json.getString("challenger");
+
+                    // Enviar payload
+                    JSONObject payloadRefusedGame = new JSONObject();
+                    payloadRefusedGame.put("type", T_REFUSED_MATCH);
+                    sendSafe(clients.socketByName(refusedMatchChallenger), payloadRefusedGame.toString());
                     break;
                 
                 case T_PLAYER_MOUSE_INFO:

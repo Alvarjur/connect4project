@@ -6,47 +6,75 @@
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.client.ControllerPlayerSelection">
    <children>
-      <VBox alignment="CENTER" spacing="5.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <StackPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
-            <Label text="Select your oponent">
-               <font>
-                  <Font name="System Bold" size="36.0" />
-               </font>
-            </Label>
-            <HBox alignment="CENTER" VBox.vgrow="NEVER">
-               <children>
-                  <Label text="You are:" />
-                  <Label fx:id="labelClientName" text="{clientName}" textFill="RED">
-                     <padding>
-                        <Insets left="5.0" />
-                     </padding>
-                  </Label>
-               </children>
-            </HBox>
             <VBox alignment="CENTER" spacing="5.0">
                <children>
-                  <Label text="Avalible players" />
-                  <ScrollPane fitToHeight="true" fitToWidth="true">
-                     <content>
-                        <VBox fx:id="yPane" alignment="CENTER" />
-                     </content>
-                  </ScrollPane>
+                  <Label text="Select your oponent">
+                     <font>
+                        <Font name="System Bold" size="36.0" />
+                     </font>
+                  </Label>
+                  <HBox alignment="CENTER" VBox.vgrow="NEVER">
+                     <children>
+                        <Label text="You are:" />
+                        <Label fx:id="labelClientName" text="{clientName}" textFill="RED">
+                           <padding>
+                              <Insets left="5.0" />
+                           </padding>
+                        </Label>
+                     </children>
+                  </HBox>
+                  <VBox alignment="CENTER" spacing="5.0">
+                     <children>
+                        <Label text="Avalible players" />
+                        <ScrollPane fitToHeight="true" fitToWidth="true">
+                           <content>
+                              <VBox fx:id="yPane" alignment="CENTER" />
+                           </content>
+                        </ScrollPane>
+                     </children>
+                  </VBox>
+                  <HBox VBox.vgrow="NEVER">
+                     <children>
+                        <Button fx:id="buttonExit" mnemonicParsing="false" onAction="#exit" text="Exit" />
+                     </children>
+                  </HBox>
                </children>
+               <padding>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </padding>
             </VBox>
-            <HBox VBox.vgrow="NEVER">
+            <AnchorPane fx:id="challengeOverlay" prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: #ffdddd;" visible="false" StackPane.alignment="CENTER">
+               <StackPane.margin>
+                  <Insets bottom="50.0" left="50.0" right="50.0" top="50.0" />
+               </StackPane.margin>
                <children>
-                  <Button fx:id="buttonExit" mnemonicParsing="false" onAction="#exit" text="Exit" />
+                  <VBox prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                     <children>
+                        <Label text="You've been challenged by: " />
+                        <Label fx:id="labelChallengerName" text="{playerName]" textFill="RED">
+                           <font>
+                              <Font size="30.0" />
+                           </font>
+                        </Label>
+                        <HBox prefHeight="100.0" prefWidth="200.0">
+                           <children>
+                              <Button fx:id="buttonAcceptChallenge" mnemonicParsing="false" onAction="#acceptChallenge" text="Accept" />
+                              <Button fx:id="buttonDeclineChallenge" mnemonicParsing="false" onAction="#declineChallenge" text="Decline" />
+                           </children>
+                        </HBox>
+                     </children>
+                  </VBox>
                </children>
-            </HBox>
+            </AnchorPane>
          </children>
-         <padding>
-            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-         </padding>
-      </VBox>
+      </StackPane>
    </children>
 </AnchorPane>

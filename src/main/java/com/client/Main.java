@@ -50,7 +50,6 @@ public class Main extends Application {
         controllerWait = (ControllerWait) UtilsViews.getController("ViewWait");
         controllerCountdown = (ControllerCountdown) UtilsViews.getController("ViewCountdown");
         controllerGame = (ControllerGame) UtilsViews.getController("ViewGame");
-        // TODO Añadir el resto de controladores cuando estén listos
 
         Scene scene = new Scene(UtilsViews.parentContainer);
         
@@ -159,9 +158,17 @@ public class Main extends Application {
                     break;
                 case "confirmedGame":
                     System.out.println("Servidor manda confirmación de que va a empezar una partida.");
-                    UtilsViews.setViewAnimating("ViewGame");
+                    controllerCountdown.setPlayerLabels(
+                        msgObj.getString("player_1"),
+                        msgObj.getString("player_2")
+                    );
+                    controllerCountdown.startCountdown();
+                    UtilsViews.setViewAnimating("ViewCountdown");
                     // ControllerGame.initializeResources(null, null);
                     break;
+                case "refusedMatch":
+                    System.out.println("Entro en case refusedMatch");
+                    UtilsViews.setViewAnimating("ViewPlayerSelection");
                 case "drawOrder":
                     System.out.println("orden de dibujar");
                     controllerGame.updateBoardPos(msgObj.getDouble("board_pos_x"),
@@ -223,6 +230,10 @@ public class Main extends Application {
         json.put("clientName", clientName);
         json.put("challengedClientName", challengedPlayer);
         wsClient.safeSend(json.toString());
+
+        // Cambiar a la pantalla de espera
+        controllerWait.updateChallengedName(challengedPlayer);
+        UtilsViews.setViewAnimating("ViewWait");
     }
 
     public static void sendStartMatch(String challenger) {
@@ -234,9 +245,15 @@ public class Main extends Application {
         wsClient.safeSend(matchJson.toString());
     }
 
-    
+    public static void sendRefusedMatch(String challenger) {
+        System.out.println("Entro en sendRefusedMatch");
+        JSONObject refusedMatchJson = new JSONObject();
+        refusedMatchJson.put("type", "refusedMatch");
+        refusedMatchJson.put("challenger", challenger);
+        wsClient.safeSend(refusedMatchJson.toString());
+    }
 
-    
+
     
     // public static void sendPlayerInfo(Player player) {
 
@@ -251,6 +268,10 @@ public class Main extends Application {
         playerMouseInfo.put("pos_y", y);
         playerMouseInfo.put("dragging", dragging);
         wsClient.safeSend(playerMouseInfo.toString());
+    }
+
+    public static void setViewGame() {
+        UtilsViews.setViewAnimating("ViewGame");
     }
 }
 
