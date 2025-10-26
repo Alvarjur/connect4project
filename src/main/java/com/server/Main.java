@@ -130,7 +130,8 @@ public class Main extends WebSocketServer {
         JSONObject objeto = new JSONObject();
         objeto.put("type", "drawOrder");
         // System.out.println(objeto);
-        Game game = games.get(id).game;
+        GameMatch gameMatch = games.get(id);
+        Game game = gameMatch.game;
         String player1 = game.player1.name;
         String player2 = game.player2.name;
 
@@ -173,8 +174,8 @@ public class Main extends WebSocketServer {
         }
 
         // Falling chip animation status
-        if(GameMatch.animChip != null) {
-            objeto.put("animChip", GameMatch.animating + " " + GameMatch.animX + " " + GameMatch.animY + " " + GameMatch.animChip.player);
+        if(gameMatch.animChip != null) {
+            objeto.put("animChip", gameMatch.animating + " " + gameMatch.animX + " " + gameMatch.animY + " " + gameMatch.animChip.player);
         } else {
             objeto.put("animChip", "none");
         }
@@ -183,8 +184,8 @@ public class Main extends WebSocketServer {
         // Ganador y línea ganadora
         if(game.winner != null) {
             objeto.put("winner", game.winner.name);
-            objeto.put("winner_line", GameMatch.winner_start_x + " " + GameMatch.winner_end_x + " " +
-                                            GameMatch.winner_start_y + " " + GameMatch.winner_end_y);
+            objeto.put("winner_line", gameMatch.winner_start_x + " " + gameMatch.winner_end_x + " " +
+                                            gameMatch.winner_start_y + " " + gameMatch.winner_end_y);
         } else {
             objeto.put("winner", "none");
             objeto.put("winner_line", "none");

@@ -13,7 +13,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.StrokeLineCap;
 
-import com.project.CanvasTimer;
+import com.server.CanvasTimer;
 import com.server.GameMatch;
 
 public class ControllerGame implements Initializable {
