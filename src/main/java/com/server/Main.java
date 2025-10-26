@@ -60,6 +60,7 @@ public class Main extends WebSocketServer {
     private static final String T_CHALLENGE = "challenge";
     private static final String T_START_MATCH = "startMatch";
     private static final String T_PLAYER_MOUSE_INFO = "playerMouseInfo";
+    private static final String T_KOTLIN_ADD_CHIP = "kotlinAddChip";
 
     /**
      * Crea un servidor WebSocket que escolta a l'adreça indicada.
@@ -188,6 +189,8 @@ public class Main extends WebSocketServer {
             objeto.put("winner", "none");
             objeto.put("winner_line", "none");
         }
+
+        objeto.put("turn", game.currentPlayer);
         
 
 
@@ -302,6 +305,21 @@ public class Main extends WebSocketServer {
                      
                     
                     
+                    break;
+                
+                case T_KOTLIN_ADD_CHIP:
+                    
+                    int col = json.getInt("message");
+                    String videojugador = json.getString("clientName");
+                    System.out.println("\n\n\n\n\n\n\n\n\n\n\n\nMensaje recibido de kotlin, añadir chip\n\n\n\n\n\n\n\n\n\n\n"+col);
+                    for(GameMatch gm : games) {
+                            if (gm.game.player1.name.equals(videojugador) ) {
+                                gm.game.board.addChip(1, col);
+                            } else if (gm.game.player2.name.equals(videojugador)) {
+                                gm.game.board.addChip(2, col);
+                            }
+                        }
+
                     break;
                 
 

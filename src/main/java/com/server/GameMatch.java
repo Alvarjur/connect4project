@@ -112,14 +112,7 @@ public class GameMatch implements Initializable{
         gc = canvas.getGraphicsContext2D();
         canvas_width = canvas.getWidth();
         canvas_height = canvas.getHeight();
-        // id_game = Main.game_id;
-        // Main.game_id += 1;
-        // game = new Game();
 
-        // timer = new CanvasTimer(
-        //     fps -> update(), 
-        //     this::update, 
-        //     120);
         timer.start();
 
         canvas.widthProperty().bind(root.widthProperty());
@@ -217,7 +210,7 @@ public class GameMatch implements Initializable{
     }
 
     class Game {
-        private int currentPlayer;
+        public int currentPlayer;
         public Board board;
         public Player player1, player2;
         public Player winner;
@@ -709,6 +702,22 @@ public class GameMatch implements Initializable{
 
             grid[row_to_add_in][col] = chip.player;
             animChip = null;
+        }
+
+        // This one is for the kotlin client, so I'll change the turn here
+        public void addChip(int player, int col) {
+            int row_to_add_in = 0;
+
+            for(int i = grid.length - 1; i > 0; i--) {
+                if(grid[i][col] == 0) {
+                    row_to_add_in = i;
+                    break;
+                }
+            }
+
+            grid[row_to_add_in][col] = player;
+            animChip = null;
+            game.switchPlayer();
         }
 
 
