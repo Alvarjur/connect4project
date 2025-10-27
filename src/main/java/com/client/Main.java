@@ -156,7 +156,7 @@ public class Main extends Application {
                     System.out.println("Respuesta de tipo 'challenge' recibida: " + response);
                     controllerPlayerSelection.processChallenge(msgObj);
                     break;
-                case "confirmedGame":
+                case "startCountdown":
                     System.out.println("Servidor manda confirmación de que va a empezar una partida.");
                     controllerCountdown.setPlayerLabels(
                         msgObj.getString("player_1"),
