@@ -19,19 +19,19 @@ import javafx.scene.shape.StrokeLineCap;
 public class GameMatch implements Initializable{
     @FXML
     private Canvas canvas;
-    public static int WINDOW_WIDTH = 900;
-    public static int WINDOW_HEIGHT = 600;
+    public int WINDOW_WIDTH = 900;
+    public int WINDOW_HEIGHT = 600;
     public int id_game = 0;
-    private static double mouse_x, mouse_y;
+    private double mouse_x, mouse_y;
 
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
 
     private GraphicsContext gc;
-    public static double canvas_width = WINDOW_WIDTH;
-    public static double canvas_height = WINDOW_HEIGHT;
+    public double canvas_width = WINDOW_WIDTH;
+    public double canvas_height = WINDOW_HEIGHT;
     private double CELL_SIZE = 80;
-    public static Color boardColor = new Color(0,0,0.5,1);
+    public Color boardColor = new Color(0,0,0.5,1);
     private Color redColor = new Color(0.5,0,0,1);
     private Color blueColor = new Color(0,0,0.5,1);
     private Color yellowColor = new Color(0.7,0.6,0.3,1);
@@ -44,17 +44,17 @@ public class GameMatch implements Initializable{
 
 
     // Animación de caida
-    public static Chip animChip;
-    public static boolean animating = false;
-    public static int animCol = -1, animRow = -1;
-    public static double animX;
-    public static double animY;
-    public static double targetY;
-    public static double fallSpeed = 1300;
-    public static long lastRunNanos = 0;
+    public Chip animChip;
+    public boolean animating = false;
+    public int animCol = -1, animRow = -1;
+    public double animX;
+    public double animY;
+    public double targetY;
+    public double fallSpeed = 1300;
+    public long lastRunNanos = 0;
 
     // Winner line
-    public static double winner_start_x, winner_start_y, winner_end_x, winner_end_y;
+    public double winner_start_x, winner_start_y, winner_end_x, winner_end_y;
 
 
 
@@ -66,7 +66,7 @@ public class GameMatch implements Initializable{
     @FXML
     private AnchorPane root;
     
-    public static void setMousePos(double x, double y) {
+    public void setMousePos(double x, double y) {
         mouse_x = x;
         mouse_y = y;
     }
@@ -102,7 +102,7 @@ public class GameMatch implements Initializable{
     }
 
 
-    public static void setNewWindowSize(int width, int height) {
+    public void setNewWindowSize(int width, int height) {
         WINDOW_WIDTH = width;
         WINDOW_HEIGHT = height;
     }
@@ -122,13 +122,13 @@ public class GameMatch implements Initializable{
         canvas.heightProperty().addListener(evt -> updateWindowSize());
 
         canvas.setOnMouseMoved(event -> {
-            GameMatch.setMousePos(event.getSceneX(), event.getSceneY());
+            setMousePos(event.getSceneX(), event.getSceneY());
 
             update();
         });
 
         canvas.setOnMouseDragged(event -> {
-            GameMatch.setMousePos(event.getSceneX(), event.getSceneY());
+            setMousePos(event.getSceneX(), event.getSceneY());
             game.setPlayersDragging(true);
             
             // update();
