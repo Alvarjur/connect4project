@@ -93,19 +93,32 @@ public class UtilsViews {
         for (Node n : list) {
             if (n.isVisible()) {
                 curView = n;
+                break;
             }
         }
 
-        if (curView.getId().equals(viewId)) {
+        // If there is no current view, just switch without animation
+        if (curView == null) {
+            setView(viewId);
+            return;
+        }
+
+        if (curView.getId() != null && curView.getId().equals(viewId)) {
             return; // Do nothing if current view is the same as the next view
         }
 
         // Get nxtView
         Node nxtView = null;
         for (Node n : list) {
-            if (n.getId().equals(viewId)) {
+            if (n.getId() != null && n.getId().equals(viewId)) {
                 nxtView = n;
+                break;
             }
+        }
+
+        // If the requested view was not found, do nothing
+        if (nxtView == null) {
+            return;
         }
 
         // Set nxtView visible
