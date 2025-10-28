@@ -17,9 +17,6 @@ public class Main extends Application {
     public static UtilsWS wsClient;
 
     public static String clientName = "";
-    // TODO Sustituir por los objetos finales que utilizaremos
-    // public static List<ClientData> clients;
-    // public static List<GameObject> objects;
 
     public static ControllerConfig controllerConfig;
     public static ControllerPlayerSelection controllerPlayerSelection;
@@ -29,9 +26,7 @@ public class Main extends Application {
 
     public static void main(String[] args) {
         launch(args);
-    }
-
-    
+    }    
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -137,6 +132,7 @@ public class Main extends Application {
             // Si no es un JSON, sólo lo imprime por pantalla
             boolean isJson = response.charAt(0) == '{';
             if (!isJson) {
+                System.out.println("Entro en wsMessage; pero no recibo un JSON, sino esto:");
                 System.out.println(response);
                 return;
             }
@@ -149,18 +145,21 @@ public class Main extends Application {
             switch (type) {
                 // Recibir lista actualizada de clientes
                 case "clients":
+                    System.out.println("Entro en case clients. Actualizo lista de clientes disponibles");
                     controllerPlayerSelection.updateListOfClients(msgObj);
                     break;
                 // Recibir reto de otro cliente
                 case "challenge":
-                    System.out.println("Respuesta de tipo 'challenge' recibida: " + response);
+                    System.out.println("Entro en case challenge. Se habilita overlay para decidir aceptar o rechazar");
                     controllerPlayerSelection.processChallenge(msgObj);
                     break;
+                // Recibir rechazo de un reto
                 case "refusedMatch":
-                    System.out.println("Entro en case refusedMatch");
+                    System.out.println("Entro en case refusedMatch. Cambio a vista ViewPlayerSelection");
                     UtilsViews.setViewAnimating("ViewPlayerSelection");
+                // Server empieza el countdown
                 case "startCountdown":
-                    System.out.println("Entro en startCountdown. Cambio a vista ViewCountdown");
+                    System.out.println("Entro en case startCountdown. Cambio a vista ViewCountdown");
                     controllerCountdown.setPlayerLabels(
                         msgObj.getString("player_1"),
                         msgObj.getString("player_2")
@@ -169,14 +168,17 @@ public class Main extends Application {
                     controllerCountdown.updateLabelCountdown(initialSeconds);
                     UtilsViews.setViewAnimating("ViewCountdown");
                     break;
+                // Server envía estado actual del countdown
                 case "remainingCountdown":
                     int remainingSeconds = msgObj.getInt("value");
                     controllerCountdown.updateLabelCountdown(remainingSeconds);
-                    System.out.println("Entro en remainingCountdown, remainingSeconds=" + remainingSeconds);
+                    System.out.println("Entro en case remainingCountdown, remainingSeconds=" + remainingSeconds);
                     break;
+                // Countdown ha terminado, y ahora empieza la partida
                 case "startGame":
-                    System.out.println("Entro en startGame. Cambio a vista ViewGame");
+                    System.out.println("Entro en case startGame. Cambio a vista ViewGame");
                     UtilsViews.setViewAnimating("ViewGame");
+                // Server manda orden con la info a dibujar
                 case "drawOrder":
                     // System.out.println("orden de dibujar");
                     controllerGame.updateBoardPos(msgObj.getDouble("board_pos_x"),
@@ -196,10 +198,6 @@ public class Main extends Application {
                     controllerGame.updateAnimChip(msgObj.getString("animChip"));
                     controllerGame.updateWinner(msgObj.getString("winner"));
                     controllerGame.updateWinnerLine(msgObj.getString("winner_line"));
-
-                    
-                    
-
             }
         });
     }
@@ -260,12 +258,6 @@ public class Main extends Application {
         refusedMatchJson.put("challenger", challenger);
         wsClient.safeSend(refusedMatchJson.toString());
     }
-
-
-    
-    // public static void sendPlayerInfo(Player player) {
-
-    // }
 
     public static void sendPlayerMousePosInfo(String player, double x, double y, boolean dragging) {
         System.out.println(clientName + " se mueve");
