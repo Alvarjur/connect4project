@@ -231,8 +231,8 @@ public class GameMatch implements Initializable{
             currentPlayer = 1; // Red starts
             
             board = new Board(20, 100, 6,7);
-            this.player1 = new Player(player1,1, 50, 50);
-            this.player2 = new Player(player2, 2, 150, 50);
+            this.player1 = new Player(player1,1, -50, -50);
+            this.player2 = new Player(player2, 2, -150, -50);
             players.add(this.player1);
             players.add(this.player2);
 
