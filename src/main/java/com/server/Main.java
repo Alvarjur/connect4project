@@ -111,7 +111,7 @@ public class Main extends WebSocketServer {
             to.send(payload);
         } catch (WebsocketNotConnectedException e) {
             String name = clients.cleanupDisconnected(to);
-            System.out.println("Client desconnectat durant send: " + name);
+            log("Client desconectado durante sendSafe() -> " + name);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -133,7 +133,6 @@ public class Main extends WebSocketServer {
     public static void sendUpdateOrder(int id) {
         JSONObject objeto = new JSONObject();
         objeto.put("type", "drawOrder");
-        // System.out.println(objeto);
         GameMatch gameMatch = gameMatches.get(id);
         Game game = gameMatch.game;
         String player1 = game.player1.name;
@@ -214,13 +213,13 @@ public class Main extends WebSocketServer {
 
     @Override
     public void onOpen(WebSocket conn, ClientHandshake handshake) {
-        System.out.println("[SERVIDOR] Nuevo cliente conectado");
+        log("Nuevo cliente conectado. Debería entrar en case T_REGISTER");
     }
 
     /** Elimina el client del registre i notifica la llista actualitzada. */
     @Override
     public void onClose(WebSocket conn, int code, String reason, boolean remote) {
-        System.out.println("[SERVIDOR] Cliente desconectado -> " + clients.nameBySocket(conn));
+        log("Cliente desconectado -> " + clients.nameBySocket(conn));
         clients.remove(conn);
         sendClientsListToAll();
     }
@@ -228,7 +227,7 @@ public class Main extends WebSocketServer {
     /***** Procesa el mensaje recibido y actúa según el tipo de mensaje. *****/
     @Override
     public void onMessage(WebSocket conn, String message) {
-        System.out.println("[CLIENTE] Mensaje del cliente -> " + message);
+        log("Mensaje recibido del cliente -> " + message);
 
         try {
             // Obtener el JSON
@@ -241,8 +240,7 @@ public class Main extends WebSocketServer {
                     // Registrar nuevo cliente
                     String clientName = json.getString(K_CLIENT_NAME);
                     clients.add(conn, clientName);
-                    System.out.println("[SERVIDOR] Cliente registrado -> " + clientName);
-                    conn.send("[SERVIDOR] Has sido registrado en el servidor con el nombre: " + clientName);
+                    log("Entro en case T_REGISTER. Cliente registrado -> " + clientName);
 
                     // Enviar nuevo JSON con los clientes actuales a todo el mundo
                     sendClientsListToAll();
@@ -252,8 +250,7 @@ public class Main extends WebSocketServer {
                 case T_CHALLENGE:
                     String challenger = json.getString("clientName");
                     String challengedPlayer = json.getString("challengedClientName");
-                    System.out.println("AAAAAA");
-                    System.out.println(String.format("[SERVIDOR] Cliente '%s' ha retado a '%s", challenger, challengedPlayer));
+                    log(String.format("Entro en case T_CHALLENGE. Cliente '%s' ha retado a '%s", challenger, challengedPlayer));
                     
                     // Preparar mensaje y enviar sólo a cliente retado
                     String payload = new JSONObject()
@@ -265,15 +262,14 @@ public class Main extends WebSocketServer {
 
                 // Si un cliente acepta una partida
                 case T_START_MATCH:
-                    System.out.println("Entro en case T_START_MATCH");
                     String player_1 = json.getString("player_1");
                     String player_2 = json.getString("player_2");
-                    System.out.println(String.format("Se confirma que empieza la partida! Jugarán %s VS %s", player_1, player_2));
+                    log(String.format("Entro en case T_START_MATCH. Jugarán %s VS %s", player_1, player_2));
 
                     // TODO Saca a ambos jugadores de la lista de disponibles
                     
                                        
-                    // TODO Hacer que players vayan a vista Countdown
+                    // Mandar players a vista Countdown
                     int startSeconds = 3;
 
                     JSONObject payloadStartCountdown = new JSONObject();
@@ -286,10 +282,10 @@ public class Main extends WebSocketServer {
 
                     // Pongo en marcha el Countdown
                     Countdown countdown = new Countdown(startSeconds);
-                    System.out.println("He creado el objeto Countdown");
+                    log("Sigo dentro de case T_START_MATCH. He creado el objeto Countdown");
                     
                     countdown.setOnTick((remaining) -> {
-                        System.out.println("Entro en countdown.setOnTick con remaining=" + remaining);
+                        log("Sigo dentro de case T_START_MATCH. Entro en countdown.setOnTick con remaining=" + remaining);
                         JSONObject msg = new JSONObject()
                             .put("type", T_REMAINING_COUNTDOWN)
                             .put("value", remaining);
@@ -300,7 +296,7 @@ public class Main extends WebSocketServer {
                     countdown.setOnFinished(() -> {
                         // Pongo en marcha la partida
                         GameMatch gameMatch = new GameMatch(game_id, player_1, player_2);
-                        System.out.println("He creado el GameMatch con game_id=" + game_id);
+                        log("Sigo dentro de case T_START_MATCH. He creado el GameMatch con game_id=" + game_id);
                         game_id += 1;
                         gameMatches.add(gameMatch);
 
@@ -319,7 +315,7 @@ public class Main extends WebSocketServer {
 
                 // Si un cliente rechaza una partida
                 case T_REFUSED_MATCH:
-                    System.out.println("Entro en T_REFUSED_MATCH");
+                    log("Entro en case T_REFUSED_MATCH");
                     String refusedMatchChallenger = json.getString("challenger");
 
                     // Enviar payload
@@ -329,7 +325,7 @@ public class Main extends WebSocketServer {
                     break;
                 
                 case T_PLAYER_MOUSE_INFO:
-                    System.out.println("Mensaje recibido, movimiento en el ratón");
+                    log("Entro en case T_PLAYER_MOUSE_INFO");
                     String player1 = json.getString("player");
                     double pos_x = json.getDouble("pos_x");
                     double pos_y = json.getDouble("pos_y");
@@ -348,10 +344,7 @@ public class Main extends WebSocketServer {
                 
 
                 default:
-                    conn.send("[SERVIDOR] Tipo de mensaje no controlado."
-                        + "\n"
-                        + "El mensaje recibido era: " + message
-                    );
+                    log("Entro en default (tipo de mensaje no controlado). Mensaje=" + message);
             }
 
         } catch (Exception e) {
@@ -376,7 +369,7 @@ public class Main extends WebSocketServer {
     /** Arrencada: log i configuració del timeout de connexió perduda. */
     @Override
     public void onStart() {
-        System.out.println("Servidor WebSocket engegat al port: " + getPort());
+        log("Servidor WebSocket encendido en el puerto: " + getPort());
     }
 
     /**
@@ -387,7 +380,7 @@ public class Main extends WebSocketServer {
     public static void main(String[] args) {
         Main server = new Main(new InetSocketAddress(DEFAULT_PORT));
         server.start();
-        System.out.println("Servidor WebSocket en execució al port " + DEFAULT_PORT + ". Prem Ctrl+C per aturar-lo.");
+        log("Servidor WebSocket en execució al port " + DEFAULT_PORT + ". Prem Ctrl+C per aturar-lo.");
     }
 
     public static void log(String message) {
