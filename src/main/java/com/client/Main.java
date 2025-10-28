@@ -156,21 +156,29 @@ public class Main extends Application {
                     System.out.println("Respuesta de tipo 'challenge' recibida: " + response);
                     controllerPlayerSelection.processChallenge(msgObj);
                     break;
+                case "refusedMatch":
+                    System.out.println("Entro en case refusedMatch");
+                    UtilsViews.setViewAnimating("ViewPlayerSelection");
                 case "startCountdown":
-                    System.out.println("Servidor manda confirmación de que va a empezar una partida.");
+                    System.out.println("Entro en startCountdown. Cambio a vista ViewCountdown");
                     controllerCountdown.setPlayerLabels(
                         msgObj.getString("player_1"),
                         msgObj.getString("player_2")
                     );
-                    controllerCountdown.startCountdown();
+                    int initialSeconds = msgObj.getInt("value");
+                    controllerCountdown.updateLabelCountdown(initialSeconds);
                     UtilsViews.setViewAnimating("ViewCountdown");
-                    // ControllerGame.initializeResources(null, null);
                     break;
-                case "refusedMatch":
-                    System.out.println("Entro en case refusedMatch");
-                    UtilsViews.setViewAnimating("ViewPlayerSelection");
+                case "remainingCountdown":
+                    int remainingSeconds = msgObj.getInt("value");
+                    controllerCountdown.updateLabelCountdown(remainingSeconds);
+                    System.out.println("Entro en remainingCountdown, remainingSeconds=" + remainingSeconds);
+                    break;
+                case "startGame":
+                    System.out.println("Entro en startGame. Cambio a vista ViewGame");
+                    UtilsViews.setViewAnimating("ViewGame");
                 case "drawOrder":
-                    System.out.println("orden de dibujar");
+                    // System.out.println("orden de dibujar");
                     controllerGame.updateBoardPos(msgObj.getDouble("board_pos_x"),
                                                   msgObj.getDouble("board_pos_y"));
                     
@@ -268,10 +276,6 @@ public class Main extends Application {
         playerMouseInfo.put("pos_y", y);
         playerMouseInfo.put("dragging", dragging);
         wsClient.safeSend(playerMouseInfo.toString());
-    }
-
-    public static void setViewGame() {
-        UtilsViews.setViewAnimating("ViewGame");
     }
 }
 

@@ -64,7 +64,6 @@ public class Main extends WebSocketServer {
     private static final String T_REFUSED_MATCH = "refusedMatch";
     private static final String T_PLAYER_MOUSE_INFO = "playerMouseInfo";
     private static final String T_START_COUNTDOWN = "startCountdown";
-    private static final String T_END_COUNTDOWN = "endCountdown";
     private static final String T_REMAINING_COUNTDOWN = "remainingCountdown";
 
     /**
@@ -287,8 +286,10 @@ public class Main extends WebSocketServer {
 
                     // Pongo en marcha el Countdown
                     Countdown countdown = new Countdown(startSeconds);
+                    System.out.println("He creado el objeto Countdown");
                     
                     countdown.setOnTick((remaining) -> {
+                        System.out.println("Entro en countdown.setOnTick con remaining=" + remaining);
                         JSONObject msg = new JSONObject()
                             .put("type", T_REMAINING_COUNTDOWN)
                             .put("value", remaining);
@@ -299,6 +300,7 @@ public class Main extends WebSocketServer {
                     countdown.setOnFinished(() -> {
                         // Pongo en marcha la partida
                         GameMatch gameMatch = new GameMatch(game_id, player_1, player_2);
+                        System.out.println("He creado el GameMatch con game_id=" + game_id);
                         game_id += 1;
                         gameMatches.add(gameMatch);
 
@@ -310,6 +312,8 @@ public class Main extends WebSocketServer {
                         sendSafe(clients.socketByName(player_1), payloadConfirmedGame.toString());
                         sendSafe(clients.socketByName(player_2), payloadConfirmedGame.toString());
                     });
+
+                    countdown.startCountdown();
 
                     break;
 
