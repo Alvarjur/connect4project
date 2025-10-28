@@ -369,7 +369,7 @@ public class Main extends WebSocketServer {
     /** Arrencada: log i configuració del timeout de connexió perduda. */
     @Override
     public void onStart() {
-        log("Servidor WebSocket encendido en el puerto: " + getPort());
+        log("Servidor WebSocket encendido en el puerto: " + getPort() + ". Pulsa Ctrl+C para pararlo.");
     }
 
     /**
@@ -380,7 +380,6 @@ public class Main extends WebSocketServer {
     public static void main(String[] args) {
         Main server = new Main(new InetSocketAddress(DEFAULT_PORT));
         server.start();
-        log("Servidor WebSocket en execució al port " + DEFAULT_PORT + ". Prem Ctrl+C per aturar-lo.");
     }
 
     public static void log(String message) {
