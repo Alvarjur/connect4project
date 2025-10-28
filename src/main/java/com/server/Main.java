@@ -36,9 +36,11 @@ public class Main extends WebSocketServer {
     public static ClientRegistry clients;
 
     /***** Registro de partidas *****/
-    public static List<GameMatch> games;
-    public static int game_id = 0;
+    public static List<GameMatch> gameMatches;
+    public int game_id = 0;
 
+    /* Countdowns que maneja el servidor (1 por partida) */
+    private List<Countdown> countdowns;
 
     // Claus JSON
     private static final String K_TYPE = "type";
@@ -62,6 +64,8 @@ public class Main extends WebSocketServer {
     private static final String T_REFUSED_MATCH = "refusedMatch";
     private static final String T_PLAYER_MOUSE_INFO = "playerMouseInfo";
     private static final String T_KOTLIN_ADD_CHIP = "kotlinAddChip";
+    private static final String T_START_COUNTDOWN = "startCountdown";
+    private static final String T_REMAINING_COUNTDOWN = "remainingCountdown";
 
     /**
      * Crea un servidor WebSocket que escolta a l'adreça indicada.
@@ -71,7 +75,7 @@ public class Main extends WebSocketServer {
     public Main(InetSocketAddress address) {
         super(address);
         clients = new ClientRegistry();
-        games = new ArrayList<>();
+        gameMatches = new ArrayList<>();
     }
 
     /**
@@ -131,7 +135,7 @@ public class Main extends WebSocketServer {
         JSONObject objeto = new JSONObject();
         objeto.put("type", "drawOrder");
         // System.out.println(objeto);
-        GameMatch gameMatch = games.get(id);
+        GameMatch gameMatch = gameMatches.get(id);
         Game game = gameMatch.game;
         String player1 = game.player1.name;
         String player2 = game.player2.name;
@@ -264,33 +268,56 @@ public class Main extends WebSocketServer {
 
                 // Si un cliente acepta una partida
                 case T_START_MATCH:
-                    System.out.println("Entro en T_START_MATCH");
+                    System.out.println("Entro en case T_START_MATCH");
                     String player_1 = json.getString("player_1");
                     String player_2 = json.getString("player_2");
                     System.out.println(String.format("Se confirma que empieza la partida! Jugarán %s VS %s", player_1, player_2));
-                    
-                    // Crea la partida
-                    GameMatch game = new GameMatch(game_id, player_1, player_2);
-                    game_id += 1;
-                    games.add(game);
 
                     // TODO Saca a ambos jugadores de la lista de disponibles
-
-                   
                     
+                                       
+                    // TODO Hacer que players vayan a vista Countdown
+                    int startSeconds = 3;
 
+                    JSONObject payloadStartCountdown = new JSONObject();
+                    payloadStartCountdown.put("type", T_START_COUNTDOWN);
+                    payloadStartCountdown.put("player_1", player_1);
+                    payloadStartCountdown.put("player_2", player_2);
+                    payloadStartCountdown.put("value", startSeconds);
+                    sendSafe(clients.socketByName(player_1), payloadStartCountdown.toString());
+                    sendSafe(clients.socketByName(player_2), payloadStartCountdown.toString());
 
-
-
-                    // Manda confirmación a los jugadores (para que pasen de vista)
-                    JSONObject payloadConfirmedGame = new JSONObject();
-                    payloadConfirmedGame.put("type", "confirmedGame");
-                    payloadConfirmedGame.put("player_1", player_1);
-                    payloadConfirmedGame.put("player_2", player_2);
-                    System.out.println(payloadConfirmedGame);
-                    sendSafe(clients.socketByName(player_1), payloadConfirmedGame.toString());
-                    sendSafe(clients.socketByName(player_2), payloadConfirmedGame.toString());
+                    // Pongo en marcha el Countdown
+                    Countdown countdown = new Countdown(startSeconds);
+                    System.out.println("He creado el objeto Countdown");
                     
+                    countdown.setOnTick((remaining) -> {
+                        System.out.println("Entro en countdown.setOnTick con remaining=" + remaining);
+                        JSONObject msg = new JSONObject()
+                            .put("type", T_REMAINING_COUNTDOWN)
+                            .put("value", remaining);
+                        sendSafe(clients.socketByName(player_1), msg.toString());
+                        sendSafe(clients.socketByName(player_2), msg.toString());
+                    });
+
+                    countdown.setOnFinished(() -> {
+                        // Pongo en marcha la partida
+                        GameMatch gameMatch = new GameMatch(game_id, player_1, player_2);
+                        System.out.println("He creado el GameMatch con game_id=" + game_id);
+                        game_id += 1;
+                        gameMatches.add(gameMatch);
+
+                        // Avisar a los clientes de que empieza la partida
+                        JSONObject payloadConfirmedGame = new JSONObject();
+                        payloadConfirmedGame.put("type", "startGame");
+                        payloadConfirmedGame.put("player_1", player_1);
+                        payloadConfirmedGame.put("player_2", player_2);
+                        sendSafe(clients.socketByName(player_1), payloadConfirmedGame.toString());
+                        sendSafe(clients.socketByName(player_2), payloadConfirmedGame.toString());
+                    });
+
+                    countdown.startCountdown();
+
                     break;
 
                 // Si un cliente rechaza una partida
@@ -310,7 +337,7 @@ public class Main extends WebSocketServer {
                     double pos_x = json.getDouble("pos_x");
                     double pos_y = json.getDouble("pos_y");
                     boolean dragging = json.getBoolean("dragging");
-                        for(GameMatch gm : games) {
+                        for(GameMatch gm : gameMatches) {
                             if (gm.game.player1.name.equals(player1) || gm.game.player2.name.equals(player1)) {
                                 gm.updatePlayerMousePos(player1, pos_x, pos_y);
                                 gm.updatePlayerMouseState(player1, dragging);
