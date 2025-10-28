@@ -38,6 +38,7 @@ public class Main extends WebSocketServer {
     /***** Registro de partidas *****/
     public static List<GameMatch> gameMatches;
     public int game_id = 0;
+    
 
     /* Countdowns que maneja el servidor (1 por partida) */
     private List<Countdown> countdowns;
@@ -354,7 +355,7 @@ public class Main extends WebSocketServer {
                     int col = json.getInt("message");
                     String videojugador = json.getString("clientName");
                     System.out.println("\n\n\n\n\n\n\n\n\n\n\n\nMensaje recibido de kotlin, añadir chip\n\n\n\n\n\n\n\n\n\n\n"+col);
-                    for(GameMatch gm : games) {
+                    for(GameMatch gm : gameMatches) {
                             if (gm.game.player1.name.equals(videojugador) ) {
                                 gm.game.board.addChip(1, col);
                             } else if (gm.game.player2.name.equals(videojugador)) {
