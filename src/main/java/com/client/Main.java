@@ -157,6 +157,7 @@ public class Main extends Application {
                 case "refusedMatch":
                     System.out.println("Entro en case refusedMatch. Cambio a vista ViewPlayerSelection");
                     UtilsViews.setViewAnimating("ViewPlayerSelection");
+                    break;
                 // Server empieza el countdown
                 case "startCountdown":
                     System.out.println("Entro en case startCountdown. Cambio a vista ViewCountdown");
@@ -178,6 +179,7 @@ public class Main extends Application {
                 case "startGame":
                     System.out.println("Entro en case startGame. Cambio a vista ViewGame");
                     UtilsViews.setViewAnimating("ViewGame");
+                    break;
                 // Server manda orden con la info a dibujar
                 case "drawOrder":
                     // System.out.println("orden de dibujar");
@@ -198,6 +200,7 @@ public class Main extends Application {
                     controllerGame.updateAnimChip(msgObj.getString("animChip"));
                     controllerGame.updateWinner(msgObj.getString("winner"));
                     controllerGame.updateWinnerLine(msgObj.getString("winner_line"));
+                    break;
             }
         });
     }
