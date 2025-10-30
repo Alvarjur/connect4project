@@ -26,7 +26,6 @@ public class GameMatch implements Initializable{
 
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
-
     private GraphicsContext gc;
     public double canvas_width = WINDOW_WIDTH;
     public double canvas_height = WINDOW_HEIGHT;
@@ -40,9 +39,6 @@ public class GameMatch implements Initializable{
     public Game game;
     private CanvasTimer timer;
 
-    
-
-
     // Animación de caida
     public Chip animChip;
     public boolean animating = false;
@@ -55,10 +51,6 @@ public class GameMatch implements Initializable{
 
     // Winner line
     public double winner_start_x, winner_start_y, winner_end_x, winner_end_y;
-
-
-
-    
 
     private ArrayList<Chip> redChips = new ArrayList<Chip>();
     private ArrayList<Chip> yellowChips = new ArrayList<Chip>();
@@ -75,11 +67,9 @@ public class GameMatch implements Initializable{
         // Run at ~60 FPS => every 16 milliseconds
         scheduler.scheduleAtFixedRate(() -> {
             try {
-                // updateGameState();
-                // sendUpdatesToClients();
                 update();
             } catch (Exception e) {
-                e.printStackTrace(); // Never let exceptions kill your game loop!
+                e.printStackTrace();
             }
         }, 0, 16, TimeUnit.MILLISECONDS);
     }
@@ -100,7 +90,6 @@ public class GameMatch implements Initializable{
             game.player2.isDragging = dragging;
         }
     }
-
 
     public void setNewWindowSize(int width, int height) {
         WINDOW_WIDTH = width;
@@ -147,10 +136,6 @@ public class GameMatch implements Initializable{
             // game.checkReleases();
             // update();
         });
-
-        // update();
-
-
     }
 
     public GameMatch(int game_id, String player1, String player2) {
@@ -172,8 +157,6 @@ public class GameMatch implements Initializable{
         // draw();
     }
 
-    
-
     public void update() {
         // System.out.println("player1 pos_x: " + game.player1.x + " player2 pos_x: " + game.player2.x);
         game.updateVisualLogics();
@@ -183,18 +166,10 @@ public class GameMatch implements Initializable{
         if(game.winner == null) {
             game.updateLogic();
         }
-        
-
-
-
-
-        
     }
 
     public void draw() {
         artist.draw();
-        
-        
     }
 
     class Artist implements drawable{
@@ -210,10 +185,7 @@ public class GameMatch implements Initializable{
             if(game.winner != null) {
                 game.artist.drawWinnerLine();
             }
-            
         }
-
-        
     }
 
     class Game {
@@ -232,7 +204,6 @@ public class GameMatch implements Initializable{
         private ArrayList<DraggableChip> draggableChips = new ArrayList<DraggableChip>();
         public Chip currentChip;
         public String possibleMoves;
-
 
         public Game(String player1, String player2) {
             currentPlayer = 1; // Red starts
@@ -280,8 +251,7 @@ public class GameMatch implements Initializable{
             player2.setPosition(mouse_x + 100, mouse_y);
         }
 
-        public void updateVisualLogics()
-        {
+        public void updateVisualLogics() {
             long now = System.nanoTime();
             double dt;
             if (lastRunNanos == 0) {
@@ -293,15 +263,13 @@ public class GameMatch implements Initializable{
 
             if (animating && dt > 0) {
                 animX = game.board.x + game.board.artist.margin/2 + animCol * (CELL_SIZE + game.board.artist.space_between);
-            animY += fallSpeed * dt;
-            if (animY >= targetY) {
-                animY = targetY;
-                board.addChip(animChip, animCol); // Se añade la ficha al terminar de caer
-                animating = false;
-                
+                animY += fallSpeed * dt;
+                if (animY >= targetY) {
+                    animY = targetY;
+                    board.addChip(animChip, animCol); // Se añade la ficha al terminar de caer
+                    animating = false;
+                }
             }
-
-        }
         }
 
         public void drawAnimChip() {
@@ -313,12 +281,10 @@ public class GameMatch implements Initializable{
             Color color = animChip.player == 1 ? redColor : yellowColor;
             gc.setFill(color);
             gc.fillOval(cx, cy, r, r);
-
         }
 
         public boolean isPlayerDraggingChip(Player player, DraggableChip draggableChip) {
             return draggableChip.isPlayerDraggingThisChip();
-            
         }
 
         public void checkReleases() {
@@ -440,20 +406,16 @@ public class GameMatch implements Initializable{
                 }
             }
 
-
             return false;
         }
 
-
-
-
         public void updateLogic() {
+
             if (isPlayerDraggingChip(player1, redDraggableChip) && currentPlayer == 1) {
                 Main.log("JUGADOR AGARRANDO FICHA");
                 currentChip = player1.takeChip();
                 redDraggableChip.setIsBeingDragged(true);
                 possibleMoves = board.getPossibleMoves();
-                // System.out.println("red dragging");
             } else {
                 if(!player1.isDragging) {
                     checkReleases();
@@ -462,12 +424,11 @@ public class GameMatch implements Initializable{
                 redDraggableChip.setIsBeingDragged(false);
                 currentChip = null;
             }
+
             if (isPlayerDraggingChip(player2, yellowDraggableChip) && currentPlayer == 2) {
                 currentChip = player2.takeChip();
                 yellowDraggableChip.setIsBeingDragged(true);
                 possibleMoves = board.getPossibleMoves();
-                
-                // System.out.println("yellow dragging");
             } else {
                 
                 if(currentChip!=null){
@@ -587,9 +548,6 @@ public class GameMatch implements Initializable{
                 }
             }
         }
-
-
-
     }
 
     class Player {
@@ -621,10 +579,6 @@ public class GameMatch implements Initializable{
             private Color color1 = new Color(1,0,0,0.5);
             private Color color2 = new Color(0,1,1,0.5);
 
-            public PlayerArtist() {
-        
-            }
-
             @Override
             public void draw() {
                 if (playerNumber == 1) {
@@ -642,7 +596,6 @@ public class GameMatch implements Initializable{
         public int[][] grid; // 0 = empty, 1 = red, 2 = yellow
         public double x, y;
 
-
         public Board(double x, double y, int rows, int cols) {
             grid = new int[rows][cols];
             artist = new BoardArtist(rows, cols);
@@ -655,7 +608,6 @@ public class GameMatch implements Initializable{
             // grid[1][6] = 1; // for testing
             // grid[0][6] = 1; // for testing
             // grid[5][5] = 2; // for testing
-            
         }
 
         public String getPossibleMoves() {
@@ -667,35 +619,34 @@ public class GameMatch implements Initializable{
                 }
 
             return result;
-
         }
 
         public ArrayList<Integer> getNotFullColumns() {
-                ArrayList<Integer> notFullCols = new ArrayList<Integer>();
-                for (int col = 0; col < grid[0].length; col++) {
-                    if (grid[0][col] == 0) {
-                        notFullCols.add(col);
-                    }
+            ArrayList<Integer> notFullCols = new ArrayList<Integer>();
+            for (int col = 0; col < grid[0].length; col++) {
+                if (grid[0][col] == 0) {
+                    notFullCols.add(col);
                 }
-
-                return notFullCols;
             }
+
+            return notFullCols;
+        }
 
         public int whatColIsChipDroppedIn(Chip chip) {
-                double colXStart = 5000, colXEnd = 5000, colYStart = 5000, colYEnd = 5000;
-                colYStart = game.board.y - CELL_SIZE - game.board.artist.space_between;
-                colYEnd = game.board.y;
+            double colXStart = 5000, colXEnd = 5000, colYStart = 5000, colYEnd = 5000;
+            colYStart = game.board.y - CELL_SIZE - game.board.artist.space_between;
+            colYEnd = game.board.y;
 
-                for(int col = 0; col < grid[0].length; col++) {
-                    colXStart = game.board.x + game.board.artist.margin/2 + col * (CELL_SIZE + game.board.artist.space_between);
-                    colXEnd = game.board.x + CELL_SIZE + game.board.artist.margin/2 + col * (CELL_SIZE + game.board.artist.space_between);
-                    if (game.players.get(chip.player - 1).x > colXStart && game.players.get(chip.player - 1).x < colXEnd 
-                    && game.players.get(chip.player - 1).y > colYStart && game.players.get(chip.player - 1).y < colYEnd) {
-                        return col;
-                    }
+            for(int col = 0; col < grid[0].length; col++) {
+                colXStart = game.board.x + game.board.artist.margin/2 + col * (CELL_SIZE + game.board.artist.space_between);
+                colXEnd = game.board.x + CELL_SIZE + game.board.artist.margin/2 + col * (CELL_SIZE + game.board.artist.space_between);
+                if (game.players.get(chip.player - 1).x > colXStart && game.players.get(chip.player - 1).x < colXEnd 
+                && game.players.get(chip.player - 1).y > colYStart && game.players.get(chip.player - 1).y < colYEnd) {
+                    return col;
                 }
-                return -1;
             }
+            return -1;
+        }
 
         public void addChip(Chip chip, int col) {
             int row_to_add_in = 0;
@@ -721,10 +672,10 @@ public class GameMatch implements Initializable{
             public BoardArtist(int rows, int cols) {
                 
 
-                for(int i = 0; i < cols; i++) {
+                for (int i = 0; i < cols; i++) {
                     this.width += CELL_SIZE;
                 }
-                for(int i = 0; i < rows; i++) {
+                for (int i = 0; i < rows; i++) {
                     this.height += CELL_SIZE;
                 }
 
@@ -736,18 +687,18 @@ public class GameMatch implements Initializable{
                 double[] position = new double[2];
                 double pos_x = 5000, pos_y = 5000;
 
-                for(int i = 0; i < grid.length; i++) {
+                for (int i = 0; i < grid.length; i++) {
                                       // cols
-                    for(int j = 0; j < grid[0].length; j++) {
+                    for (int j = 0; j < grid[0].length; j++) {
                         if (i == row && j == col) {
                             pos_x = CELL_SIZE/2 + x + margin/2 + j * (CELL_SIZE + space_between);
                             pos_y = CELL_SIZE/2 + y + margin/2 + i * (CELL_SIZE + space_between);
                         }
-                        
                     }
                 }
                 position[0] = pos_x;
                 position[1] = pos_y;
+
                 return position;
             }
 
@@ -770,11 +721,11 @@ public class GameMatch implements Initializable{
             }
 
             private int findLowestEmptyRow(int col) {
-            for (int r = game.board.grid.length - 1; r >= 0; r--) {
-                if (game.board.grid[r][col] == 0) return r;
+                for (int r = game.board.grid.length - 1; r >= 0; r--) {
+                    if (game.board.grid[r][col] == 0) return r;
+                }
+                return -1;
             }
-            return -1;
-        }
 
             public boolean isChipIn(int row, int col, int player) {
                 if (grid[row][col] == player) {
@@ -783,18 +734,13 @@ public class GameMatch implements Initializable{
                 return false;
             }
 
-
-            
-
-            
-
             @Override
             public void draw() {
                 gc.setFill(boardColor);
                 gc.fillRect(x, y, width + margin, height + space_between);
-                                    //rows
+                //rows
                 for(int i = 0; i < grid.length; i++) {
-                                      // cols
+                    // cols
                     for(int j = 0; j < grid[0].length; j++) {
                         double pos_x = x + margin/2 + j * (CELL_SIZE + space_between);
                         double pos_y = y + margin/2 + i * (CELL_SIZE + space_between);
@@ -822,8 +768,6 @@ public class GameMatch implements Initializable{
                     gc.fillOval(pos_x, pos_y, CELL_SIZE, CELL_SIZE);
                 }
             }
-
-
         }
     }
 
@@ -842,6 +786,7 @@ public class GameMatch implements Initializable{
         class ChipArtist implements drawable {
             private double diameter;
             private Color color;
+
             public ChipArtist(double diameter, int player) {
                 if (player == 1) {
                     this.color = redColor;
@@ -852,6 +797,7 @@ public class GameMatch implements Initializable{
                 this.diameter = diameter;
 
             }
+
             public void draw() {
                 gc.setFill(color);
                 gc.fillOval(x, y, diameter, diameter);
@@ -869,8 +815,6 @@ public class GameMatch implements Initializable{
     public Chip createChip(int player) {
         return new Chip(player, game.players.get(player - 1).x, game.players.get(player - 1).y);
     }
-
-
 
     public interface drawable {
         void draw();
