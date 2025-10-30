@@ -31,6 +31,8 @@ final class ClientRegistry {
     /** Mapa de noms de client a sockets. */
     private final Map<String, WebSocket> byName = new ConcurrentHashMap<>();
 
+    private Map<String, WebSocket> avaliblePlayers = new ConcurrentHashMap<>();
+
     /**
      * Afegeix un client nou.
      *
@@ -110,5 +112,28 @@ final class ClientRegistry {
      */
     Map<WebSocket, String> snapshot() {
         return Map.copyOf(bySocket);
+    }
+
+    String addClientToAvaliblePlayers(WebSocket socket, String name) {
+        avaliblePlayers.put(name, socket);
+        return name;
+    }
+
+    String removeClientFromAvaliblePlayers(WebSocket socket) {
+        for (String name : avaliblePlayers.keySet()) {
+            if (avaliblePlayers.get(name) == socket) {
+                avaliblePlayers.remove(name);
+                return name;
+            }
+        }
+        return null;
+    }
+
+    JSONArray currentAvaliblePlayersNames() {
+        JSONArray arr = new JSONArray();
+        for (String n: avaliblePlayers.keySet()) {
+            arr.put(n);
+        }
+        return arr;
     }
 }
