@@ -44,6 +44,8 @@ public class ControllerGame implements Initializable {
     private static boolean isAnimChip;
     private static int animChipPlayer;
 
+    public static String currentPlayerName = "";
+
     // -----------------------------
     // Colors·
     // -----------------------------
@@ -81,6 +83,10 @@ public class ControllerGame implements Initializable {
 
     public static void updateWinner(String winn) {
         winner = winn;
+    }
+
+    public static void updateCurrentPlayer(String name) {
+        currentPlayerName = name;
     }
 
     public static void updateAnimChip(String animChipStatus) {
@@ -156,8 +162,6 @@ public class ControllerGame implements Initializable {
         boardArtist.draw();
 
         // Draggable chips
-        
-        
         drawChip(RED_COLOR, redChipDragX, redChipDragY, true);
         drawChip(YELLOW_COLOR, yellowChipDragX, yellowChipDragY, true);
 
@@ -170,6 +174,9 @@ public class ControllerGame implements Initializable {
         if (currentChipPlayer != 0) {
             drawChip(currentChipPlayer == 1 ? RED_COLOR : YELLOW_COLOR, currentChipX - CELL_SIZE / 2,  currentChipY - CELL_SIZE / 2, true);
         }
+
+        // Current Player str
+        gc.fillText(currentPlayerName + "'s turn", boardX + CELL_SIZE * boardArtist.width + 50, boardY + 500, 300);
 
         // Animated chip
         if (isAnimChip) {

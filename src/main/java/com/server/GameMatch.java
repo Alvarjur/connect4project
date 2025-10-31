@@ -153,7 +153,7 @@ public class GameMatch implements Initializable{
         public Board board;
         public Player player1, player2;
         public Player winner;
-        private ArrayList<Player> players = new ArrayList<Player>();
+        public ArrayList<Player> players = new ArrayList<Player>();
         public double draggableChips_red_x = 650;
         public double draggableChips_red_y = 100;
         public double draggableChips_yellow_x = 800;

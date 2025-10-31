@@ -184,7 +184,13 @@ public class Main extends WebSocketServer {
         } else {
             objeto.put("animChip", "none");
         }
-        
+
+        // Mandando str con el jugador actual
+        if(game.currentPlayer == 1) {
+            objeto.put("currentPlayerStr", game.players.get(0));
+        } else {
+            objeto.put("currentPlayerStr", game.players.get(1));
+        }
         
         // Ganador y línea ganadora
         if(game.winner != null) {

@@ -201,6 +201,7 @@ public class Main extends Application {
                     controllerGame.updateAnimChip(msgObj.getString("animChip"));
                     controllerGame.updateWinner(msgObj.getString("winner"));
                     controllerGame.updateWinnerLine(msgObj.getString("winner_line"));
+                    controllerGame.updateCurrentPlayer(msgObj.getString("currentPlayerStr"));
                     break;
             }
         });
