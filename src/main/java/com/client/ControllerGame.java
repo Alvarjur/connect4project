@@ -49,6 +49,7 @@ public class ControllerGame implements Initializable {
     // -----------------------------
     public static final Color BOARD_COLOR = new Color(0, 0, 0.5, 1);
     private static final Color RED_COLOR = new Color(0.5, 0, 0, 1);
+    private static final Color BACKGROUND_COLOR = new Color(0.6353, 0.6510, 0.7255, 1);
     private static final Color YELLOW_COLOR = new Color(0.7, 0.6, 0.3, 1);
 
 
@@ -248,7 +249,7 @@ public class ControllerGame implements Initializable {
                     double posX = boardX + margin / 2 + j * (CELL_SIZE + spaceBetween);
                     double posY = boardY + margin / 2 + i * (CELL_SIZE + spaceBetween);
 
-                    gc.setFill(Color.WHITE);
+                    gc.setFill(BACKGROUND_COLOR);
                     gc.fillOval(posX, posY, CELL_SIZE, CELL_SIZE);
 
                     if (grid[i][j] == 1) {
