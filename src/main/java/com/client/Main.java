@@ -53,6 +53,7 @@ public class Main extends Application {
         stage.setTitle("Connect 4 - Client");
         stage.setMinWidth(windowWidth);
         stage.setMinHeight(windowHeight);
+        stage.setResizable(false);
         stage.show();
 
         // Cerrar correctamente el cliente al cerrar ventana
