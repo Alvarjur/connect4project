@@ -10,20 +10,20 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.client.ControllerPlayerSelection">
+<AnchorPane minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.client.ControllerPlayerSelection">
    <children>
       <StackPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
-            <VBox alignment="CENTER" spacing="5.0">
+            <VBox alignment="CENTER" spacing="5.0" style="-fx-background-color: #424657;">
                <children>
-                  <Label text="Select your oponent">
+                  <Label text="Select your oponent" textFill="#cdd5fa">
                      <font>
                         <Font name="System Bold" size="36.0" />
                      </font>
                   </Label>
                   <HBox alignment="CENTER" VBox.vgrow="NEVER">
                      <children>
-                        <Label text="You are:" />
+                        <Label text="You are:" textFill="#cdd5fa" />
                         <Label fx:id="labelClientName" text="{clientName}" textFill="RED">
                            <padding>
                               <Insets left="5.0" />
@@ -31,19 +31,25 @@
                         </Label>
                      </children>
                   </HBox>
-                  <VBox alignment="CENTER" spacing="5.0">
+                  <VBox alignment="CENTER" prefHeight="79.0" prefWidth="580.0" spacing="5.0">
                      <children>
-                        <Label text="Avalible players" />
-                        <ScrollPane fitToHeight="true" fitToWidth="true">
+                        <Label text="Available players" textFill="#cdd5fa" />
+                        <ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="56.0" prefWidth="520.0">
                            <content>
-                              <VBox fx:id="yPane" alignment="CENTER" />
+                              <VBox fx:id="yPane" alignment="CENTER" prefHeight="55.0" prefWidth="518.0" style="-fx-background-color: #cdd5fa;" />
                            </content>
+                           <VBox.margin>
+                              <Insets left="30.0" right="30.0" />
+                           </VBox.margin>
                         </ScrollPane>
                      </children>
                   </VBox>
-                  <HBox VBox.vgrow="NEVER">
+                  <HBox prefHeight="26.0" prefWidth="550.0" VBox.vgrow="NEVER">
                      <children>
-                        <Button fx:id="buttonExit" mnemonicParsing="false" onAction="#exit" text="Exit" />
+                        <Button fx:id="buttonExit" mnemonicParsing="false" onAction="#exit" style="-fx-background-color: #cdd5fa;" text="Exit">
+                           <HBox.margin>
+                              <Insets left="30.0" />
+                           </HBox.margin></Button>
                      </children>
                   </HBox>
                </children>
