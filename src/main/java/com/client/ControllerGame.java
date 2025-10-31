@@ -45,12 +45,13 @@ public class ControllerGame implements Initializable {
     private static int animChipPlayer;
 
     // -----------------------------
-    // Colors
+    // Colors·
     // -----------------------------
-    public static final Color BOARD_COLOR = new Color(0, 0, 0.5, 1);
-    private static final Color RED_COLOR = new Color(0.5, 0, 0, 1);
-    private static final Color BACKGROUND_COLOR = new Color(0.6353, 0.6510, 0.7255, 1);
-    private static final Color YELLOW_COLOR = new Color(0.7, 0.6, 0.3, 1);
+    public static final Color BOARD_COLOR = Color.rgb(20, 20, 63, 1);
+    
+    private static final Color RED_COLOR = Color.rgb(157, 6, 6, 1);
+    private static final Color BACKGROUND_COLOR = Color.rgb(162, 166, 185, 1);
+    private static final Color YELLOW_COLOR = Color.rgb(157, 146, 6, 1);
 
 
     // -----------------------------
@@ -150,15 +151,15 @@ public class ControllerGame implements Initializable {
 
     public static void draw(double posX1, double posY1, double posX2, double posY2) {
         gc.clearRect(0, 0, 10000, 10000);
-
+        drawBackground();
         // Board
         boardArtist.draw();
 
         // Draggable chips
-        gc.setFill(RED_COLOR);
-        gc.fillOval(redChipDragX, redChipDragY, CELL_SIZE, CELL_SIZE);
-        gc.setFill(YELLOW_COLOR);
-        gc.fillOval(yellowChipDragX, yellowChipDragY, CELL_SIZE, CELL_SIZE);
+        
+        
+        drawChip(RED_COLOR, redChipDragX, redChipDragY, true);
+        drawChip(YELLOW_COLOR, yellowChipDragX, yellowChipDragY, true);
 
         // Possible moves
         if (currentChipPlayer != 0) {
@@ -167,14 +168,12 @@ public class ControllerGame implements Initializable {
 
         // Current chip
         if (currentChipPlayer != 0) {
-            gc.setFill(currentChipPlayer == 1 ? RED_COLOR : YELLOW_COLOR);
-            gc.fillOval(currentChipX - CELL_SIZE / 2, currentChipY - CELL_SIZE / 2, CELL_SIZE, CELL_SIZE);
+            drawChip(currentChipPlayer == 1 ? RED_COLOR : YELLOW_COLOR, currentChipX - CELL_SIZE / 2,  currentChipY - CELL_SIZE / 2, true);
         }
 
         // Animated chip
         if (isAnimChip) {
-            gc.setFill(animChipPlayer == 1 ? RED_COLOR : YELLOW_COLOR);
-            gc.fillOval(animChipX, animChipY, CELL_SIZE, CELL_SIZE);
+            drawChip(animChipPlayer == 1 ? RED_COLOR : YELLOW_COLOR, animChipX,  animChipY, true);
         }
 
         // Players
@@ -225,6 +224,47 @@ public class ControllerGame implements Initializable {
         void draw();
     }
 
+    public static void drawChip(Color color, double x, double y, Boolean details) {
+        // Drawing the chip itself
+        gc.setFill(color);
+        gc.fillOval(x, y, CELL_SIZE, CELL_SIZE);
+
+        if(details){
+            // Drawing lighter part
+            gc.setFill(new Color(1,1,1,0.1));
+            gc.fillOval(x + 5, y + 5, CELL_SIZE - 5*2, CELL_SIZE - 5*2);
+
+        }
+    }
+
+    public static void drawBackground() {
+        double blockSize = 70;
+        Color alternColor = Color.rgb(138,143,167, 0.5);
+        Color curColor = alternColor;
+
+        for(int i = 0; i < 50; i++) {
+            double offset = 0;
+            if (i%2 == 0) {
+                offset = blockSize;
+            }
+            for (int j = 0; j < 50; j++) {
+                gc.setFill(curColor);
+                gc.fillRect(j * blockSize + offset, i * blockSize, blockSize, blockSize);
+
+                if(curColor == BACKGROUND_COLOR) {
+                    curColor = alternColor;
+                } else {
+                    curColor = BACKGROUND_COLOR;
+                }
+            }
+
+            
+        }
+
+        
+
+    }
+
     // -----------------------------
     // Board Artist
     // -----------------------------
@@ -249,15 +289,13 @@ public class ControllerGame implements Initializable {
                     double posX = boardX + margin / 2 + j * (CELL_SIZE + spaceBetween);
                     double posY = boardY + margin / 2 + i * (CELL_SIZE + spaceBetween);
 
-                    gc.setFill(BACKGROUND_COLOR);
-                    gc.fillOval(posX, posY, CELL_SIZE, CELL_SIZE);
+                    // Filling background spots
+                    drawChip(BACKGROUND_COLOR, posX, posY, false);
 
                     if (grid[i][j] == 1) {
-                        gc.setFill(RED_COLOR);
-                        gc.fillOval(posX, posY, CELL_SIZE, CELL_SIZE);
+                        drawChip(RED_COLOR, posX, posY, true);
                     } else if (grid[i][j] == 2) {
-                        gc.setFill(YELLOW_COLOR);
-                        gc.fillOval(posX, posY, CELL_SIZE, CELL_SIZE);
+                        drawChip(YELLOW_COLOR, posX, posY, true);
                     }
                 }
             }

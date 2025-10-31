@@ -168,7 +168,7 @@ public class GameMatch implements Initializable{
         public Game(String player1, String player2) {
             currentPlayer = 1; // Red starts
             
-            board = new Board(20, 100, 6,7);
+            board = new Board(20, 85, 6,7);
             this.player1 = new Player(player1,1, -50, -50);
             this.player2 = new Player(player2, 2, -150, -50);
             players.add(this.player1);
