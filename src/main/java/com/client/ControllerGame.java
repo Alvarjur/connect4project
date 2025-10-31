@@ -12,6 +12,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.StrokeLineCap;
+import javafx.scene.text.Font;
 
 public class ControllerGame implements Initializable {
 
@@ -174,9 +175,11 @@ public class ControllerGame implements Initializable {
         if (currentChipPlayer != 0) {
             drawChip(currentChipPlayer == 1 ? RED_COLOR : YELLOW_COLOR, currentChipX - CELL_SIZE / 2,  currentChipY - CELL_SIZE / 2, true);
         }
-
+        
         // Current Player str
-        gc.fillText(currentPlayerName + "'s turn", boardX + CELL_SIZE * boardArtist.width + 50, boardY + 500, 300);
+        gc.setFill(BOARD_COLOR);
+        gc.setFont(new Font(28d));
+        gc.fillText(currentPlayerName + "'s turn", 650, 400, 300);
 
         // Animated chip
         if (isAnimChip) {

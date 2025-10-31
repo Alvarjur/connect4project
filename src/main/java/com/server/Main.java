@@ -187,9 +187,9 @@ public class Main extends WebSocketServer {
 
         // Mandando str con el jugador actual
         if(game.currentPlayer == 1) {
-            objeto.put("currentPlayerStr", game.players.get(0));
+            objeto.put("currentPlayerStr", game.players.get(0).name);
         } else {
-            objeto.put("currentPlayerStr", game.players.get(1));
+            objeto.put("currentPlayerStr", game.players.get(1).name);
         }
         
         // Ganador y línea ganadora
