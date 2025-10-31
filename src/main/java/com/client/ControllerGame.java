@@ -13,6 +13,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 
 public class ControllerGame implements Initializable {
 
@@ -178,8 +179,9 @@ public class ControllerGame implements Initializable {
         
         // Current Player str
         gc.setFill(BOARD_COLOR);
-        gc.setFont(new Font(28d));
-        gc.fillText(currentPlayerName + "'s turn", 650, 400, 300);
+        
+        gc.setFont(Font.font("Arial", FontWeight.BOLD, 28d));
+        gc.fillText(currentPlayerName + "'s turn", 625, 400, 300);
 
         // Animated chip
         if (isAnimChip) {
