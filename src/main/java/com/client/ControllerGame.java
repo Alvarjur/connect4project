@@ -13,9 +13,6 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.StrokeLineCap;
 
-import com.server.CanvasTimer;
-import com.server.GameMatch;
-
 public class ControllerGame implements Initializable {
     
     private static double mouse_x, mouse_y;
@@ -43,20 +40,11 @@ public class ControllerGame implements Initializable {
 
     public static ArrayList<Integer> possibleMovesList = new ArrayList<>();
 
-    // Animación de caida
-    private boolean animating = false;
-    private int animCol = -1, animRow = -1;
-    private double animY;
-    private double targetY;
-    private double fallSpeed = 1300;
-    private long lastRunNanos = 0;
+
 
     private static double animChip_x, animChip_y;
     private static boolean isAnimChip;
     private static int animChipPlayer;
-
-    // redDraggableChip = new DraggableChip(draggableChips_red_x, draggableChips_red_y, redColor, this.player1);
-    // yellowDraggableChip = new DraggableChip(draggableChips_yellow_x, draggableChips_yellow_y, yellowColor, this.player2);
 
     // Winner
     private static String winner = "none";
@@ -68,7 +56,6 @@ public class ControllerGame implements Initializable {
     private static BoardArtist boardArtist;
     private ChipArtist chipArtist;
     private PlayerArtist playerArtist;
-    private GameArtist gameArtist;
 
     public static void updateWinnerLine(String line) {
         // formato "x_start x_end y_start y_end"
@@ -190,8 +177,6 @@ public class ControllerGame implements Initializable {
             gc.setLineCap(StrokeLineCap.ROUND);
             gc.strokeLine(winner_start_x, winner_start_y, winner_end_x, winner_end_y);
         }
-
-        
     }
 
     @Override
@@ -203,24 +188,18 @@ public class ControllerGame implements Initializable {
         canvas.setOnMouseMoved(event -> {
             Main.sendPlayerMousePosInfo(Main.clientName, event.getSceneX(), event.getSceneY(), dragging);
 
-            //TODO Aquí hacer que mande un json con la info necesaria
         });
 
         canvas.setOnMouseDragged(event -> {
             dragging = true;
             Main.sendPlayerMousePosInfo(Main.clientName, event.getSceneX(), event.getSceneY(), dragging);
             
-
-            //TODO Aquí hacer que mande un json con la info necesaria
         });
 
         canvas.setOnMouseReleased(event -> {
             dragging = false;
             Main.sendPlayerMousePosInfo(Main.clientName, event.getSceneX(), event.getSceneY(), dragging);
             
-            // game.checkReleases();
-
-            //TODO Aquí hacer que mande un json con la info necesaria
 
         });
 }
@@ -235,8 +214,6 @@ public class ControllerGame implements Initializable {
                 private double space_between = margin/2;
 
                 public BoardArtist(int rows, int cols) {
-                    
-
                     for(int i = 0; i < cols; i++) {
                         this.width += CELL_SIZE;
                     }
@@ -267,41 +244,12 @@ public class ControllerGame implements Initializable {
                     return position;
                 }
 
-                public void doAddChipAnimation(int col) {
-                    int row = findLowestEmptyRow(col);
-                    if (row < 0) return; // columna plena
-
-                    double cellCenterYTop = board_y + CELL_SIZE * 0.5;
-                    double startY = board_y - CELL_SIZE * 0.5; // lleugerament per sobre
-                    double endY = cellCenterYTop + row * CELL_SIZE;
-
-                    // Se asigna currentChip a animChip ya que currentChip se vuelve null casi instantáneamente.
-                    animCol = col;
-                    animRow = row;
-                    animY = startY;
-                    targetY = endY;
-                    animating = true;
-                    lastRunNanos = 0; // perquè el primer dt es calculi bé
-                }
-
-                private int findLowestEmptyRow(int col) {
-                for (int r = grid.length - 1; r >= 0; r--) {
-                    if (grid[r][col] == 0) return r;
-                }
-                return -1;
-            }
-
                 public boolean isChipIn(int row, int col, int player) {
                     if (grid[row][col] == player) {
                         return true;
                     }
                     return false;
                 }
-
-
-                
-
-                
 
                 @Override
                 public void draw() {
@@ -412,7 +360,6 @@ public class ControllerGame implements Initializable {
             public void draw() {
                 boardArtist.draw();
                 playerArtist.draw();
-                // player2.artist.draw();
             }
 
             public void drawWinnerLine() {
@@ -431,29 +378,6 @@ public class ControllerGame implements Initializable {
                 chipArtist.draw();
             }
 
-            // public void drawDraggableChips() {
-            //     // Draw red chips
-            //     redDraggableChip.artist.draw();
-            //     yellowDraggableChip.artist.draw();
-
-            // }
-
-            // public void drawChipsDragging() {
-            //     if (isPlayerDraggingChip(player1, redDraggableChip)) {
-            //         currentChip = createChip(1);
-            //         currentChip.artist.drawOnPlayer(player1);
-            //         // Drawing the player again so it appears on top of the chip
-            //         player1.artist.draw();
-            //         board.artist.drawPossibleMoves();
-            //     }
-            //     if (isPlayerDraggingChip(player2, yellowDraggableChip)) {
-            //         currentChip = createChip(2);
-            //         currentChip.artist.drawOnPlayer(player2);
-            //         // Drawing the player again so it appears on top of the chip
-            //         player2.artist.draw();
-            //         board.artist.drawPossibleMoves();
-            //     }
-            // }
         }
     }
 
