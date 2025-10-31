@@ -123,7 +123,7 @@ public class Main extends WebSocketServer {
      * Envia la llista actualitzada de clients a tots els clients connectats.
      */
     private void sendClientsListToAll() {
-        JSONArray list = clients.currentNames();
+        JSONArray list = clients.currentAvaliblePlayersNames();
         for (Map.Entry<WebSocket, String> e : clients.snapshot().entrySet()) {
             JSONObject rst = msg(T_CLIENTS);
             put(rst, K_ID, e.getValue());
@@ -250,6 +250,7 @@ public class Main extends WebSocketServer {
                     // Registrar nuevo cliente
                     String clientName = json.getString(K_CLIENT_NAME);
                     clients.add(conn, clientName);
+                    clients.addClientToAvaliblePlayers(conn, clientName);
                     log("Entro en case T_REGISTER. Cliente registrado -> " + clientName);
 
                     // Enviar nuevo JSON con los clientes actuales a todo el mundo
@@ -276,8 +277,10 @@ public class Main extends WebSocketServer {
                     String player_2 = json.getString("player_2");
                     log(String.format("Entro en case T_START_MATCH. Jugarán %s VS %s", player_1, player_2));
 
-                    // TODO Saca a ambos jugadores de la lista de disponibles
-                    
+                    // Saca a ambos jugadores de la lista de disponibles
+                    clients.removeClientFromAvaliblePlayers(clients.socketByName(player_1));
+                    clients.removeClientFromAvaliblePlayers(clients.socketByName(player_2));
+                    sendClientsListToAll();
                                        
                     // Mandar players a vista Countdown
                     int startSeconds = 3;
