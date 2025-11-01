@@ -153,6 +153,7 @@ public class GameMatch implements Initializable{
         public Board board;
         public Player player1, player2;
         public Player winner;
+        public boolean isDraw = false;
         public ArrayList<Player> players = new ArrayList<Player>();
         public double draggableChips_red_x = 650;
         public double draggableChips_red_y = 100;
@@ -397,6 +398,9 @@ public class GameMatch implements Initializable{
                 
             }
             checkWinner();
+            if (winner != null) {
+                Main.sendGameOutcome(id_game);
+            }
         }
 
 

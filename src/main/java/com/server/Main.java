@@ -67,6 +67,7 @@ public class Main extends WebSocketServer {
     private static final String T_KOTLIN_ADD_CHIP = "kotlinAddChip";
     private static final String T_START_COUNTDOWN = "startCountdown";
     private static final String T_REMAINING_COUNTDOWN = "remainingCountdown";
+    private static final String T_GAME_OUTCOME = "gameOutcome";
 
     /**
      * Crea un servidor WebSocket que escolta a l'adreça indicada.
@@ -130,6 +131,31 @@ public class Main extends WebSocketServer {
             put(rst, K_LIST, list);
             sendSafe(e.getKey(), rst.toString());
         }
+    }
+
+    // Envía la info a los clientes al acabar la partida, para que pasen de vista
+    public static void sendGameOutcome(int id) {
+        GameMatch gm = gameMatches.get(id);
+        Game game = gm.game;
+        if (game.winner == null) {
+            return;
+        }
+
+        String winnerName = game.winner.name;
+
+        JSONObject payload = new JSONObject();
+        payload.put("type", T_GAME_OUTCOME);
+        payload.put("winnerName", winnerName);
+        payload.put("isDraw", game.isDraw);
+
+        sendSafe(
+            clients.socketByName(game.player1.name),
+            payload.toString()
+        );
+        sendSafe(
+            clients.socketByName(game.player2.name),
+            payload.toString()
+        );
     }
 
     public static void sendUpdateOrder(int id) {
@@ -237,12 +263,13 @@ public class Main extends WebSocketServer {
     /***** Procesa el mensaje recibido y actúa según el tipo de mensaje. *****/
     @Override
     public void onMessage(WebSocket conn, String message) {
-        log("Mensaje recibido del cliente -> " + message);
-
         try {
             // Obtener el JSON
             JSONObject json = new JSONObject(message);
             String type = json.getString("type");
+            if (!type.equals(T_PLAYER_MOUSE_INFO)) {
+                log("Mensaje recibido del cliente -> " + message);
+            }
 
             switch (type) {
                 // Si es un registro de cliente
@@ -338,21 +365,19 @@ public class Main extends WebSocketServer {
                     break;
                 
                 case T_PLAYER_MOUSE_INFO:
-                    log("Entro en case T_PLAYER_MOUSE_INFO");
+                    // log("Entro en case T_PLAYER_MOUSE_INFO");
                     String player1 = json.getString("player");
                     double pos_x = json.getDouble("pos_x");
                     double pos_y = json.getDouble("pos_y");
                     boolean dragging = json.getBoolean("dragging");
-                        for(GameMatch gm : gameMatches) {
-                            if (gm.game.player1.name.equals(player1) || gm.game.player2.name.equals(player1)) {
-                                gm.updatePlayerMousePos(player1, pos_x, pos_y);
-                                gm.updatePlayerMouseState(player1, dragging);
-                            }
+                    
+                    for(GameMatch gm : gameMatches) {
+                        if (gm.game.player1.name.equals(player1) || gm.game.player2.name.equals(player1)) {
+                            gm.updatePlayerMousePos(player1, pos_x, pos_y);
+                            gm.updatePlayerMouseState(player1, dragging);
                         }
+                    }
                         
-                     
-                    
-                    
                     break;
                 
                 case T_KOTLIN_ADD_CHIP:
