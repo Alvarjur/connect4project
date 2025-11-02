@@ -142,7 +142,7 @@ public class Main extends WebSocketServer {
         GameMatch gm = null;
 
         for (GameMatch gamem : gameMatches) {
-            if(gm.id_game == id) {
+            if(gamem.id_game == id) {
                 gm = gamem;
             }
         }
