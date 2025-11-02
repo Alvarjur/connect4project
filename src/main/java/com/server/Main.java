@@ -137,11 +137,13 @@ public class Main extends WebSocketServer {
     public static void sendGameOutcome(int id) {
         GameMatch gm = gameMatches.get(id);
         Game game = gm.game;
-        if (game.winner == null) {
-            return;
+        
+        String winnerName;
+        if (game.winner != null) {
+            winnerName = game.winner.name;
+        } else {
+            winnerName = "";
         }
-
-        String winnerName = game.winner.name;
 
         JSONObject payload = new JSONObject();
         payload.put("type", T_GAME_OUTCOME);
