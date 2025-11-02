@@ -59,14 +59,14 @@ public class GameMatch implements Initializable{
     }
 
     private void startGameLoop() {
-        // Run at ~60 FPS => every 16 milliseconds
+        // Run at ~30 FPS => every 32 milliseconds
         scheduler.scheduleAtFixedRate(() -> {
             try {
                 update();
             } catch (Exception e) {
                 e.printStackTrace(); // Never let exceptions kill your game loop!
             }
-        }, 0, 16, TimeUnit.MILLISECONDS);
+        }, 0, 32, TimeUnit.MILLISECONDS);
     }
 
     public void stop() {
