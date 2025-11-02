@@ -101,7 +101,7 @@ public class ControllerPlayerSelection {
         System.out.print("Entro en cancelledChallenge...");
 
         // Ocultar challengeOverlay
-        challengeOverlay.setVisible(false);
+        hideChallengedOverlayIfShown();
         System.out.println("Reto cancelado, oculto challengeOverlay");
     }
 
@@ -109,7 +109,7 @@ public class ControllerPlayerSelection {
         System.out.print("Entro en declineChallenge()...");
 
         // Ocultar challengeOverlay
-        challengeOverlay.setVisible(false);
+        hideChallengedOverlayIfShown();
 
         // TODO Enviar mensaje a challenger declinando reto
         Main.sendRefusedMatch(challenger);
@@ -118,5 +118,11 @@ public class ControllerPlayerSelection {
 
     public void acceptChallenge() {
         Main.sendStartMatch(challenger);
+    }
+
+    public void hideChallengedOverlayIfShown() {
+        if (challengeOverlay.isVisible()) {
+            challengeOverlay.setVisible(false);
+        }
     }
 }

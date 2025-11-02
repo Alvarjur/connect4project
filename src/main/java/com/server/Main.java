@@ -54,6 +54,7 @@ public class Main extends WebSocketServer {
 
     // Tipus de missatge
     private static final String T_REGISTER = "register";
+    private static final String T_AVALIBLE_PLAYER = "avaliblePlayer";
     private static final String T_BOUNCE = "bounce";
     private static final String T_BROADCAST = "broadcast";
     private static final String T_PRIVATE = "private";
@@ -287,6 +288,17 @@ public class Main extends WebSocketServer {
                     log("Entro en case T_REGISTER. Cliente registrado -> " + clientName);
 
                     // Enviar nuevo JSON con los clientes actuales a todo el mundo
+                    sendClientsListToAll();
+                    break;
+
+                // Si un cliente notifica que pasa a estar disponible
+                case T_AVALIBLE_PLAYER:
+                    log("Entro en case T_AVALIBLE_PLAYER");
+                    String newAvaliblePlayer = json.getString("clientName");
+                    clients.addClientToAvaliblePlayers(
+                        clients.socketByName(newAvaliblePlayer),
+                        newAvaliblePlayer
+                    );
                     sendClientsListToAll();
                     break;
                 

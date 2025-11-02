@@ -187,7 +187,6 @@ public class Main extends Application {
                     UtilsViews.setViewAnimating("ViewGame");
                     int gameId = msgObj.getInt("game_id");
                     controllerGame.setCurrentGameId(gameId);
-
                     break;
                 // Partida ha acabado. Info necesaria para siguiente vista
                 case "gameOutcome":
@@ -302,8 +301,13 @@ public class Main extends Application {
     }
 
     public static void setViewPlayerSelection() {
-        // TODO enviar mensaje al server para reintegrar jugador como disponible
-        /* ... */
+        // Enviar mensaje al server para reintegrar jugador como disponible
+        JSONObject avaliblePlayerJson = new JSONObject();
+        avaliblePlayerJson.put("type", "avaliblePlayer");
+        avaliblePlayerJson.put("clientName", clientName);
+        wsClient.safeSend(avaliblePlayerJson.toString());
+
+        controllerPlayerSelection.hideChallengedOverlayIfShown();
         UtilsViews.setViewAnimating("ViewPlayerSelection");
     }
 }
