@@ -135,7 +135,13 @@ public class Main extends WebSocketServer {
     public static void sendUpdateOrder(int id) {
         JSONObject objeto = new JSONObject();
         objeto.put("type", "drawOrder");
-        GameMatch gameMatch = gameMatches.get(id);
+        GameMatch gameMatch = null;
+        for (GameMatch gm : gameMatches) {
+            if(gm.id_game == id) {
+                gameMatch = gm;
+            }
+        }
+        
         Game game = gameMatch.game;
         String player1 = game.player1.name;
         String player2 = game.player2.name;
@@ -208,14 +214,6 @@ public class Main extends WebSocketServer {
 
         sendSafe(clients.socketByName(player1), objeto.toString());
         sendSafe(clients.socketByName(player2), objeto.toString());
-        // JSONArray clientNames = clients.currentNames();
-
-        // for (int i = 0; i < clientNames.length(); i++) {
-        //     String name = clientNames.getString(i);
-
-        //     sendSafe(clients.socketByName(name), objeto.toString());
-        // }
-
 
     }
 
@@ -281,6 +279,15 @@ public class Main extends WebSocketServer {
                     clients.removeClientFromAvaliblePlayers(clients.socketByName(player_1));
                     clients.removeClientFromAvaliblePlayers(clients.socketByName(player_2));
                     sendClientsListToAll();
+                    // TODO Saca a ambos jugadores de la lista de disponibles
+
+                    gameMatches.removeIf(gm ->
+                        gm.game.player1.name.equals(player_1) ||
+                        gm.game.player2.name.equals(player_1) ||
+                        gm.game.player1.name.equals(player_2) ||
+                        gm.game.player2.name.equals(player_2)
+                    );
+                    
                                        
                     // Mandar players a vista Countdown
                     int startSeconds = 3;
@@ -308,18 +315,22 @@ public class Main extends WebSocketServer {
 
                     countdown.setOnFinished(() -> {
                         // Pongo en marcha la partida
+                        
                         GameMatch gameMatch = new GameMatch(game_id, player_1, player_2);
                         log("Sigo dentro de case T_START_MATCH. He creado el GameMatch con game_id=" + game_id);
-                        game_id += 1;
+                        
                         gameMatches.add(gameMatch);
+                        
 
                         // Avisar a los clientes de que empieza la partida
                         JSONObject payloadConfirmedGame = new JSONObject();
                         payloadConfirmedGame.put("type", "startGame");
+                        payloadConfirmedGame.put("game_id", game_id);
                         payloadConfirmedGame.put("player_1", player_1);
                         payloadConfirmedGame.put("player_2", player_2);
                         sendSafe(clients.socketByName(player_1), payloadConfirmedGame.toString());
                         sendSafe(clients.socketByName(player_2), payloadConfirmedGame.toString());
+                        game_id += 1;
                     });
 
                     countdown.startCountdown();
@@ -339,12 +350,13 @@ public class Main extends WebSocketServer {
                 
                 case T_PLAYER_MOUSE_INFO:
                     log("Entro en case T_PLAYER_MOUSE_INFO");
+                    int game_id = json.getInt("game_id");
                     String player1 = json.getString("player");
                     double pos_x = json.getDouble("pos_x");
                     double pos_y = json.getDouble("pos_y");
                     boolean dragging = json.getBoolean("dragging");
                         for(GameMatch gm : gameMatches) {
-                            if (gm.game.player1.name.equals(player1) || gm.game.player2.name.equals(player1)) {
+                            if (gm.id_game == game_id) {
                                 gm.updatePlayerMousePos(player1, pos_x, pos_y);
                                 gm.updatePlayerMouseState(player1, dragging);
                             }
