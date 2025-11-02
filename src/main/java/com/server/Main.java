@@ -136,7 +136,15 @@ public class Main extends WebSocketServer {
     // Envía la info a los clientes al acabar la partida, para que pasen de vista
     public static void sendGameOutcome(int id) {
         System.out.print("Entro en sendGameOutcome...");
-        GameMatch gm = gameMatches.get(id);
+
+        GameMatch gm = null;
+
+        for (GameMatch gamem : gameMatches) {
+            if(gm.id_game == id) {
+                gm = gamem;
+            }
+        }
+
         Game game = gm.game;
         
         String winnerName;
