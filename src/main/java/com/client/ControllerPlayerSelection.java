@@ -97,8 +97,16 @@ public class ControllerPlayerSelection {
         challengeOverlay.setVisible(true);
     }
 
+    public void cancelledChallenge(JSONObject msgObj) {
+        System.out.print("Entro en cancelledChallenge...");
+
+        // Ocultar challengeOverlay
+        challengeOverlay.setVisible(false);
+        System.out.println("Reto cancelado, oculto challengeOverlay");
+    }
+
     public void declineChallenge() {
-        System.out.println("Entro en declineChallenge()");
+        System.out.print("Entro en declineChallenge()...");
 
         // Ocultar challengeOverlay
         challengeOverlay.setVisible(false);

@@ -158,6 +158,11 @@ public class Main extends Application {
                     System.out.println("Entro en case refusedMatch. Cambio a vista ViewPlayerSelection");
                     UtilsViews.setViewAnimating("ViewPlayerSelection");
                     break;
+                // Cliente que envió reto lo cancela
+                case "cancelledChallenge":
+                    System.out.println("Entro en case cancelledChallenge.");
+                    controllerPlayerSelection.cancelledChallenge(msgObj);
+                    break;
                 // Server empieza el countdown
                 case "startCountdown":
                     System.out.println("Entro en case startCountdown. Cambio a vista ViewCountdown");
@@ -271,6 +276,17 @@ public class Main extends Application {
         refusedMatchJson.put("type", "refusedMatch");
         refusedMatchJson.put("challenger", challenger);
         wsClient.safeSend(refusedMatchJson.toString());
+    }
+
+    public static void sendCancelledChallenge(String challenged) {
+        System.out.print("Entro en sendCancelledChallenge...");
+        JSONObject cancelledChallengeJson = new JSONObject();
+        cancelledChallengeJson.put("type", "cancelledChallenge");
+        cancelledChallengeJson.put("challenged", challenged);
+        wsClient.safeSend(cancelledChallengeJson.toString());
+
+        System.out.println("Cambio a vista ViewPlayerSelection");
+        UtilsViews.setViewAnimating("ViewPlayerSelection");
     }
 
     public static void sendPlayerMousePosInfo(String player, double x, double y, boolean dragging) {
