@@ -54,8 +54,10 @@ public class ControllerGame implements Initializable {
     public static final Color BOARD_COLOR = Color.rgb(20, 20, 63, 1);
     
     private static final Color RED_COLOR = Color.rgb(157, 6, 6, 1);
+    private static final Color RED_COLOR_TRANSPARENT = Color.rgb(157, 6, 6, 0.5);
     private static final Color BACKGROUND_COLOR = Color.rgb(162, 166, 185, 1);
     private static final Color YELLOW_COLOR = Color.rgb(157, 146, 6, 1);
+    private static final Color YELLOW_COLOR_TRANSPARENT = Color.rgb(157, 146, 6, 0.5);
 
 
     // -----------------------------
@@ -314,7 +316,7 @@ public class ControllerGame implements Initializable {
         }
 
         public void drawPossibleMoves() {
-            gc.setFill(new Color(0, 1, 0, 0.3));
+            gc.setFill(currentChipPlayer == 1 ? RED_COLOR_TRANSPARENT : YELLOW_COLOR_TRANSPARENT);
             for (int col : getNotFullColumns()) {
                 double posX = boardX + margin / 2 + col * (CELL_SIZE + spaceBetween);
                 double posY = (boardY + margin / 2) - CELL_SIZE - spaceBetween;
