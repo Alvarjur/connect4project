@@ -23,6 +23,7 @@ public class Main extends Application {
     public static ControllerWait controllerWait;
     public static ControllerCountdown controllerCountdown;
     public static ControllerGame controllerGame;
+    public static ControllerGameOutcome controllerGameOutcome;
 
     public static void main(String[] args) {
         launch(args);
@@ -39,12 +40,14 @@ public class Main extends Application {
         UtilsViews.addView(getClass(), "ViewWait", "/assets/viewWait.fxml");
         UtilsViews.addView(getClass(), "ViewCountdown", "/assets/viewCountdown.fxml");
         UtilsViews.addView(getClass(), "ViewGame", "/assets/viewGame.fxml");
+        UtilsViews.addView(getClass(), "ViewGameOutcome", "/assets/viewGameOutcome.fxml");
 
         controllerConfig = (ControllerConfig) UtilsViews.getController("ViewConfig");
         controllerPlayerSelection = (ControllerPlayerSelection) UtilsViews.getController("ViewPlayerSelection");
         controllerWait = (ControllerWait) UtilsViews.getController("ViewWait");
         controllerCountdown = (ControllerCountdown) UtilsViews.getController("ViewCountdown");
         controllerGame = (ControllerGame) UtilsViews.getController("ViewGame");
+        controllerGameOutcome = (ControllerGameOutcome) UtilsViews.getController("ViewGameOutcome");
 
         Scene scene = new Scene(UtilsViews.parentContainer);
         
@@ -185,6 +188,12 @@ public class Main extends Application {
                     controllerGame.setCurrentGameId(gameId);
 
                     break;
+                // Partida ha acabado. Info necesaria para siguiente vista
+                case "gameOutcome":
+                    log("Entro en case gameOutcome. Cambio a vista ViewGameOutcome");
+                    controllerGameOutcome.updateLabelGameOutcome(msgObj);
+                    UtilsViews.setViewAnimating("ViewGameOutcome");
+                    break;
                 // Server manda orden con la info a dibujar
                 case "drawOrder":
                     // System.out.println("orden de dibujar");
@@ -229,13 +238,13 @@ public class Main extends Application {
     public static void closeClient() {
         System.out.println("Cerrando aplicación...");
     
-    // Cierra el WebSocket si está abierto
-    if (wsClient != null) {
-        wsClient.forceExit();
-    }
+        // Cierra el WebSocket si está abierto
+        if (wsClient != null) {
+            wsClient.forceExit();
+        }
 
-    Platform.exit();
-    System.exit(0);
+        Platform.exit();
+        System.exit(0);
     }
 
     public static void sendChallenge(String challengedPlayer) {
@@ -269,7 +278,7 @@ public class Main extends Application {
     }
 
     public static void sendPlayerMousePosInfo(String player, double x, double y, boolean dragging) {
-        System.out.println(clientName + " se mueve");
+        // System.out.println(clientName + " se mueve");
         JSONObject playerMouseInfo = new JSONObject();
         playerMouseInfo.put("type", "playerMouseInfo");
         playerMouseInfo.put("player", clientName);
@@ -278,6 +287,12 @@ public class Main extends Application {
         playerMouseInfo.put("dragging", dragging);
         playerMouseInfo.put("game_id", controllerGame.game_id);
         wsClient.safeSend(playerMouseInfo.toString());
+    }
+
+    public static void setViewPlayerSelection() {
+        // TODO enviar mensaje al server para reintegrar jugador como disponible
+        /* ... */
+        UtilsViews.setViewAnimating("ViewPlayerSelection");
     }
 }
 
