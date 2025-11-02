@@ -12,9 +12,9 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #424657;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.client.ControllerConfig">
+<AnchorPane minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #424657;" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.client.ControllerConfig">
    <children>
-      <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
+      <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" spacing="10.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
          <children>
             <Label text="Server Configuration" textFill="#cdd5fa">
                <font>
@@ -73,14 +73,18 @@
                   <Insets left="50.0" right="50.0" />
                </VBox.margin>
             </GridPane>
+            <Label fx:id="labelMessage" textFill="RED">
+               <font>
+                  <Font name="System Italic" size="20.0" />
+               </font>
+            </Label>
             <Button fx:id="buttonConnect" mnemonicParsing="false" onAction="#connectToServer" prefHeight="37.0" prefWidth="72.0" style="-fx-background-color: #CDD5FA;" text="Connect">
                <VBox.margin>
-                  <Insets top="20.0" />
+                  <Insets />
                </VBox.margin>
                <font>
                   <Font name="System Bold Italic" size="12.0" />
                </font></Button>
-            <Label fx:id="labelMessage" prefWidth="0.0" />
             <HBox alignment="CENTER" prefHeight="34.0" prefWidth="579.0">
                <children>
                   <Button fx:id="buttonLocal" mnemonicParsing="false" onAction="#setConfigLocal" style="-fx-background-color: #CDD5FA;" text="Local">

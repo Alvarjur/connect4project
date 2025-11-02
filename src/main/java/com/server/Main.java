@@ -313,7 +313,6 @@ public class Main extends WebSocketServer {
                     clients.removeClientFromAvaliblePlayers(clients.socketByName(player_1));
                     clients.removeClientFromAvaliblePlayers(clients.socketByName(player_2));
                     sendClientsListToAll();
-                    // TODO Saca a ambos jugadores de la lista de disponibles
 
                     gameMatches.removeIf(gm ->
                         gm.game.player1.name.equals(player_1) ||

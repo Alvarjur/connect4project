@@ -75,7 +75,6 @@ public class Main extends Application {
     public static void connectToServer() {
 
         // Cambiar label en ViewConfig
-        controllerConfig.labelMessage.setTextFill(Color.BLACK);
         controllerConfig.labelMessage.setText("Connecting ...");
     
         pauseDuring(1500, () -> { // Give time to show connecting message ...
@@ -123,9 +122,6 @@ public class Main extends Application {
             json.put("type", "register");
             json.put("clientName", clientName);
             wsClient.safeSend(json.toString());
-
-            // JSONObject msgObj = new JSONObject(response);
-            // controllerPlayerSelection.receiveMessage(msgObj);
         });
     }
 
