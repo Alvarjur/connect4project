@@ -54,6 +54,7 @@ public class Main extends WebSocketServer {
 
     // Tipus de missatge
     private static final String T_REGISTER = "register";
+    private static final String T_AVALIBLE_PLAYER = "avaliblePlayer";
     private static final String T_BOUNCE = "bounce";
     private static final String T_BROADCAST = "broadcast";
     private static final String T_PRIVATE = "private";
@@ -63,6 +64,7 @@ public class Main extends WebSocketServer {
     private static final String T_CHALLENGE = "challenge";
     private static final String T_START_MATCH = "startMatch";
     private static final String T_REFUSED_MATCH = "refusedMatch";
+    private static final String T_CANCELLED_CHALLENGE = "cancelledChallenge";
     private static final String T_PLAYER_MOUSE_INFO = "playerMouseInfo";
     private static final String T_KOTLIN_ADD_CHIP = "kotlinAddChip";
     private static final String T_START_COUNTDOWN = "startCountdown";
@@ -296,6 +298,17 @@ public class Main extends WebSocketServer {
                     // Enviar nuevo JSON con los clientes actuales a todo el mundo
                     sendClientsListToAll();
                     break;
+
+                // Si un cliente notifica que pasa a estar disponible
+                case T_AVALIBLE_PLAYER:
+                    log("Entro en case T_AVALIBLE_PLAYER");
+                    String newAvaliblePlayer = json.getString("clientName");
+                    clients.addClientToAvaliblePlayers(
+                        clients.socketByName(newAvaliblePlayer),
+                        newAvaliblePlayer
+                    );
+                    sendClientsListToAll();
+                    break;
                 
                 // Si es un reto de un cliente a otro
                 case T_CHALLENGE:
@@ -328,7 +341,6 @@ public class Main extends WebSocketServer {
                         gm.game.player1.name.equals(player_2) ||
                         gm.game.player2.name.equals(player_2)
                     );
-                    
                                        
                     // Mandar players a vista Countdown
                     int startSeconds = 3;
@@ -387,6 +399,15 @@ public class Main extends WebSocketServer {
                     JSONObject payloadRefusedGame = new JSONObject();
                     payloadRefusedGame.put("type", T_REFUSED_MATCH);
                     sendSafe(clients.socketByName(refusedMatchChallenger), payloadRefusedGame.toString());
+                    break;
+
+                case T_CANCELLED_CHALLENGE:
+                    log("Entro en case T_CANCELLED_CHALLENGE");
+                    String challenged = json.getString("challenged");
+
+                    JSONObject payloadCancelledChallenge = new JSONObject();
+                    payloadCancelledChallenge.put("type", T_CANCELLED_CHALLENGE);
+                    sendSafe(clients.socketByName(challenged), payloadCancelledChallenge.toString());
                     break;
                 
                 case T_PLAYER_MOUSE_INFO:
