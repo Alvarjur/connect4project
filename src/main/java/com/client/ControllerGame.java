@@ -24,7 +24,9 @@ public class ControllerGame implements Initializable {
     private static int playerNum;
     private static boolean dragging;
 
-    public static int[][] grid;
+    public int game_id;
+
+    public int[][] grid;
     public static ArrayList<Integer> possibleMovesList = new ArrayList<>();
 
     private static String winner = "none";
@@ -33,31 +35,31 @@ public class ControllerGame implements Initializable {
     // -----------------------------
     // Board & chip data
     // -----------------------------
-    public static double CELL_SIZE = 80;
-    public static double boardX, boardY;
+    public double CELL_SIZE = 80;
+    public double boardX, boardY;
 
-    public static double redChipDragX, redChipDragY;
-    public static double yellowChipDragX, yellowChipDragY;
+    public double redChipDragX, redChipDragY;
+    public double yellowChipDragX, yellowChipDragY;
 
-    public static double currentChipX, currentChipY;
-    public static int currentChipPlayer;
+    public double currentChipX, currentChipY;
+    public int currentChipPlayer;
 
-    private static double animChipX, animChipY;
-    private static boolean isAnimChip;
-    private static int animChipPlayer;
+    private double animChipX, animChipY;
+    private boolean isAnimChip;
+    private int animChipPlayer;
 
-    public static String currentPlayerName = "";
+    public String currentPlayerName = "";
 
     // -----------------------------
     // Colors·
     // -----------------------------
-    public static final Color BOARD_COLOR = Color.rgb(20, 20, 63, 1);
+    public final Color BOARD_COLOR = Color.rgb(20, 20, 63, 1);
     
-    private static final Color RED_COLOR = Color.rgb(157, 6, 6, 1);
-    private static final Color RED_COLOR_TRANSPARENT = Color.rgb(157, 6, 6, 0.5);
-    private static final Color BACKGROUND_COLOR = Color.rgb(162, 166, 185, 1);
-    private static final Color YELLOW_COLOR = Color.rgb(157, 146, 6, 1);
-    private static final Color YELLOW_COLOR_TRANSPARENT = Color.rgb(157, 146, 6, 0.5);
+    private final Color RED_COLOR = Color.rgb(157, 6, 6, 1);
+    private final Color RED_COLOR_TRANSPARENT = Color.rgb(157, 6, 6, 0.5);
+    private final Color BACKGROUND_COLOR = Color.rgb(162, 166, 185, 1);
+    private final Color YELLOW_COLOR = Color.rgb(157, 146, 6, 1);
+    private final Color YELLOW_COLOR_TRANSPARENT = Color.rgb(157, 146, 6, 0.5);
 
 
     // -----------------------------
@@ -65,18 +67,29 @@ public class ControllerGame implements Initializable {
     // -----------------------------
     @FXML
     private Canvas canvas;
-    private static GraphicsContext gc;
+    private GraphicsContext gc;
 
     // -----------------------------
     // Artists
     // -----------------------------
-    private static BoardArtist boardArtist;
+    private BoardArtist boardArtist;
 
     // =====================================================
     //                 Static Update Methods
     // =====================================================
-
-    public static void updateWinnerLine(String line) {
+    public void resetGameState() {
+    // Limpia todas las estructuras de datos visuales
+    grid = new int[6][7];
+    
+    
+    // Limpia el canvas
+    GraphicsContext gc = canvas.getGraphicsContext2D();
+    gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+}
+    public void setCurrentGameId(int gameId) {
+        game_id = gameId;
+    }
+    public void updateWinnerLine(String line) {
         if (line.equals("none")) return;
         String[] parts = line.split(" ");
         winnerStartX = Double.parseDouble(parts[0]);
@@ -85,15 +98,15 @@ public class ControllerGame implements Initializable {
         winnerEndY = Double.parseDouble(parts[3]);
     }
 
-    public static void updateWinner(String winn) {
+    public void updateWinner(String winn) {
         winner = winn;
     }
 
-    public static void updateCurrentPlayer(String name) {
+    public void updateCurrentPlayer(String name) {
         currentPlayerName = name;
     }
 
-    public static void updateAnimChip(String animChipStatus) {
+    public void updateAnimChip(String animChipStatus) {
         if (animChipStatus.equals("none")) {
             isAnimChip = false;
             return;
@@ -106,12 +119,12 @@ public class ControllerGame implements Initializable {
         animChipPlayer = Integer.parseInt(parts[3]);
     }
 
-    public static void updateBoardPos(double x, double y) {
+    public void updateBoardPos(double x, double y) {
         boardX = x;
         boardY = y;
     }
 
-    public static void updateCurrentChip(String chip) {
+    public void updateCurrentChip(String chip) {
         if (chip.equals("none")) {
             currentChipPlayer = 0;
             return;
@@ -123,20 +136,20 @@ public class ControllerGame implements Initializable {
         currentChipPlayer = Integer.parseInt(parts[2]);
     }
 
-    public static void updateDragChipsPos(double redX, double redY, double yellowX, double yellowY) {
+    public void updateDragChipsPos(double redX, double redY, double yellowX, double yellowY) {
         redChipDragX = redX;
         redChipDragY = redY;
         yellowChipDragX = yellowX;
         yellowChipDragY = yellowY;
     }
 
-    public static void setPlayerInfo(String nombre, int numero, boolean draggea) {
+    public void setPlayerInfo(String nombre, int numero, boolean draggea) {
         name = Main.clientName;
         playerNum = numero;
         dragging = draggea;
     }
 
-    public static void updatePossibleMoves(String possibleMoves) {
+    public void updatePossibleMoves(String possibleMoves) {
         possibleMovesList.clear();
         if (possibleMoves.equals("none")) return;
 
@@ -145,7 +158,7 @@ public class ControllerGame implements Initializable {
         }
     }
 
-    public static void updateGrid(JSONArray arr) {
+    public void updateGrid(JSONArray arr) {
         for (int i = 0; i < arr.length(); i++) {
             String[] parts = arr.get(i).toString().split(" ");
             int row = Integer.parseInt(parts[0]);
@@ -159,7 +172,7 @@ public class ControllerGame implements Initializable {
     //                      Drawing
     // =====================================================
 
-    public static void draw(double posX1, double posY1, double posX2, double posY2) {
+    public void draw(double posX1, double posY1, double posX2, double posY2) {
         gc.clearRect(0, 0, 10000, 10000);
         drawBackground();
         // Board
@@ -204,7 +217,7 @@ public class ControllerGame implements Initializable {
             gc.strokeLine(winnerStartX, winnerStartY, winnerEndX, winnerEndY);
         }
     }
-
+   
     // =====================================================
     //                   JavaFX Initialize
     // =====================================================
@@ -238,7 +251,7 @@ public class ControllerGame implements Initializable {
         void draw();
     }
 
-    public static void drawChip(Color color, double x, double y, Boolean details) {
+    public void drawChip(Color color, double x, double y, Boolean details) {
         // Drawing the chip itself
         gc.setFill(color);
         gc.fillOval(x, y, CELL_SIZE, CELL_SIZE);
@@ -251,7 +264,7 @@ public class ControllerGame implements Initializable {
         }
     }
 
-    public static void drawBackground() {
+    public void drawBackground() {
         double blockSize = 70;
         Color alternColor = Color.rgb(138,143,167, 0.5);
         Color curColor = alternColor;

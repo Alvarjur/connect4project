@@ -179,7 +179,11 @@ public class Main extends Application {
                 // Countdown ha terminado, y ahora empieza la partida
                 case "startGame":
                     System.out.println("Entro en case startGame. Cambio a vista ViewGame");
+                    controllerGame.resetGameState();
                     UtilsViews.setViewAnimating("ViewGame");
+                    int gameId = msgObj.getInt("game_id");
+                    controllerGame.setCurrentGameId(gameId);
+
                     break;
                 // Server manda orden con la info a dibujar
                 case "drawOrder":
@@ -272,6 +276,7 @@ public class Main extends Application {
         playerMouseInfo.put("pos_x", x);
         playerMouseInfo.put("pos_y", y);
         playerMouseInfo.put("dragging", dragging);
+        playerMouseInfo.put("game_id", controllerGame.game_id);
         wsClient.safeSend(playerMouseInfo.toString());
     }
 }
