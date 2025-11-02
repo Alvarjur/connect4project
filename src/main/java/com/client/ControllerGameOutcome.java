@@ -10,9 +10,9 @@ public class ControllerGameOutcome {
     @FXML private Label labelGameOutcome;
     @FXML private Button buttonPlayerSelection, buttonExit;
 
-    private final String TEXT_DRAW = "Empate. Nadie gana...";
-    private final String TEXT_WIN = "¡Has ganado!";
-    private final String TEXT_LOSE = "Has perdido...";
+    private final String TEXT_DRAW = "Draw. No one wins...";
+    private final String TEXT_WIN = "¡You've won!";
+    private final String TEXT_LOSE = "You've lost...";
 
     public void updateLabelGameOutcome(JSONObject msgObj) {
         System.out.println("Entro en updateLabelGameOutcome");
