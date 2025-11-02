@@ -135,6 +135,7 @@ public class Main extends WebSocketServer {
 
     // Envía la info a los clientes al acabar la partida, para que pasen de vista
     public static void sendGameOutcome(int id) {
+        System.out.print("Entro en sendGameOutcome...");
         GameMatch gm = gameMatches.get(id);
         Game game = gm.game;
         
@@ -144,6 +145,7 @@ public class Main extends WebSocketServer {
         } else {
             winnerName = "";
         }
+        System.out.print("winnerName=" + winnerName + ", isDraw=" + game.isDraw + "...");
 
         JSONObject payload = new JSONObject();
         payload.put("type", T_GAME_OUTCOME);
@@ -158,6 +160,9 @@ public class Main extends WebSocketServer {
             clients.socketByName(game.player2.name),
             payload.toString()
         );
+
+        gm.stop();
+        System.out.println("La partida ha sido detenida.");
     }
 
     public static void sendUpdateOrder(int id) {
