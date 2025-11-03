@@ -151,8 +151,11 @@ public class GameMatch implements Initializable{
     class Game {
         public int currentPlayer;
         public Board board;
+        private final int rows = 6;
+        private final int cols = 7;
         public Player player1, player2;
         public Player winner;
+        public boolean isDraw = false;
         public ArrayList<Player> players = new ArrayList<Player>();
         public double draggableChips_red_x = 650;
         public double draggableChips_red_y = 100;
@@ -168,7 +171,7 @@ public class GameMatch implements Initializable{
         public Game(String player1, String player2) {
             currentPlayer = 1; // Red starts
             
-            board = new Board(20, 85, 6,7);
+            board = new Board(20, 85, rows, cols);
             this.player1 = new Player(player1,1, -50, -50);
             this.player2 = new Player(player2, 2, -150, -50);
             players.add(this.player1);
@@ -281,6 +284,19 @@ public class GameMatch implements Initializable{
             return -1;
         }
 
+        private boolean checkDraw() {
+            System.out.print("Entro en checkDraw()...");
+            for (int i=0; i<rows; i++) {
+                for (int j=0; j<cols; j++) {
+                    if (game.board.grid[i][j] == 0) {
+                        System.out.println("y retorno FALSE");
+                        return false;
+                    }
+                }
+            }
+            System.out.println("y retorno TRUE");
+            return true;
+        }
 
         public boolean checkIsThereFourStraight(int player, int row, int col) {
             if (player == 0) return false;
@@ -397,6 +413,10 @@ public class GameMatch implements Initializable{
                 
             }
             checkWinner();
+            isDraw = checkDraw();
+            if (winner != null || isDraw) {
+                Main.sendGameOutcome(id_game);
+            }
         }
 
 
@@ -480,13 +500,31 @@ public class GameMatch implements Initializable{
         private double margin = CELL_SIZE/10;
         private double space_between = margin/2;
 
-
         public Board(double x, double y, int rows, int cols) {
             grid = new int[rows][cols];
             this.x = x;
             this.y = y;
 
+            // Testing zone
+            setGridToDemonstrateDraw();
             
+        }
+
+        private void setGridToDemonstrateDraw() {
+            int[][] drawGrid = {
+                {2, 2, 1, 0, 1, 2, 2},
+                {1, 1, 1, 2, 1, 1, 1},
+                {2, 2, 2, 1, 2, 2, 2},
+                {2, 2, 2, 1, 2, 2, 2},
+                {1, 1, 1, 2, 1, 1, 1},
+                {1, 1, 1, 2, 1, 1, 1}
+            };
+
+            for (int i=0; i<drawGrid.length; i++) {
+                for (int j=0; j<drawGrid[0].length; j++) {
+                    grid[i][j] = drawGrid[i][j];
+                }
+            }
         }
 
         public double[] getRowColPosition(int row, int col) {

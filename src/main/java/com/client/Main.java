@@ -23,6 +23,7 @@ public class Main extends Application {
     public static ControllerWait controllerWait;
     public static ControllerCountdown controllerCountdown;
     public static ControllerGame controllerGame;
+    public static ControllerGameOutcome controllerGameOutcome;
 
     public static void main(String[] args) {
         launch(args);
@@ -39,12 +40,14 @@ public class Main extends Application {
         UtilsViews.addView(getClass(), "ViewWait", "/assets/viewWait.fxml");
         UtilsViews.addView(getClass(), "ViewCountdown", "/assets/viewCountdown.fxml");
         UtilsViews.addView(getClass(), "ViewGame", "/assets/viewGame.fxml");
+        UtilsViews.addView(getClass(), "ViewGameOutcome", "/assets/viewGameOutcome.fxml");
 
         controllerConfig = (ControllerConfig) UtilsViews.getController("ViewConfig");
         controllerPlayerSelection = (ControllerPlayerSelection) UtilsViews.getController("ViewPlayerSelection");
         controllerWait = (ControllerWait) UtilsViews.getController("ViewWait");
         controllerCountdown = (ControllerCountdown) UtilsViews.getController("ViewCountdown");
         controllerGame = (ControllerGame) UtilsViews.getController("ViewGame");
+        controllerGameOutcome = (ControllerGameOutcome) UtilsViews.getController("ViewGameOutcome");
 
         Scene scene = new Scene(UtilsViews.parentContainer);
         
@@ -72,7 +75,6 @@ public class Main extends Application {
     public static void connectToServer() {
 
         // Cambiar label en ViewConfig
-        controllerConfig.labelMessage.setTextFill(Color.BLACK);
         controllerConfig.labelMessage.setText("Connecting ...");
     
         pauseDuring(1500, () -> { // Give time to show connecting message ...
@@ -108,21 +110,12 @@ public class Main extends Application {
 
     private static void wsOpen(String response) {
         Platform.runLater(()->{ 
-            // Cambio de ViewConfig a ViewPlayerSelection
-            if (UtilsViews.getActiveView() == "ViewConfig") { // TODO Hacer algo menos chapuza
-                UtilsViews.setViewAnimating("ViewPlayerSelection");
-                clientName = controllerConfig.getUsername();
-                controllerPlayerSelection.setClientName(clientName);
-            }
-
             // Enviar al servidor el nombre del cliente
+            clientName = controllerConfig.getUsername();
             JSONObject json = new JSONObject();
             json.put("type", "register");
             json.put("clientName", clientName);
             wsClient.safeSend(json.toString());
-
-            // JSONObject msgObj = new JSONObject(response);
-            // controllerPlayerSelection.receiveMessage(msgObj);
         });
     }
 
@@ -144,6 +137,22 @@ public class Main extends Application {
             // Comprobar tipo de respuesta
             String type = msgObj.getString("type");
             switch (type) {
+                // Intento de registro fallido por nombre ocupado
+                case "clientNameNotAvalible":
+                    System.out.println("Entro en case clientNameNotAvalible. Tendré que probar otro nombre");
+                    String nameAlreadyUsed = "Name is already used by other client. Try another one";
+                    controllerConfig.labelMessage.setTextFill(Color.RED);
+                    controllerConfig.labelMessage.setText(nameAlreadyUsed);
+                    pauseDuring(1500, () -> {
+                        controllerConfig.labelMessage.setText("");
+                    });
+                    break;
+                case "confirmedRegister":
+                    System.out.println("Entro en case confirmedRegister. Cambio a ViewPlayerSelection");
+                    UtilsViews.setViewAnimating("ViewPlayerSelection");
+                    controllerPlayerSelection.setClientName(clientName);
+                    setViewPlayerSelection();
+                    break;
                 // Recibir lista actualizada de clientes
                 case "clients":
                     System.out.println("Entro en case clients. Actualizo lista de clientes disponibles");
@@ -158,6 +167,11 @@ public class Main extends Application {
                 case "refusedMatch":
                     System.out.println("Entro en case refusedMatch. Cambio a vista ViewPlayerSelection");
                     UtilsViews.setViewAnimating("ViewPlayerSelection");
+                    break;
+                // Cliente que envió reto lo cancela
+                case "cancelledChallenge":
+                    System.out.println("Entro en case cancelledChallenge.");
+                    controllerPlayerSelection.cancelledChallenge(msgObj);
                     break;
                 // Server empieza el countdown
                 case "startCountdown":
@@ -183,7 +197,12 @@ public class Main extends Application {
                     UtilsViews.setViewAnimating("ViewGame");
                     int gameId = msgObj.getInt("game_id");
                     controllerGame.setCurrentGameId(gameId);
-
+                    break;
+                // Partida ha acabado. Info necesaria para siguiente vista
+                case "gameOutcome":
+                    log("Entro en case gameOutcome. Cambio a vista ViewGameOutcome");
+                    controllerGameOutcome.updateLabelGameOutcome(msgObj);
+                    UtilsViews.setViewAnimating("ViewGameOutcome");
                     break;
                 // Server manda orden con la info a dibujar
                 case "drawOrder":
@@ -229,13 +248,13 @@ public class Main extends Application {
     public static void closeClient() {
         System.out.println("Cerrando aplicación...");
     
-    // Cierra el WebSocket si está abierto
-    if (wsClient != null) {
-        wsClient.forceExit();
-    }
+        // Cierra el WebSocket si está abierto
+        if (wsClient != null) {
+            wsClient.forceExit();
+        }
 
-    Platform.exit();
-    System.exit(0);
+        Platform.exit();
+        System.exit(0);
     }
 
     public static void sendChallenge(String challengedPlayer) {
@@ -268,8 +287,19 @@ public class Main extends Application {
         wsClient.safeSend(refusedMatchJson.toString());
     }
 
+    public static void sendCancelledChallenge(String challenged) {
+        System.out.print("Entro en sendCancelledChallenge...");
+        JSONObject cancelledChallengeJson = new JSONObject();
+        cancelledChallengeJson.put("type", "cancelledChallenge");
+        cancelledChallengeJson.put("challenged", challenged);
+        wsClient.safeSend(cancelledChallengeJson.toString());
+
+        System.out.println("Cambio a vista ViewPlayerSelection");
+        UtilsViews.setViewAnimating("ViewPlayerSelection");
+    }
+
     public static void sendPlayerMousePosInfo(String player, double x, double y, boolean dragging) {
-        System.out.println(clientName + " se mueve");
+        // System.out.println(clientName + " se mueve");
         JSONObject playerMouseInfo = new JSONObject();
         playerMouseInfo.put("type", "playerMouseInfo");
         playerMouseInfo.put("player", clientName);
@@ -279,6 +309,16 @@ public class Main extends Application {
         playerMouseInfo.put("game_id", controllerGame.game_id);
         wsClient.safeSend(playerMouseInfo.toString());
     }
-}
 
-// TODO Arreglar bug que ocurre cuando pones una conexión mal en ViewConfig y congela el cliente
+    public static void setViewPlayerSelection() {
+        controllerPlayerSelection.hideChallengedOverlayIfShown();
+        UtilsViews.setViewAnimating("ViewPlayerSelection");
+    }
+
+    public static void sendAvaliblePlayerMessage() {
+        JSONObject avaliblePlayerJson = new JSONObject();
+        avaliblePlayerJson.put("type", "avaliblePlayer");
+        avaliblePlayerJson.put("clientName", clientName);
+        wsClient.safeSend(avaliblePlayerJson.toString());
+    }
+}

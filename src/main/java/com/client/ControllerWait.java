@@ -10,4 +10,9 @@ public class ControllerWait {
     public void updateChallengedName(String challengedName) {
         labelChallengedName.setText(challengedName);
     }
+
+    public void cancelChallenge() {
+        System.out.println("Entro en cancelChallenge");
+        Main.sendCancelledChallenge(labelChallengedName.getText());
+    }
 }

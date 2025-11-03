@@ -38,10 +38,6 @@ public class Main extends WebSocketServer {
     /***** Registro de partidas *****/
     public static List<GameMatch> gameMatches;
     public int game_id = 0;
-    
-
-    /* Countdowns que maneja el servidor (1 por partida) */
-    private List<Countdown> countdowns;
 
     // Claus JSON
     private static final String K_TYPE = "type";
@@ -54,6 +50,7 @@ public class Main extends WebSocketServer {
 
     // Tipus de missatge
     private static final String T_REGISTER = "register";
+    private static final String T_AVALIBLE_PLAYER = "avaliblePlayer";
     private static final String T_BOUNCE = "bounce";
     private static final String T_BROADCAST = "broadcast";
     private static final String T_PRIVATE = "private";
@@ -63,10 +60,12 @@ public class Main extends WebSocketServer {
     private static final String T_CHALLENGE = "challenge";
     private static final String T_START_MATCH = "startMatch";
     private static final String T_REFUSED_MATCH = "refusedMatch";
+    private static final String T_CANCELLED_CHALLENGE = "cancelledChallenge";
     private static final String T_PLAYER_MOUSE_INFO = "playerMouseInfo";
     private static final String T_KOTLIN_ADD_CHIP = "kotlinAddChip";
     private static final String T_START_COUNTDOWN = "startCountdown";
     private static final String T_REMAINING_COUNTDOWN = "remainingCountdown";
+    private static final String T_GAME_OUTCOME = "gameOutcome";
 
     /**
      * Crea un servidor WebSocket que escolta a l'adreça indicada.
@@ -130,6 +129,46 @@ public class Main extends WebSocketServer {
             put(rst, K_LIST, list);
             sendSafe(e.getKey(), rst.toString());
         }
+    }
+
+    // Envía la info a los clientes al acabar la partida, para que pasen de vista
+    public static void sendGameOutcome(int id) {
+        System.out.print("Entro en sendGameOutcome...");
+
+        GameMatch gm = null;
+
+        for (GameMatch gamem : gameMatches) {
+            if(gamem.id_game == id) {
+                gm = gamem;
+            }
+        }
+
+        Game game = gm.game;
+        
+        String winnerName;
+        if (game.winner != null) {
+            winnerName = game.winner.name;
+        } else {
+            winnerName = "";
+        }
+        System.out.print("winnerName=" + winnerName + ", isDraw=" + game.isDraw + "...");
+
+        JSONObject payload = new JSONObject();
+        payload.put("type", T_GAME_OUTCOME);
+        payload.put("winnerName", winnerName);
+        payload.put("isDraw", game.isDraw);
+
+        sendSafe(
+            clients.socketByName(game.player1.name),
+            payload.toString()
+        );
+        sendSafe(
+            clients.socketByName(game.player2.name),
+            payload.toString()
+        );
+
+        gm.stop();
+        System.out.println("La partida ha sido detenida.");
     }
 
     public static void sendUpdateOrder(int id) {
@@ -235,23 +274,50 @@ public class Main extends WebSocketServer {
     /***** Procesa el mensaje recibido y actúa según el tipo de mensaje. *****/
     @Override
     public void onMessage(WebSocket conn, String message) {
-        log("Mensaje recibido del cliente -> " + message);
-
         try {
             // Obtener el JSON
             JSONObject json = new JSONObject(message);
             String type = json.getString("type");
+            if (!type.equals(T_PLAYER_MOUSE_INFO)) {
+                log("Mensaje recibido del cliente -> " + message);
+            }
 
             switch (type) {
                 // Si es un registro de cliente
                 case T_REGISTER:
-                    // Registrar nuevo cliente
+                    log("Entro en case T_REGISTER.");
                     String clientName = json.getString(K_CLIENT_NAME);
-                    clients.add(conn, clientName);
-                    clients.addClientToAvaliblePlayers(conn, clientName);
-                    log("Entro en case T_REGISTER. Cliente registrado -> " + clientName);
 
-                    // Enviar nuevo JSON con los clientes actuales a todo el mundo
+                    if (clients.nameExists(clientName)) {
+                        JSONObject payloadClientNameNotAvalible = new JSONObject();
+                        payloadClientNameNotAvalible.put("type", "clientNameNotAvalible");
+                        sendSafe(conn, payloadClientNameNotAvalible.toString());
+
+                        log("Sigo dentro de case T_REGISTER. Cliente NO registrado, nombre ya está ocupado. Mensaje rechazando registro enviado");
+                    } else {
+                        clients.add(conn, clientName);
+                        clients.addClientToAvaliblePlayers(conn, clientName);
+
+                        JSONObject payloadConfirmedRegister = new JSONObject();
+                        payloadConfirmedRegister.put("type", "confirmedRegister");
+                        sendSafe(conn, payloadConfirmedRegister.toString());
+
+                        log("Sigo dentro de case T_REGISTER. Cliente registrado -> " + clientName + ", mensaje de confirmación enviado");
+
+                        // Enviar nuevo JSON con los clientes actuales a todo el mundo
+                        sendClientsListToAll();
+                    }
+                    
+                    break;
+
+                // Si un cliente notifica que pasa a estar disponible
+                case T_AVALIBLE_PLAYER:
+                    log("Entro en case T_AVALIBLE_PLAYER");
+                    String newAvaliblePlayer = json.getString("clientName");
+                    clients.addClientToAvaliblePlayers(
+                        clients.socketByName(newAvaliblePlayer),
+                        newAvaliblePlayer
+                    );
                     sendClientsListToAll();
                     break;
                 
@@ -260,7 +326,11 @@ public class Main extends WebSocketServer {
                     String challenger = json.getString("clientName");
                     String challengedPlayer = json.getString("challengedClientName");
                     log(String.format("Entro en case T_CHALLENGE. Cliente '%s' ha retado a '%s", challenger, challengedPlayer));
-                    
+
+                    // Saca a ambos jugadores de la lista de disponibles
+                    removeTwoPlayersFromAvalible(challenger, challengedPlayer);
+                    sendClientsListToAll();
+
                     // Preparar mensaje y enviar sólo a cliente retado
                     String payload = new JSONObject()
                         .put("type", "challenge")
@@ -275,19 +345,12 @@ public class Main extends WebSocketServer {
                     String player_2 = json.getString("player_2");
                     log(String.format("Entro en case T_START_MATCH. Jugarán %s VS %s", player_1, player_2));
 
-                    // Saca a ambos jugadores de la lista de disponibles
-                    clients.removeClientFromAvaliblePlayers(clients.socketByName(player_1));
-                    clients.removeClientFromAvaliblePlayers(clients.socketByName(player_2));
-                    sendClientsListToAll();
-                    // TODO Saca a ambos jugadores de la lista de disponibles
-
                     gameMatches.removeIf(gm ->
                         gm.game.player1.name.equals(player_1) ||
                         gm.game.player2.name.equals(player_1) ||
                         gm.game.player1.name.equals(player_2) ||
                         gm.game.player2.name.equals(player_2)
                     );
-                    
                                        
                     // Mandar players a vista Countdown
                     int startSeconds = 3;
@@ -342,29 +405,44 @@ public class Main extends WebSocketServer {
                     log("Entro en case T_REFUSED_MATCH");
                     String refusedMatchChallenger = json.getString("challenger");
 
+                    addTwoPlayersToAvalible(clients.nameBySocket(conn), refusedMatchChallenger);
+                    sendClientsListToAll();
+
                     // Enviar payload
                     JSONObject payloadRefusedGame = new JSONObject();
                     payloadRefusedGame.put("type", T_REFUSED_MATCH);
                     sendSafe(clients.socketByName(refusedMatchChallenger), payloadRefusedGame.toString());
                     break;
+
+                case T_CANCELLED_CHALLENGE:
+                    log("Entro en case T_CANCELLED_CHALLENGE");
+                    String challenged = json.getString("challenged");
+
+                    addTwoPlayersToAvalible(clients.nameBySocket(conn), challenged);
+                    sendClientsListToAll();
+
+                    JSONObject payloadCancelledChallenge = new JSONObject();
+                    payloadCancelledChallenge.put("type", T_CANCELLED_CHALLENGE);
+                    sendSafe(clients.socketByName(challenged), payloadCancelledChallenge.toString());
+                    break;
                 
                 case T_PLAYER_MOUSE_INFO:
-                    log("Entro en case T_PLAYER_MOUSE_INFO");
                     int game_id = json.getInt("game_id");
+                    // log("Entro en case T_PLAYER_MOUSE_INFO");
+
                     String player1 = json.getString("player");
                     double pos_x = json.getDouble("pos_x");
                     double pos_y = json.getDouble("pos_y");
                     boolean dragging = json.getBoolean("dragging");
-                        for(GameMatch gm : gameMatches) {
-                            if (gm.id_game == game_id) {
-                                gm.updatePlayerMousePos(player1, pos_x, pos_y);
-                                gm.updatePlayerMouseState(player1, dragging);
-                            }
+
+                    for(GameMatch gm : gameMatches) {
+                        if (gm.id_game == game_id) {
+                            gm.updatePlayerMousePos(player1, pos_x, pos_y);
+                            gm.updatePlayerMouseState(player1, dragging);
                         }
-                        
+
+                    }
                      
-                    
-                    
                     break;
                 
                 case T_KOTLIN_ADD_CHIP:
@@ -424,5 +502,15 @@ public class Main extends WebSocketServer {
 
     public static void log(String message) {
         System.out.println(message);
+    }
+
+    private void removeTwoPlayersFromAvalible(String player1, String player2) {
+        clients.removeClientFromAvaliblePlayers(clients.socketByName(player1));
+        clients.removeClientFromAvaliblePlayers(clients.socketByName(player2));
+    }
+
+    private void addTwoPlayersToAvalible(String player1, String player2) {
+        clients.addClientToAvaliblePlayers(clients.socketByName(player1), player1);
+        clients.addClientToAvaliblePlayers(clients.socketByName(player2), player2);
     }
 }
