@@ -326,7 +326,11 @@ public class Main extends WebSocketServer {
                     String challenger = json.getString("clientName");
                     String challengedPlayer = json.getString("challengedClientName");
                     log(String.format("Entro en case T_CHALLENGE. Cliente '%s' ha retado a '%s", challenger, challengedPlayer));
-                    
+
+                    // Saca a ambos jugadores de la lista de disponibles
+                    removeTwoPlayersFromAvalible(challenger, challengedPlayer);
+                    sendClientsListToAll();
+
                     // Preparar mensaje y enviar sólo a cliente retado
                     String payload = new JSONObject()
                         .put("type", "challenge")
@@ -340,11 +344,6 @@ public class Main extends WebSocketServer {
                     String player_1 = json.getString("player_1");
                     String player_2 = json.getString("player_2");
                     log(String.format("Entro en case T_START_MATCH. Jugarán %s VS %s", player_1, player_2));
-
-                    // Saca a ambos jugadores de la lista de disponibles
-                    clients.removeClientFromAvaliblePlayers(clients.socketByName(player_1));
-                    clients.removeClientFromAvaliblePlayers(clients.socketByName(player_2));
-                    sendClientsListToAll();
 
                     gameMatches.removeIf(gm ->
                         gm.game.player1.name.equals(player_1) ||
@@ -406,6 +405,9 @@ public class Main extends WebSocketServer {
                     log("Entro en case T_REFUSED_MATCH");
                     String refusedMatchChallenger = json.getString("challenger");
 
+                    addTwoPlayersToAvalible(clients.nameBySocket(conn), refusedMatchChallenger);
+                    sendClientsListToAll();
+
                     // Enviar payload
                     JSONObject payloadRefusedGame = new JSONObject();
                     payloadRefusedGame.put("type", T_REFUSED_MATCH);
@@ -415,6 +417,9 @@ public class Main extends WebSocketServer {
                 case T_CANCELLED_CHALLENGE:
                     log("Entro en case T_CANCELLED_CHALLENGE");
                     String challenged = json.getString("challenged");
+
+                    addTwoPlayersToAvalible(clients.nameBySocket(conn), challenged);
+                    sendClientsListToAll();
 
                     JSONObject payloadCancelledChallenge = new JSONObject();
                     payloadCancelledChallenge.put("type", T_CANCELLED_CHALLENGE);
@@ -497,5 +502,15 @@ public class Main extends WebSocketServer {
 
     public static void log(String message) {
         System.out.println(message);
+    }
+
+    private void removeTwoPlayersFromAvalible(String player1, String player2) {
+        clients.removeClientFromAvaliblePlayers(clients.socketByName(player1));
+        clients.removeClientFromAvaliblePlayers(clients.socketByName(player2));
+    }
+
+    private void addTwoPlayersToAvalible(String player1, String player2) {
+        clients.addClientToAvaliblePlayers(clients.socketByName(player1), player1);
+        clients.addClientToAvaliblePlayers(clients.socketByName(player2), player2);
     }
 }
