@@ -506,7 +506,7 @@ public class GameMatch implements Initializable{
             this.y = y;
 
             // Testing zone
-            setGridToDemonstrateDraw();
+            // setGridToDemonstrateDraw();
             
         }
 
