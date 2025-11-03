@@ -56,6 +56,7 @@ final class ClientRegistry {
         String name = bySocket.remove(socket);
         if (name != null) {
             byName.remove(name);
+            removeClientFromAvaliblePlayers(socket);
         }
         return name;
     }
@@ -135,5 +136,9 @@ final class ClientRegistry {
             arr.put(n);
         }
         return arr;
+    }
+
+    public boolean nameExists(String name) {
+        return byName.containsKey(name);
     }
 }

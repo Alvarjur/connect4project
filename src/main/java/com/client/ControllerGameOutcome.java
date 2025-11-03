@@ -33,6 +33,7 @@ public class ControllerGameOutcome {
 
     public void toViewPlayerSelection() {
         System.out.println("Entro en toViewPlayerSelection");
+        Main.sendAvaliblePlayerMessage();
         Main.setViewPlayerSelection();
     }
 

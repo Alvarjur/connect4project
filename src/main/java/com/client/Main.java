@@ -110,14 +110,8 @@ public class Main extends Application {
 
     private static void wsOpen(String response) {
         Platform.runLater(()->{ 
-            // Cambio de ViewConfig a ViewPlayerSelection
-            if (UtilsViews.getActiveView() == "ViewConfig") { // TODO Hacer algo menos chapuza
-                UtilsViews.setViewAnimating("ViewPlayerSelection");
-                clientName = controllerConfig.getUsername();
-                controllerPlayerSelection.setClientName(clientName);
-            }
-
             // Enviar al servidor el nombre del cliente
+            clientName = controllerConfig.getUsername();
             JSONObject json = new JSONObject();
             json.put("type", "register");
             json.put("clientName", clientName);
@@ -143,6 +137,22 @@ public class Main extends Application {
             // Comprobar tipo de respuesta
             String type = msgObj.getString("type");
             switch (type) {
+                // Intento de registro fallido por nombre ocupado
+                case "clientNameNotAvalible":
+                    System.out.println("Entro en case clientNameNotAvalible. Tendré que probar otro nombre");
+                    String nameAlreadyUsed = "Name is already used by other client. Try another one";
+                    controllerConfig.labelMessage.setTextFill(Color.RED);
+                    controllerConfig.labelMessage.setText(nameAlreadyUsed);
+                    pauseDuring(1500, () -> {
+                        controllerConfig.labelMessage.setText("");
+                    });
+                    break;
+                case "confirmedRegister":
+                    System.out.println("Entro en case confirmedRegister. Cambio a ViewPlayerSelection");
+                    UtilsViews.setViewAnimating("ViewPlayerSelection");
+                    controllerPlayerSelection.setClientName(clientName);
+                    setViewPlayerSelection();
+                    break;
                 // Recibir lista actualizada de clientes
                 case "clients":
                     System.out.println("Entro en case clients. Actualizo lista de clientes disponibles");
@@ -301,15 +311,14 @@ public class Main extends Application {
     }
 
     public static void setViewPlayerSelection() {
-        // Enviar mensaje al server para reintegrar jugador como disponible
+        controllerPlayerSelection.hideChallengedOverlayIfShown();
+        UtilsViews.setViewAnimating("ViewPlayerSelection");
+    }
+
+    public static void sendAvaliblePlayerMessage() {
         JSONObject avaliblePlayerJson = new JSONObject();
         avaliblePlayerJson.put("type", "avaliblePlayer");
         avaliblePlayerJson.put("clientName", clientName);
         wsClient.safeSend(avaliblePlayerJson.toString());
-
-        controllerPlayerSelection.hideChallengedOverlayIfShown();
-        UtilsViews.setViewAnimating("ViewPlayerSelection");
     }
 }
-
-// TODO Arreglar bug que ocurre cuando pones una conexión mal en ViewConfig y congela el cliente

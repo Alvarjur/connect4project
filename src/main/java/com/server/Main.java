@@ -38,10 +38,6 @@ public class Main extends WebSocketServer {
     /***** Registro de partidas *****/
     public static List<GameMatch> gameMatches;
     public int game_id = 0;
-    
-
-    /* Countdowns que maneja el servidor (1 por partida) */
-    private List<Countdown> countdowns;
 
     // Claus JSON
     private static final String K_TYPE = "type";
@@ -289,14 +285,29 @@ public class Main extends WebSocketServer {
             switch (type) {
                 // Si es un registro de cliente
                 case T_REGISTER:
-                    // Registrar nuevo cliente
+                    log("Entro en case T_REGISTER.");
                     String clientName = json.getString(K_CLIENT_NAME);
-                    clients.add(conn, clientName);
-                    clients.addClientToAvaliblePlayers(conn, clientName);
-                    log("Entro en case T_REGISTER. Cliente registrado -> " + clientName);
 
-                    // Enviar nuevo JSON con los clientes actuales a todo el mundo
-                    sendClientsListToAll();
+                    if (clients.nameExists(clientName)) {
+                        JSONObject payloadClientNameNotAvalible = new JSONObject();
+                        payloadClientNameNotAvalible.put("type", "clientNameNotAvalible");
+                        sendSafe(conn, payloadClientNameNotAvalible.toString());
+
+                        log("Sigo dentro de case T_REGISTER. Cliente NO registrado, nombre ya está ocupado. Mensaje rechazando registro enviado");
+                    } else {
+                        clients.add(conn, clientName);
+                        clients.addClientToAvaliblePlayers(conn, clientName);
+
+                        JSONObject payloadConfirmedRegister = new JSONObject();
+                        payloadConfirmedRegister.put("type", "confirmedRegister");
+                        sendSafe(conn, payloadConfirmedRegister.toString());
+
+                        log("Sigo dentro de case T_REGISTER. Cliente registrado -> " + clientName + ", mensaje de confirmación enviado");
+
+                        // Enviar nuevo JSON con los clientes actuales a todo el mundo
+                        sendClientsListToAll();
+                    }
+                    
                     break;
 
                 // Si un cliente notifica que pasa a estar disponible
