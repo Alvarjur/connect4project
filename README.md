@@ -7,8 +7,12 @@
 - Ejecutar el comando ``` ./run.sh com.server.Main ```
 
 ## 2. Cómo ejecutar cliente
+### Escritorio
 - Desde la terminal, ubicarse en la ruta de este README
 - Ejecutar el comando ``` ./run.sh com.client.Main ```
+
+### Kotlin
+- Entrar en rama testConnection y ejecutar
 
 ## 3. Puertos y dependencias
 - Si se ejecuta el servidor de forma local, el puerto ocupado será el 3000.
