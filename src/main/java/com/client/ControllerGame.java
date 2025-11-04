@@ -189,7 +189,7 @@ public class ControllerGame implements Initializable {
 
         // Current chip
         if (currentChipPlayer != 0) {
-            drawChip(currentChipPlayer == 1 ? RED_COLOR : YELLOW_COLOR, currentChipX - CELL_SIZE / 2,  currentChipY - CELL_SIZE / 2, true);
+            drawChip(currentChipPlayer == 1 ? RED_COLOR : YELLOW_COLOR, currentChipX,  currentChipY, true);
         }
         
         // Current Player str

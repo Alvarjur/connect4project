@@ -382,7 +382,7 @@ public class GameMatch implements Initializable{
 
         public void updateLogic() { // Yellow thing here
             if (isPlayerDraggingChip(player1, redDraggableChip) && currentPlayer == 1) {
-                currentChip = player1.takeChip();
+                currentChip = player1.takeChip(redDraggableChip.offsetX, redDraggableChip.offsetY);
                 redDraggableChip.setIsBeingDragged(true);
                 possibleMoves = board.getPossibleMoves();
             } else {
@@ -394,7 +394,7 @@ public class GameMatch implements Initializable{
                 currentChip = null;
             }
             if (isPlayerDraggingChip(player2, yellowDraggableChip) && currentPlayer == 2 && !redDraggableChip.beingDragged) {
-                currentChip = player2.takeChip();
+                currentChip = player2.takeChip(yellowDraggableChip.offsetX, yellowDraggableChip.offsetY);
                 yellowDraggableChip.setIsBeingDragged(true);
                 possibleMoves = board.getPossibleMoves();
                 
@@ -429,6 +429,7 @@ public class GameMatch implements Initializable{
 
         class DraggableChip {
             private double x, y;
+            private double offsetX = 0, offsetY = 0;
             private double diameter = CELL_SIZE;
             private Color color;
             private boolean beingDragged = false;
@@ -465,6 +466,8 @@ public class GameMatch implements Initializable{
             public boolean isPlayerOverChip() {
                 if (assignedPlayer.x >= x && assignedPlayer.x <= x + diameter &&
                     assignedPlayer.y >= y && assignedPlayer.y <= y + diameter) {
+                        offsetX = assignedPlayer.x - x;
+                        offsetY = assignedPlayer.y - y;
                         return true;
                     }
                 return false;
@@ -495,8 +498,8 @@ public class GameMatch implements Initializable{
             this.y = y;
         }
 
-        public Chip takeChip() {
-            return createChip(playerNumber);
+        public Chip takeChip(double offsetX, double offsetY) {
+            return createChip(playerNumber, offsetX, offsetY);
         }
     }
 
@@ -669,8 +672,8 @@ public class GameMatch implements Initializable{
 
     }
 
-    public Chip createChip(int player) {
-        return new Chip(player, game.players.get(player - 1).x, game.players.get(player - 1).y);
+    public Chip createChip(int player, double offsetX, double offsetY) {
+        return new Chip(player, game.players.get(player - 1).x - offsetX, game.players.get(player - 1).y - offsetY);
     }
 
 }
