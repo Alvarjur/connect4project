@@ -393,23 +393,30 @@ public class GameMatch implements Initializable{
                 redDraggableChip.setIsBeingDragged(false);
                 currentChip = null;
             }
-            if (isPlayerDraggingChip(player2, yellowDraggableChip) && currentPlayer == 2) {
+            if (isPlayerDraggingChip(player2, yellowDraggableChip) && currentPlayer == 2 && !redDraggableChip.beingDragged) {
                 currentChip = player2.takeChip();
                 yellowDraggableChip.setIsBeingDragged(true);
                 possibleMoves = board.getPossibleMoves();
                 
             } else {
-                
-                if(currentChip!=null){
-                    if (!player2.isDragging) {
-                        checkReleases();
-                    }
-                    
-                    if(currentPlayer != 1) {
-                        yellowDraggableChip.setIsBeingDragged(false);
-                        currentChip = null;
-                    }
+                if(!player2.isDragging) {
+                    checkReleases();
                 }
+                if(!redDraggableChip.beingDragged) {
+                    yellowDraggableChip.setIsBeingDragged(false);
+                    currentChip = null;
+                }
+                
+                // if(currentChip!=null){
+                //     if (!player2.isDragging) {
+                //         checkReleases();
+                //     }
+                    
+                //     if(currentPlayer != 1) {
+                //         yellowDraggableChip.setIsBeingDragged(false);
+                //         currentChip = null;
+                //     }
+                // }
                 
             }
             checkWinner();
